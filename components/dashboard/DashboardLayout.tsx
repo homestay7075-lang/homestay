@@ -200,7 +200,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* ================= MAIN CONTENT WRAPPER ================= */}
       <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Mobile Header Bar */}
-        <header className="no-print lg:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between sticky top-[31px] z-30 border-b border-slate-800">
+        <header className="no-print lg:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-30 border-b border-slate-800 shadow-sm">
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setMobileSidebarOpen(true)}
@@ -274,7 +274,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
 
         {/* Main Body */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-20 lg:pb-8">
+        <main className="flex-1 px-4 py-5 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto pb-24 lg:pb-8">
           {children}
         </main>
 

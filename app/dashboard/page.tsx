@@ -74,11 +74,11 @@ export default function DashboardOverview() {
     <DashboardLayout>
       <div className="space-y-8">
         {/* Top Title & Instant Action Buttons */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
           <div>
-            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold mb-1">
-              <Sparkles className="w-3.5 h-3.5" />
-              Welcome to {hostelName} • Live Operations
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold mb-2 shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Welcome to {hostelName} • Live Operations</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
               {hostelName} Command Center

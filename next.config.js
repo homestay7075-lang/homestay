@@ -31,6 +31,15 @@ const nextConfig = {
           },
         ],
       },
+      {
+        source: '/((?!_next/static|_next/image|favicon.ico|logo.png).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          },
+        ],
+      },
     ];
   },
 };

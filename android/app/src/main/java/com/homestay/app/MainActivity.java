@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             swipeRefreshLayout.setProgressBackgroundColorSchemeColor(Color.parseColor("#131B38"));
             swipeRefreshLayout.setOnRefreshListener(() -> {
                 if (webView != null) {
+                    webView.clearCache(true);
                     webView.reload();
                 } else {
                     swipeRefreshLayout.setRefreshing(false);
