@@ -8,7 +8,7 @@ interface AuthContextType {
   currentRole: UserRole | null;
   isLoading: boolean;
   loginAsUser: (user: User) => void;
-  loginWithCredentials: (identifier: string, pass: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithCredentials: (identifier: string, pass: string) => Promise<{ success: boolean; user?: User; error?: string }>;
   logout: () => void;
   switchRoleQuick: (role: UserRole) => void;
 }
@@ -29,17 +29,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (e) {
         console.error('Failed to parse saved user session', e);
       }
-    } else {
-      // Default to Owner for immediate administrative access
-      fetch('/api/auth/session')
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.user) {
-            setCurrentUser(data.user);
-            localStorage.setItem('homestay_active_user', JSON.stringify(data.user));
-          }
-        })
-        .catch(() => {});
     }
     setIsLoading(false);
   }, []);
@@ -59,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await res.json();
       if (data.success && data.user) {
         loginAsUser(data.user);
-        return { success: true };
+        return { success: true, user: data.user };
       }
       return { success: false, error: data.error || 'Invalid credentials' };
     } catch (err: any) {

@@ -17,6 +17,18 @@ $iconSource = "$baseDir\public\icon-512.png"
 
 $apps = @(
     @{
+        Role = "unified"
+        AppName = "Home Stay"
+        PackageName = "com.homestay.app"
+        VersionCode = 100
+        VersionName = "1.0.0"
+        TargetUrl = "/login"
+        ThemeColor = "#4f46e5"
+        Description = "Universal All-in-One App for Home Stay: Students, Wardens, Staff and Owners"
+        AabName = "homestay-release.aab"
+        ApkName = "homestay-v1.0.0.apk"
+    },
+    @{
         Role = "student"
         AppName = "Home Stay Resident"
         PackageName = "com.homestay.resident"

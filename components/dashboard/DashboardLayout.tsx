@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/context/AuthContext';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
+import { useEffect } from 'react';
 import {
   LayoutDashboard,
   Users,
@@ -37,9 +38,35 @@ interface DashboardLayoutProps {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { currentUser, currentRole, logout } = useAuth();
   const { hostelName } = useHostelSettings();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    if (currentUser?.role === 'STUDENT') {
+      router.replace('/app');
+    }
+  }, [currentUser?.role, router]);
+
+  if (currentUser?.role === 'STUDENT') {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4">
+        <div className="max-w-md text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center mx-auto text-white">
+            <Smartphone className="w-6 h-6" />
+          </div>
+          <h2 className="text-xl font-bold">Redirecting to Resident Portal...</h2>
+          <p className="text-xs text-slate-400">
+            You are logged in as a resident student. Redirecting to your personal digital pass and dues center.
+          </p>
+          <Link href="/app" className="inline-block px-4 py-2 bg-indigo-600 rounded-xl text-xs font-bold text-white">
+            Go to Resident App
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   // RBAC Navigation filtering
   const canAccess = (module: string) => {

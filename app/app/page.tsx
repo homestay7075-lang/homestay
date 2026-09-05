@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/context/AuthContext';
 import {
   Smartphone,
@@ -36,6 +37,7 @@ import { formatDateDMY } from '@/lib/utils/dateFormatter';
 import InstallPwaButton from '@/components/common/InstallPwaButton';
 
 export default function StudentMobileApp() {
+  const router = useRouter();
   const { currentUser, logout, switchRoleQuick } = useAuth();
   const { hostelName, settings } = useHostelSettings();
 
@@ -224,17 +226,39 @@ export default function StudentMobileApp() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <InstallPwaButton variant="compact" label="Install App" className="bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/50" />
-            <Link
-              href="/dashboard"
-              className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white text-[10px] font-semibold"
-              title="Switch to Management View"
+          <div className="flex items-center gap-1.5">
+            <InstallPwaButton variant="compact" label="Install" className="bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/50 text-[10px] px-2 py-1" />
+            {currentUser?.role !== 'STUDENT' && (
+              <Link
+                href="/dashboard"
+                className="px-2 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold transition"
+                title="Switch to Management View"
+              >
+                Owner View
+              </Link>
+            )}
+            <button
+              onClick={() => {
+                logout();
+                router.push('/login');
+              }}
+              className="p-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/60 text-slate-400 hover:text-rose-300 transition"
+              title="Sign Out to Universal Login"
             >
-              Owner View
-            </Link>
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
           </div>
         </header>
+
+        {/* Management Preview Mode Notice if non-student is viewing */}
+        {currentUser && currentUser.role !== 'STUDENT' && (
+          <div className="bg-amber-950/70 border-b border-amber-800/80 px-4 py-2 flex items-center justify-between text-[11px] text-amber-200">
+            <span>Management Preview ({currentUser.role})</span>
+            <Link href="/dashboard" className="underline font-bold hover:text-white">
+              Exit to Dashboard &rarr;
+            </Link>
+          </div>
+        )}
 
         {/* ================= MAIN SCROLLABLE APP BODY ================= */}
         <main className="flex-1 p-5 space-y-5 overflow-y-auto">

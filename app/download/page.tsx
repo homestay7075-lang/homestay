@@ -119,48 +119,83 @@ export default function DownloadAppPage() {
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-black text-slate-900 font-display tracking-tight leading-tight">
-              Download Official Apps <br className="hidden sm:inline" />
+              One Unified App <br className="hidden sm:inline" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-600">
-                in .AAB, .APK & Web Format
+                For All Roles &amp; Logins
               </span>
             </h1>
 
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-              Download standalone <strong>Google Play Android App Bundles (.aab)</strong> for <strong>Owners</strong>, <strong>Students/Residents</strong>, and <strong>Staff</strong>, ready for direct upload to Google Play Console or offline Android installation.
+              Download the single official <strong>Home Stay Android App</strong> (.AAB &amp; .APK). Built for <strong>Students, Wardens, Staff, and Owners</strong> with automatic role detection and personalized dashboards.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
               <a
-                href="/api/download/aab?role=all"
-                download="homestay-all-aab-bundles.zip"
-                onClick={() => handleDownloadClick('all')}
+                href="/api/download/aab?role=single&format=aab"
+                download="homestay-release.aab"
+                onClick={() => handleDownloadClick('unified')}
                 className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md transition flex items-center gap-2"
               >
                 <Download className="w-4 h-4" />
-                <span>{downloadingRole === 'all' ? 'Downloading Bundles...' : 'Download All 3 .AAB Bundles (.ZIP)'}</span>
+                <span>{downloadingRole === 'unified' ? 'Downloading .AAB...' : 'Download Official .AAB (Google Play)'}</span>
               </a>
 
-              <InstallPwaButton label="Install PWA to Home Screen" className="px-5 py-2.5 text-sm" />
-
-              <button
-                type="button"
-                onClick={() => handleCopyLink(residentAppUrl)}
-                className="px-4 py-2.5 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold text-xs rounded-xl shadow-2xs transition flex items-center gap-1.5"
+              <a
+                href="/api/download/aab?role=single&format=apk"
+                download="homestay-v1.0.0.apk"
+                onClick={() => handleDownloadClick('apk')}
+                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl shadow-md transition flex items-center gap-2"
               >
-                {copiedUrl ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
-                <span>{copiedUrl ? 'Copied App Link!' : 'Copy Resident App Link'}</span>
-              </button>
+                <Smartphone className="w-4 h-4" />
+                <span>{downloadingRole === 'apk' ? 'Downloading .APK...' : 'Download Direct .APK (Phone)'}</span>
+              </a>
+
+              <InstallPwaButton label="Install PWA to Device" className="px-5 py-2.5 text-sm" />
             </div>
           </div>
 
-          {/* ================= SECTION 1: 3 TAILORED ROLE DOWNLOAD CARDS ================= */}
-          <div className="space-y-4">
-            <div className="text-center">
+          {/* ================= SECTION 1: ONE APP - 3 DYNAMIC EXPERIENCES ================= */}
+          <div className="space-y-6">
+            {/* Unified App Spotlight Banner */}
+            <div className="p-6 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white border border-indigo-500/20 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="space-y-2 text-center md:text-left">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-600/30 border border-indigo-400/40 text-indigo-300 text-xs font-bold">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Single Application Architecture • Package: com.homestay.app</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black font-display">
+                  Single Install. Automatic Role Interface.
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+                  Every user installs the exact same Home Stay app. When signing in, the app instantly routes students to their digital pass, wardens to room management, and owners to the master financial dashboard.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-2.5 shrink-0">
+                <Link
+                  href="/login"
+                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs transition shadow-md shadow-indigo-600/30 flex items-center gap-1.5"
+                >
+                  <span>Open Universal Login</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </Link>
+                <a
+                  href="/api/download/aab?role=single&format=apk"
+                  download="homestay-v1.0.0.apk"
+                  className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl text-xs border border-white/20 transition flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Direct .APK (~860 KB)</span>
+                </a>
+              </div>
+            </div>
+
+            <div className="text-center pt-2">
               <h2 className="text-2xl font-bold text-slate-900 font-display">
-                Download by Role (.AAB & APK)
+                What Each Role Unlocks in the Single App
               </h2>
               <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1">
-                Each user role has an independent, signed Android package configured for their specific screens and permissions.
+                A unified codebase delivering specialized interfaces based on authorized credentials.
               </p>
             </div>
 

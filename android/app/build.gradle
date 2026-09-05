@@ -14,39 +14,15 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        manifestPlaceholders = [
-            hostName: "homestay-alpha.vercel.app",
-            defaultUrl: "https://homestay-alpha.vercel.app/app",
-            assetStatements: '[{"relation": ["delegate_permission/common.handle_all_urls"], "target": {"namespace": "android_app", "package_name": "com.homestay.resident", "sha256_cert_fingerprints": ["14:6D:E9:7A:5A:F4:DF:5E:AE:4B:B2:67:EE:7F:C2:59:E4:73:C0:00:23:4E:91:DE:3C:76:83:8B:7F:1B:4F:9E"]}}]'
-        ]
-    }
+        applicationId "com.homestay.app"
 
-    flavorDimensions = ["role"]
-    productFlavors {
-        resident {
-            dimension "role"
-            applicationId "com.homestay.resident"
-            manifestPlaceholders = [
-                appName: "Home Stay Resident",
-                startUrl: "https://homestay-alpha.vercel.app/app"
-            ]
-        }
-        owner {
-            dimension "role"
-            applicationId "com.homestay.owner"
-            manifestPlaceholders = [
-                appName: "Home Stay Owner Hub",
-                startUrl: "https://homestay-alpha.vercel.app/dashboard"
-            ]
-        }
-        staff {
-            dimension "role"
-            applicationId "com.homestay.staff"
-            manifestPlaceholders = [
-                appName: "Home Stay Staff Desk",
-                startUrl: "https://homestay-alpha.vercel.app/dashboard"
-            ]
-        }
+        manifestPlaceholders = [
+            appName: "Home Stay",
+            hostName: "homestay-alpha.vercel.app",
+            defaultUrl: "https://homestay-alpha.vercel.app/login",
+            startUrl: "https://homestay-alpha.vercel.app/login",
+            assetStatements: '[{"relation": ["delegate_permission/common.handle_all_urls"], "target": {"namespace": "android_app", "package_name": "com.homestay.app", "sha256_cert_fingerprints": ["14:6D:E9:7A:5A:F4:DF:5E:AE:4B:B2:67:EE:7F:C2:59:E4:73:C0:00:23:4E:91:DE:3C:76:83:8B:7F:1B:4F:9E"]}}]'
+        ]
     }
 
     buildTypes {

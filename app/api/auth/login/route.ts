@@ -11,15 +11,42 @@ export async function POST(req: Request) {
     const db = getDatabase();
     const cleanId = identifier.trim().toLowerCase();
 
-    // Check if matching owner or staff
-    const matchedUser = db.users.find((u) => {
+    // 1. Check direct match in db.users by email or phone
+    let matchedUser = db.users.find((u) => {
       const matchEmail = u.email?.toLowerCase() === cleanId;
-      const matchPhone = u.phone === cleanId;
+      const matchPhone = u.phone?.toLowerCase() === cleanId;
       return (matchEmail || matchPhone) && u.isActive;
     });
 
+    // 2. If not found, check if identifier is a Student ID or Student Email in db.students
     if (!matchedUser) {
-      return NextResponse.json({ success: false, error: 'User account not found. Please contact the Hostel Owner.' }, { status: 404 });
+      const studentMatch = db.students.find((s) =>
+        s.studentId?.toLowerCase() === cleanId ||
+        s.email?.toLowerCase() === cleanId ||
+        s.phone === cleanId
+      );
+
+      if (studentMatch) {
+        matchedUser = db.users.find((u) => u.phone === studentMatch.phone && u.role === 'STUDENT' && u.isActive);
+        // If not in db.users table yet, dynamically authorize active student
+        if (!matchedUser && studentMatch.status === 'Active') {
+          matchedUser = {
+            id: `usr-stu-${studentMatch.id}`,
+            role: 'STUDENT',
+            fullName: studentMatch.fullName,
+            phone: studentMatch.phone,
+            email: studentMatch.email,
+            passwordHash: 'student123',
+            isActive: true,
+            createdAt: studentMatch.createdAt || new Date().toISOString(),
+            updatedAt: studentMatch.updatedAt || new Date().toISOString(),
+          };
+        }
+      }
+    }
+
+    if (!matchedUser) {
+      return NextResponse.json({ success: false, error: 'User account not found. Please check your credentials or contact management.' }, { status: 404 });
     }
 
     // Check password

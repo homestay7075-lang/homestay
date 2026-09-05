@@ -95,23 +95,23 @@ export default function PublicNavbar() {
                 <div className="inline-flex items-center rounded-xl bg-slate-100 hover:bg-slate-200/80 transition p-0.5 border border-slate-200">
                   {/* Direct 1-click Download */}
                   <a
-                    href="/api/download/aab?role=all"
-                    download="homestay-all-aab-bundles.zip"
-                    onClick={() => notifyDownload('All .AAB Bundles')}
+                    href="/api/download/aab?role=single&format=aab"
+                    download="homestay-release.aab"
+                    onClick={() => notifyDownload('Home Stay App (.AAB)')}
                     className="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-800 hover:text-indigo-600 flex items-center gap-1.5"
-                    title="Direct Download All 3 .AAB Bundles"
+                    title="Direct Download Official Home Stay App"
                   >
                     <Download className="w-4 h-4 text-indigo-600" />
                     <span>Download App (.AAB)</span>
                   </a>
 
-                  {/* Dropdown toggle for specific roles */}
+                  {/* Dropdown toggle */}
                   <button
                     type="button"
                     onClick={() => setDownloadDropdownOpen(!downloadDropdownOpen)}
                     className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition"
-                    title="Select role to download"
-                    aria-label="Select role download"
+                    title="Select format to download"
+                    aria-label="Select format download"
                   >
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${downloadDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -122,85 +122,68 @@ export default function PublicNavbar() {
                   <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                     <div className="px-3 py-1.5 border-b border-slate-100 mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                        Direct .AAB Downloads
+                        Single Unified App
                       </span>
                       <span className="text-[11px] text-slate-500">
-                        1-Click downloads (No page redirect)
+                        For Students, Wardens &amp; Owners
                       </span>
                     </div>
 
                     <div className="space-y-1">
-                      {/* All Bundles */}
+                      {/* Unified AAB */}
                       <a
-                        href="/api/download/aab?role=all"
-                        download="homestay-all-aab-bundles.zip"
-                        onClick={() => notifyDownload('All 3 .AAB Bundles (.ZIP)')}
+                        href="/api/download/aab?role=single&format=aab"
+                        download="homestay-release.aab"
+                        onClick={() => notifyDownload('Home Stay Official .AAB')}
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 hover:bg-indigo-50 hover:text-indigo-700 transition"
                       >
                         <Package className="w-4 h-4 text-indigo-600 shrink-0" />
                         <div className="flex-1 text-left">
-                          <div>All Roles Bundle (.ZIP)</div>
-                          <div className="text-[10px] font-normal text-slate-400">Owner + Student + Staff (.AAB)</div>
+                          <div>Official App (.AAB)</div>
+                          <div className="text-[10px] font-normal text-slate-400">Google Play Store Bundle</div>
                         </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-mono">ZIP</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono font-bold">.AAB</span>
                       </a>
 
-                      {/* Student */}
+                      {/* Direct Phone APK */}
                       <a
-                        href="/api/download/aab?role=student"
-                        download="homestay-student-release.aab"
-                        onClick={() => notifyDownload('Student Resident .AAB')}
+                        href="/api/download/aab?role=single&format=apk"
+                        download="homestay-v1.0.0.apk"
+                        onClick={() => notifyDownload('Direct APK')}
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 hover:bg-indigo-50 hover:text-indigo-700 transition"
                       >
                         <Smartphone className="w-4 h-4 text-emerald-600 shrink-0" />
                         <div className="flex-1 text-left">
-                          <div>Resident App (.AAB)</div>
-                          <div className="text-[10px] font-normal text-slate-400">For students &amp; residents</div>
+                          <div>Direct Phone APK</div>
+                          <div className="text-[10px] font-normal text-slate-400">Instant Android sideload</div>
                         </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-mono font-bold">.AAB</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-mono font-bold">APK</span>
                       </a>
 
-                      {/* Owner */}
+                      {/* All Bundles ZIP */}
                       <a
-                        href="/api/download/aab?role=owner"
-                        download="homestay-owner-release.aab"
-                        onClick={() => notifyDownload('Owner Hub .AAB')}
+                        href="/api/download/aab?role=all"
+                        download="homestay-all-aab-bundles.zip"
+                        onClick={() => notifyDownload('Complete App ZIP')}
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 hover:bg-indigo-50 hover:text-indigo-700 transition"
                       >
-                        <Building className="w-4 h-4 text-slate-900 shrink-0" />
+                        <Download className="w-4 h-4 text-slate-600 shrink-0" />
                         <div className="flex-1 text-left">
-                          <div>Owner Hub (.AAB)</div>
-                          <div className="text-[10px] font-normal text-slate-400">For hostel administrators</div>
+                          <div>Complete Bundles (.ZIP)</div>
+                          <div className="text-[10px] font-normal text-slate-400">All packages &amp; publishing guide</div>
                         </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 font-mono font-bold">.AAB</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-mono">ZIP</span>
                       </a>
 
-                      {/* Staff */}
-                      <a
-                        href="/api/download/aab?role=staff"
-                        download="homestay-staff-release.aab"
-                        onClick={() => notifyDownload('Staff Desk .AAB')}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 hover:bg-indigo-50 hover:text-indigo-700 transition"
-                      >
-                        <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0" />
-                        <div className="flex-1 text-left">
-                          <div>Staff Desk (.AAB)</div>
-                          <div className="text-[10px] font-normal text-slate-400">For wardens &amp; managers</div>
-                        </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-mono font-bold">.AAB</span>
-                      </a>
-
-                      {/* Direct APK option */}
+                      {/* Link to /download page */}
                       <div className="pt-1.5 border-t border-slate-100 mt-1">
-                        <a
-                          href="/api/download/aab?role=student&format=apk"
-                          download="homestay-student-v1.0.0.apk"
-                          onClick={() => notifyDownload('Direct APK')}
-                          className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition"
+                        <Link
+                          href="/download"
+                          onClick={() => setDownloadDropdownOpen(false)}
+                          className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-semibold text-indigo-600 hover:bg-indigo-50 transition"
                         >
-                          <span>Direct Phone Install (.APK)</span>
-                          <span className="text-[10px] text-slate-400 font-mono">APK</span>
-                        </a>
+                          <span>View Installation Hub &rarr;</span>
+                        </Link>
                       </div>
                     </div>
                   </div>
