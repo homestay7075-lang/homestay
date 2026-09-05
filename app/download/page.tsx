@@ -23,16 +23,21 @@ import {
   Copy,
   ExternalLink,
   Sparkles,
+  Package,
+  Layers,
+  FileCode2,
+  HelpCircle,
 } from 'lucide-react';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
 import InstallPwaButton from '@/components/common/InstallPwaButton';
 
-type DeviceTab = 'ANDROID' | 'IOS' | 'DESKTOP';
+type DeviceTab = 'AAB' | 'ANDROID' | 'IOS' | 'DESKTOP';
 
 export default function DownloadAppPage() {
   const { hostelName, settings } = useHostelSettings();
-  const [deviceTab, setDeviceTab] = useState<DeviceTab>('ANDROID');
+  const [activeTab, setActiveTab] = useState<DeviceTab>('AAB');
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [downloadingRole, setDownloadingRole] = useState<string | null>(null);
 
   const hostelInitials =
     hostelName
@@ -54,6 +59,11 @@ export default function DownloadAppPage() {
     setTimeout(() => setCopiedUrl(false), 2000);
   };
 
+  const handleDownloadClick = (role: string) => {
+    setDownloadingRole(role);
+    setTimeout(() => setDownloadingRole(null), 3000);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-indigo-500 selection:text-white">
       <PublicNavbar />
@@ -72,15 +82,15 @@ export default function DownloadAppPage() {
 
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              100% Multi-Platform Compatible
+              Official Google Play .AAB & PWA Packages
             </span>
           </div>
 
           {/* Hero Section */}
           <div className="text-center max-w-3xl mx-auto space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold">
-              <Smartphone className="w-3.5 h-3.5" />
-              Progressive Web App (PWA) • No App Store Account Required
+              <Package className="w-3.5 h-3.5" />
+              <span>Android App Bundles (.AAB) • APK • Progressive Web Apps</span>
             </div>
 
             {/* Official Home Stay App Brand Showcase */}
@@ -94,71 +104,90 @@ export default function DownloadAppPage() {
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="font-extrabold text-xl text-slate-900 font-display">Home Stay</h3>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-bold">
-                    Official App
+                    v1.0.0 Release
                   </span>
                 </div>
                 <p className="text-xs text-slate-500">Hostel & Resident Management</p>
                 <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-600">
                   <span className="text-amber-500 font-bold">★ 4.9</span>
                   <span>•</span>
-                  <span>500+ Active Users</span>
+                  <span>Owner, Student & Staff Apps</span>
                   <span>•</span>
-                  <span className="text-indigo-600 font-semibold">Verified PWA</span>
+                  <span className="text-indigo-600 font-semibold">Play Store Ready</span>
                 </div>
               </div>
             </div>
 
             <h1 className="text-3xl sm:text-5xl font-black text-slate-900 font-display tracking-tight leading-tight">
-              Download & Install <br className="hidden sm:inline" />
+              Download Official Apps <br className="hidden sm:inline" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-indigo-700 to-blue-600">
-                Home Stay App
+                in .AAB, .APK & Web Format
               </span>
             </h1>
 
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
-              Install the official <strong>Home Stay</strong> application directly to your home screen or desktop. Enjoy native-grade speed, instant offline access, and automatic updates across all your devices.
+              Download standalone <strong>Google Play Android App Bundles (.aab)</strong> for <strong>Owners</strong>, <strong>Students/Residents</strong>, and <strong>Staff</strong>, ready for direct upload to Google Play Console or offline Android installation.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
-              <InstallPwaButton label="Install Home Stay App" className="px-5 py-2.5 text-sm" />
+              <a
+                href="/api/download/aab?role=all"
+                download="homestay-all-aab-bundles.zip"
+                onClick={() => handleDownloadClick('all')}
+                className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm rounded-xl shadow-md transition flex items-center gap-2"
+              >
+                <Download className="w-4 h-4" />
+                <span>{downloadingRole === 'all' ? 'Downloading Bundles...' : 'Download All 3 .AAB Bundles (.ZIP)'}</span>
+              </a>
+
+              <InstallPwaButton label="Install PWA to Home Screen" className="px-5 py-2.5 text-sm" />
+
               <button
                 type="button"
                 onClick={() => handleCopyLink(residentAppUrl)}
                 className="px-4 py-2.5 bg-white border border-slate-300 hover:border-slate-400 text-slate-700 font-semibold text-xs rounded-xl shadow-2xs transition flex items-center gap-1.5"
               >
                 {copiedUrl ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-400" />}
-                <span>{copiedUrl ? 'Copied App Link!' : 'Copy Mobile App Link'}</span>
+                <span>{copiedUrl ? 'Copied App Link!' : 'Copy Resident App Link'}</span>
               </button>
             </div>
           </div>
 
-          {/* ================= SECTION 1: 3 TAILORED ROLE EXPERIENCES ================= */}
+          {/* ================= SECTION 1: 3 TAILORED ROLE DOWNLOAD CARDS ================= */}
           <div className="space-y-4">
             <div className="text-center">
-              <h2 className="text-xl font-bold text-slate-900 font-display">
-                Dedicated Workspaces for Every Role
+              <h2 className="text-2xl font-bold text-slate-900 font-display">
+                Download by Role (.AAB & APK)
               </h2>
-              <p className="text-xs text-slate-500">
-                Each user role gets a specialized, secure interface tailored to their exact workflow.
+              <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1">
+                Each user role has an independent, signed Android package configured for their specific screens and permissions.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
               {/* CARD 1: STUDENT / RESIDENT */}
-              <div className="bg-white rounded-3xl p-6 border-2 border-indigo-200/80 shadow-md hover:shadow-lg transition space-y-4 flex flex-col justify-between relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl">
-                  For Residents
+              <div className="bg-white rounded-3xl p-6 border-2 border-indigo-200/90 shadow-md hover:shadow-xl transition-all space-y-5 flex flex-col justify-between relative overflow-hidden group">
+                <div className="absolute top-0 right-0 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl shadow-xs">
+                  For Students
                 </div>
 
                 <div className="space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-xs">
                     <Smartphone className="w-6 h-6" />
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-lg text-slate-900 font-display">Resident Mobile Portal</h3>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Designed for students & residents staying at {hostelName}.
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-lg text-slate-900 font-display">Resident App</h3>
+                      <span className="text-[10px] font-mono px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-md font-bold">
+                        .AAB
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Targeted for student mobile check-ins, rent alerts & digital ID pass.
+                    </p>
+                    <p className="text-[10px] font-mono text-slate-400 mt-1">
+                      Package: <span className="font-semibold text-indigo-600">com.homestay.resident</span>
                     </p>
                   </div>
 
@@ -169,48 +198,77 @@ export default function DownloadAppPage() {
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>Joining-Date Rent Due Alerts</span>
+                      <span>Rent Due Reminders & UPI Receipts</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>Download Stamped Tax Invoices & Receipts</span>
+                      <span>Private 2-Way Chat with Warden</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>Private Messaging with Hostel Warden</span>
+                      <span>Offline Cached Pass for Gate Security</span>
                     </li>
                   </ul>
                 </div>
 
-                <div className="space-y-2 pt-4 border-t border-slate-100">
-                  <Link
-                    href="/app"
-                    className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs"
+                <div className="space-y-2.5 pt-4 border-t border-slate-100">
+                  {/* Primary AAB Download */}
+                  <a
+                    href="/api/download/aab?role=student"
+                    download="homestay-student-release.aab"
+                    onClick={() => handleDownloadClick('student')}
+                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-sm"
                   >
-                    <span>Launch Resident App</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </Link>
-                  <p className="text-[11px] text-center text-slate-400">
-                    Residents log in using their 10-digit mobile number
-                  </p>
+                    <Download className="w-4 h-4" />
+                    <span>{downloadingRole === 'student' ? 'Downloading...' : 'Download Student .AAB'}</span>
+                    <span className="text-[10px] opacity-75 font-normal ml-1">(~860 KB)</span>
+                  </a>
+
+                  {/* Secondary APK and Web buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <a
+                      href="/api/download/aab?role=student&format=apk"
+                      download="homestay-student-v1.0.0.apk"
+                      className="py-2 px-2 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-[11px] border border-slate-200 flex items-center justify-center gap-1 transition"
+                      title="Direct APK for phone sideloading"
+                    >
+                      <Download className="w-3 h-3 text-slate-400" />
+                      <span>Direct .APK</span>
+                    </a>
+                    <Link
+                      href="/app"
+                      className="py-2 px-2 bg-slate-50 hover:bg-slate-100 text-indigo-600 font-semibold rounded-xl text-[11px] border border-slate-200 flex items-center justify-center gap-1 transition"
+                    >
+                      <span>Open Web</span>
+                      <ExternalLink className="w-3 h-3 text-indigo-400" />
+                    </Link>
+                  </div>
                 </div>
               </div>
 
               {/* CARD 2: HOSTEL OWNER */}
-              <div className="bg-white rounded-3xl p-6 border-2 border-slate-800 shadow-md hover:shadow-lg transition space-y-4 flex flex-col justify-between relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+              <div className="bg-white rounded-3xl p-6 border-2 border-slate-800 shadow-md hover:shadow-xl transition-all space-y-5 flex flex-col justify-between relative overflow-hidden group">
+                <div className="absolute top-0 right-0 bg-slate-900 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl shadow-xs">
                   For Owners
                 </div>
 
                 <div className="space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-900">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-900 shadow-xs">
                     <Building className="w-6 h-6" />
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-lg text-slate-900 font-display">Owner Executive Hub</h3>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Full administrative control over rooms, revenues, and staff.
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-lg text-slate-900 font-display">Owner Hub</h3>
+                      <span className="text-[10px] font-mono px-2 py-0.5 bg-slate-100 text-slate-800 border border-slate-300 rounded-md font-bold">
+                        .AAB
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Full administrative control over rooms, revenues, dues & staff.
+                    </p>
+                    <p className="text-[10px] font-mono text-slate-400 mt-1">
+                      Package: <span className="font-semibold text-slate-700">com.homestay.owner</span>
                     </p>
                   </div>
 
@@ -234,105 +292,166 @@ export default function DownloadAppPage() {
                   </ul>
                 </div>
 
-                <div className="space-y-2 pt-4 border-t border-slate-100">
-                  <Link
-                    href="/dashboard"
-                    className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs"
+                <div className="space-y-2.5 pt-4 border-t border-slate-100">
+                  {/* Primary AAB Download */}
+                  <a
+                    href="/api/download/aab?role=owner"
+                    download="homestay-owner-release.aab"
+                    onClick={() => handleDownloadClick('owner')}
+                    className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-sm"
                   >
-                    <span>Launch Owner Dashboard</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </Link>
-                  <p className="text-[11px] text-center text-slate-400">
-                    Available as desktop app or mobile app
-                  </p>
+                    <Download className="w-4 h-4" />
+                    <span>{downloadingRole === 'owner' ? 'Downloading...' : 'Download Owner .AAB'}</span>
+                    <span className="text-[10px] opacity-75 font-normal ml-1">(~860 KB)</span>
+                  </a>
+
+                  {/* Secondary APK and Web buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <a
+                      href="/api/download/aab?role=owner&format=apk"
+                      download="homestay-owner-v1.0.0.apk"
+                      className="py-2 px-2 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-[11px] border border-slate-200 flex items-center justify-center gap-1 transition"
+                      title="Direct APK for phone sideloading"
+                    >
+                      <Download className="w-3 h-3 text-slate-400" />
+                      <span>Direct .APK</span>
+                    </a>
+                    <Link
+                      href="/dashboard"
+                      className="py-2 px-2 bg-slate-50 hover:bg-slate-100 text-slate-800 font-semibold rounded-xl text-[11px] border border-slate-200 flex items-center justify-center gap-1 transition"
+                    >
+                      <span>Open Web</span>
+                      <ExternalLink className="w-3 h-3 text-slate-400" />
+                    </Link>
+                  </div>
                 </div>
               </div>
 
               {/* CARD 3: STAFF & WARDENS */}
-              <div className="bg-white rounded-3xl p-6 border-2 border-slate-200 shadow-md hover:shadow-lg transition space-y-4 flex flex-col justify-between relative overflow-hidden">
-                <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl">
+              <div className="bg-white rounded-3xl p-6 border-2 border-blue-200 shadow-md hover:shadow-xl transition-all space-y-5 flex flex-col justify-between relative overflow-hidden group">
+                <div className="absolute top-0 right-0 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-bl-xl shadow-xs">
                   For Staff & Wardens
                 </div>
 
                 <div className="space-y-3">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-xs">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
 
                   <div>
-                    <h3 className="font-bold text-lg text-slate-900 font-display">Staff Operations Desk</h3>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Streamlined daily duties, student support, and maintenance.
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-lg text-slate-900 font-display">Staff Desk</h3>
+                      <span className="text-[10px] font-mono px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-md font-bold">
+                        .AAB
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Streamlined daily duties, student support & expense tracking.
+                    </p>
+                    <p className="text-[10px] font-mono text-slate-400 mt-1">
+                      Package: <span className="font-semibold text-blue-600">com.homestay.staff</span>
                     </p>
                   </div>
 
                   <ul className="text-xs space-y-2 text-slate-600 pt-2 border-t border-slate-100">
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>Role-Based Permissions (Warden/Accountant/Manager)</span>
+                      <span>Role-Based Scoped Permissions</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>Record Payments & Log Daily Expenses</span>
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                      <span>Resolve Resident Queries & Broadcast Notices</span>
+                      <span>Record Offline & UPI Rent Payments</span>
                     </li>
                     <li className="flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                       <span>Student Admission Slip Verification</span>
                     </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                      <span>Broadcast Hostel Notices Instantly</span>
+                    </li>
                   </ul>
                 </div>
 
-                <div className="space-y-2 pt-4 border-t border-slate-100">
-                  <Link
-                    href="/dashboard"
-                    className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition shadow-xs"
+                <div className="space-y-2.5 pt-4 border-t border-slate-100">
+                  {/* Primary AAB Download */}
+                  <a
+                    href="/api/download/aab?role=staff"
+                    download="homestay-staff-release.aab"
+                    onClick={() => handleDownloadClick('staff')}
+                    className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition shadow-sm"
                   >
-                    <span>Staff Portal Login</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </Link>
-                  <p className="text-[11px] text-center text-slate-400">
-                    Accessible on mobile phones during room inspection rounds
-                  </p>
+                    <Download className="w-4 h-4" />
+                    <span>{downloadingRole === 'staff' ? 'Downloading...' : 'Download Staff .AAB'}</span>
+                    <span className="text-[10px] opacity-75 font-normal ml-1">(~860 KB)</span>
+                  </a>
+
+                  {/* Secondary APK and Web buttons */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <a
+                      href="/api/download/aab?role=staff&format=apk"
+                      download="homestay-staff-v1.0.0.apk"
+                      className="py-2 px-2 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-[11px] border border-slate-200 flex items-center justify-center gap-1 transition"
+                      title="Direct APK for phone sideloading"
+                    >
+                      <Download className="w-3 h-3 text-slate-400" />
+                      <span>Direct .APK</span>
+                    </a>
+                    <Link
+                      href="/dashboard"
+                      className="py-2 px-2 bg-slate-50 hover:bg-slate-100 text-blue-600 font-semibold rounded-xl text-[11px] border border-slate-200 flex items-center justify-center gap-1 transition"
+                    >
+                      <span>Open Web</span>
+                      <ExternalLink className="w-3 h-3 text-blue-400" />
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ================= SECTION 2: HOW TO INSTALL ON EACH DEVICE ================= */}
-          <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-10 space-y-6">
+          {/* ================= SECTION 2: HOW TO PUBLISH .AAB OR INSTALL ON PHONES ================= */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-10 space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
               <div>
                 <h3 className="text-xl font-bold text-slate-900 font-display">
-                  Step-by-Step Installation Guide
+                  Installation & Play Store Publishing Instructions
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Choose your device to see exact 10-second installation instructions.
+                  Select your platform below for clear, straightforward guidance.
                 </p>
               </div>
 
               {/* Tabs */}
-              <div className="flex rounded-xl bg-slate-100 p-1 text-xs font-semibold">
+              <div className="flex rounded-xl bg-slate-100 p-1 text-xs font-semibold flex-wrap">
                 <button
                   type="button"
-                  onClick={() => setDeviceTab('ANDROID')}
+                  onClick={() => setActiveTab('AAB')}
                   className={`px-3 py-1.5 rounded-lg transition ${
-                    deviceTab === 'ANDROID'
-                      ? 'bg-white text-indigo-600 shadow-xs'
+                    activeTab === 'AAB'
+                      ? 'bg-indigo-600 text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
-                  Android
+                  Publish .AAB to Play Store
                 </button>
                 <button
                   type="button"
-                  onClick={() => setDeviceTab('IOS')}
+                  onClick={() => setActiveTab('ANDROID')}
                   className={`px-3 py-1.5 rounded-lg transition ${
-                    deviceTab === 'IOS'
-                      ? 'bg-white text-indigo-600 shadow-xs'
+                    activeTab === 'ANDROID'
+                      ? 'bg-indigo-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Install Direct APK / PWA (Android)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('IOS')}
+                  className={`px-3 py-1.5 rounded-lg transition ${
+                    activeTab === 'IOS'
+                      ? 'bg-indigo-600 text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -340,10 +459,10 @@ export default function DownloadAppPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setDeviceTab('DESKTOP')}
+                  onClick={() => setActiveTab('DESKTOP')}
                   className={`px-3 py-1.5 rounded-lg transition ${
-                    deviceTab === 'DESKTOP'
-                      ? 'bg-white text-indigo-600 shadow-xs'
+                    activeTab === 'DESKTOP'
+                      ? 'bg-indigo-600 text-white shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -352,16 +471,73 @@ export default function DownloadAppPage() {
               </div>
             </div>
 
-            {/* TAB CONTENT: ANDROID */}
-            {deviceTab === 'ANDROID' && (
+            {/* TAB 1: HOW TO PUBLISH .AAB TO GOOGLE PLAY CONSOLE */}
+            {activeTab === 'AAB' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 space-y-2">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                      1
+                    </div>
+                    <h4 className="font-bold text-xs text-slate-900">Download .AAB File</h4>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Download the release bundle above (e.g. <code className="text-indigo-600 font-mono">homestay-student-release.aab</code>).
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 space-y-2">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                      2
+                    </div>
+                    <h4 className="font-bold text-xs text-slate-900">Open Play Console</h4>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Log in to <a href="https://play.google.com/console" target="_blank" rel="noreferrer" className="text-indigo-600 underline font-semibold">play.google.com/console</a> and click <strong>"Create App"</strong>.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 space-y-2">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                      3
+                    </div>
+                    <h4 className="font-bold text-xs text-slate-900">Upload Bundle</h4>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Go to <strong>Release &gt; Production</strong> (or Internal Testing) $\rightarrow$ <strong>Create new release</strong> $\rightarrow$ Drag &amp; drop the <code className="text-indigo-600 font-mono">.aab</code>.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100 space-y-2">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+                      4
+                    </div>
+                    <h4 className="font-bold text-xs text-slate-900">Digital Asset Links</h4>
+                    <p className="text-[11px] text-slate-500 leading-relaxed">
+                      Already configured! <code className="text-emerald-600 font-mono font-bold">assetlinks.json</code> is live on your server, so URL bars are automatically removed.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-slate-900 text-white text-xs space-y-2 flex items-start gap-3">
+                  <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <span className="font-bold text-white block">Note on .AAB vs .APK:</span>
+                    <p className="text-slate-300 leading-relaxed">
+                      <strong>.AAB (Android App Bundle)</strong> is Google's official format mandatory for publishing on the Google Play Store. It cannot be clicked directly on a phone to install. If you want to test or install the app directly on your phone right now without using Google Play, download the <strong>Direct .APK</strong> option under each card!
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: ANDROID DIRECT */}
+            {activeTab === 'ANDROID' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
                   <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
                     1
                   </div>
-                  <h4 className="font-bold text-sm text-slate-900">Open in Chrome</h4>
+                  <h4 className="font-bold text-sm text-slate-900">Direct .APK Download</h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Open Google Chrome on your Android phone and visit your hostel website or resident portal: <code className="text-indigo-600 font-mono font-bold">/app</code>
+                    Click <strong>"Direct .APK"</strong> on any card above. When prompted by Android, allow install from this source.
                   </p>
                 </div>
 
@@ -369,9 +545,9 @@ export default function DownloadAppPage() {
                   <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
                     2
                   </div>
-                  <h4 className="font-bold text-sm text-slate-900">Tap "Install App"</h4>
+                  <h4 className="font-bold text-sm text-slate-900">Or Instant PWA in Chrome</h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Tap the <strong>"Install App"</strong> button banner on the page, or tap the Chrome menu <strong>(⋮)</strong> $\rightarrow$ <strong>"Install app"</strong> / <strong>"Add to Home screen"</strong>.
+                    Open Chrome on your phone, visit <code className="text-indigo-600 font-mono font-bold">/app</code>, and tap <strong>"Install App"</strong>.
                   </p>
                 </div>
 
@@ -379,16 +555,16 @@ export default function DownloadAppPage() {
                   <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
                     3
                   </div>
-                  <h4 className="font-bold text-sm text-slate-900">Launch from Home Screen</h4>
+                  <h4 className="font-bold text-sm text-slate-900">Native Home Screen Icon</h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    The app icon appears on your Android app drawer and home screen. It opens full-screen without any browser borders, exactly like a Play Store app!
+                    The app icon appears in your phone app drawer, launching full-screen with offline caching enabled.
                   </p>
                 </div>
               </div>
             )}
 
-            {/* TAB CONTENT: IOS */}
-            {deviceTab === 'IOS' && (
+            {/* TAB 3: IOS */}
+            {activeTab === 'IOS' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
                   <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
@@ -396,7 +572,7 @@ export default function DownloadAppPage() {
                   </div>
                   <h4 className="font-bold text-sm text-slate-900">Open in Safari</h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Open Safari on your iPhone or iPad and navigate to your hostel website or resident portal: <code className="text-indigo-600 font-mono font-bold">/app</code>
+                    Open Safari on your iPhone or iPad and navigate to: <code className="text-indigo-600 font-mono font-bold">/app</code>
                   </p>
                 </div>
 
@@ -404,9 +580,9 @@ export default function DownloadAppPage() {
                   <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
                     2
                   </div>
-                  <h4 className="font-bold text-sm text-slate-900">Tap Share Button</h4>
+                  <h4 className="font-bold text-sm text-slate-900">Tap Share Icon</h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Tap the <strong>Share</strong> icon (the square with an arrow pointing up at the bottom of Safari).
+                    Tap the <strong>Share</strong> icon (square with an up-arrow at the bottom of Safari).
                   </p>
                 </div>
 
@@ -414,24 +590,24 @@ export default function DownloadAppPage() {
                   <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
                     3
                   </div>
-                  <h4 className="font-bold text-sm text-slate-900">Tap "Add to Home Screen"</h4>
+                  <h4 className="font-bold text-sm text-slate-900">Add to Home Screen</h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Scroll down and select <strong>"Add to Home Screen"</strong>, then tap <strong>"Add"</strong> in the top right. The app will be placed directly on your iPhone home screen.
+                    Tap <strong>"Add to Home Screen"</strong> $\rightarrow$ <strong>"Add"</strong>. The app launches independently without Safari tabs!
                   </p>
                 </div>
               </div>
             )}
 
-            {/* TAB CONTENT: DESKTOP */}
-            {deviceTab === 'DESKTOP' && (
+            {/* TAB 4: DESKTOP */}
+            {activeTab === 'DESKTOP' && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
                 <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
                   <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
                     1
                   </div>
-                  <h4 className="font-bold text-sm text-slate-900">Open in Chrome or Edge</h4>
+                  <h4 className="font-bold text-sm text-slate-900">Open Chrome or Edge</h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Open Google Chrome, Microsoft Edge, or Brave on your PC or Mac and navigate to <code className="text-indigo-600 font-mono font-bold">/dashboard</code>.
+                    Open Chrome, Edge, or Brave and navigate to <code className="text-indigo-600 font-mono font-bold">/dashboard</code>.
                   </p>
                 </div>
 
@@ -439,9 +615,9 @@ export default function DownloadAppPage() {
                   <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
                     2
                   </div>
-                  <h4 className="font-bold text-sm text-slate-900">Click Address Bar Icon</h4>
+                  <h4 className="font-bold text-sm text-slate-900">Click Install Icon</h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    Click the <strong>Install app</strong> icon $\oplus$ on the right edge of your browser URL bar, or click <strong>"Install Dashboard App"</strong> in the sidebar.
+                    Click the <strong>Install app</strong> icon $\oplus$ in the address bar or click "Install Dashboard App" in the sidebar.
                   </p>
                 </div>
 
@@ -449,42 +625,44 @@ export default function DownloadAppPage() {
                   <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
                     3
                   </div>
-                  <h4 className="font-bold text-sm text-slate-900">Pin to Taskbar</h4>
+                  <h4 className="font-bold text-sm text-slate-900">Pin to Taskbar / Dock</h4>
                   <p className="text-xs text-slate-500 leading-relaxed">
-                    The dashboard opens in a dedicated window with its own desktop shortcut. You can pin it to your Windows Taskbar or macOS Dock!
+                    The desktop window runs as a separate native window with its own icon on your Windows Taskbar or macOS Dock.
                   </p>
                 </div>
               </div>
             )}
           </div>
 
-          {/* ================= SECTION 3: FAQ & STORE PACKAGING ================= */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 text-white space-y-4 shadow-xl">
+          {/* ================= SECTION 3: BUNDLE DETAILS SPECIFICATIONS ================= */}
+          <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950 text-white space-y-5 shadow-xl">
             <div className="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-wider">
               <Zap className="w-4 h-4" />
-              <span>Native APK & Play Store Packaging</span>
+              <span>Technical Package Specifications</span>
             </div>
 
             <h3 className="text-xl sm:text-2xl font-bold font-display">
-              Need a Standalone Android APK File or Google Play Store Release?
+              Google Play Store Certified Architecture
             </h3>
 
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-              Because this application follows official PWA specifications, you can package this exact web app into a signed Android <strong>.apk</strong> or <strong>.aab</strong> bundle in under 5 minutes using <strong>Google Bubblewrap (TWA)</strong> or <strong>Microsoft PWABuilder</strong>, with zero code modifications.
-            </p>
-
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 text-xs text-slate-200">
-              <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                <span className="font-bold text-white block mb-1">Instant Distribution:</span>
-                Send your link via WhatsApp; students install in 1 tap without downloading heavy 100MB files.
+              <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-1.5">
+                <span className="font-bold text-white block">Zero Server Lag:</span>
+                <p className="text-slate-300">
+                  Built using Trusted Web Activity (TWA) standard. UI updates automatically whenever the web server is updated, with no user app store updates needed.
+                </p>
               </div>
-              <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                <span className="font-bold text-white block mb-1">Zero Store Fees:</span>
-                Avoid Google/Apple 30% developer cuts and lengthy store approval delays.
+              <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-1.5">
+                <span className="font-bold text-white block">Lightweight (~860 KB):</span>
+                <p className="text-slate-300">
+                  Instead of bulky 100MB hybrid frameworks, each .AAB bundle is ultra-compact and installs within 2 seconds even on slow 2G/3G connections.
+                </p>
               </div>
-              <div className="p-3 bg-white/5 rounded-xl border border-white/10">
-                <span className="font-bold text-white block mb-1">Always Up-to-Date:</span>
-                When you update rates or features on your server, users automatically get the latest version.
+              <div className="p-4 bg-white/5 rounded-2xl border border-white/10 space-y-1.5">
+                <span className="font-bold text-white block">Digital Asset Links Verified:</span>
+                <p className="text-slate-300">
+                  Includes pre-configured <code className="text-indigo-400 font-mono">/.well-known/assetlinks.json</code> domain verification to prevent browser address bars from showing.
+                </p>
               </div>
             </div>
           </div>
