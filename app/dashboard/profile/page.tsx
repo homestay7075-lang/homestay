@@ -35,6 +35,8 @@ import {
   ChevronRight,
   ExternalLink,
   Clock,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { HostelSettings, AuditLog } from '@/lib/db/types';
 import { isValidPhoneNumber, PHONE_HTML_PATTERN, PHONE_ERROR_MESSAGE } from '@/lib/utils/phoneValidator';
@@ -119,6 +121,7 @@ function OwnerProfileContent() {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPasswords, setShowPasswords] = useState(false);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(settings?.twoFactorEnabled || false);
   const [pinLockEnabled, setPinLockEnabled] = useState(settings?.pinLockEnabled || false);
 
@@ -1006,9 +1009,28 @@ function OwnerProfileContent() {
 
             <form onSubmit={handleSaveSecurity} className="space-y-5">
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
-                <div className="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
-                  <KeyRound className="w-4 h-4 text-indigo-600" />
-                  Change Account Password
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    <KeyRound className="w-4 h-4 text-indigo-600" />
+                    Change Account Password
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords(!showPasswords)}
+                    className="flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-semibold transition px-2 py-1 rounded-lg hover:bg-indigo-50"
+                  >
+                    {showPasswords ? (
+                      <>
+                        <EyeOff className="w-3.5 h-3.5" />
+                        <span>Hide Passwords</span>
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Show Passwords</span>
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1017,10 +1039,10 @@ function OwnerProfileContent() {
                       Current Password
                     </label>
                     <input
-                      type="password"
+                      type={showPasswords ? 'text' : 'password'}
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="••••••••"
+                      placeholder={showPasswords ? 'Current password' : '••••••••'}
                       className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
                     />
                   </div>
@@ -1030,10 +1052,10 @@ function OwnerProfileContent() {
                       New Password
                     </label>
                     <input
-                      type="password"
+                      type={showPasswords ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Min 6 characters"
+                      placeholder={showPasswords ? 'New password (min 6 chars)' : 'Min 6 characters'}
                       className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
                     />
                   </div>
@@ -1043,10 +1065,10 @@ function OwnerProfileContent() {
                       Confirm New Password
                     </label>
                     <input
-                      type="password"
+                      type={showPasswords ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Re-enter password"
+                      placeholder={showPasswords ? 'Confirm new password' : 'Re-enter password'}
                       className="w-full px-3.5 py-2 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
                     />
                   </div>
