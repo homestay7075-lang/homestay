@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Bed, Phone, Mail, MapPin, Shield, Heart, ArrowRight, ExternalLink } from 'lucide-react';
+import { Bed, Phone, Mail, MapPin, Shield, Heart, ArrowRight, ExternalLink, Download } from 'lucide-react';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
 
 export default function PublicFooter() {
@@ -53,10 +53,14 @@ export default function PublicFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/download" className="text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1">
-                  <span>Resident Mobile App</span>
-                  <ArrowRight className="w-3 h-3" />
-                </Link>
+                <a
+                  href="/api/download/aab?role=all"
+                  download="homestay-all-aab-bundles.zip"
+                  className="text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Apps (.AAB)</span>
+                </a>
               </li>
             </ul>
           </div>
