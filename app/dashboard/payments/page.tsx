@@ -516,7 +516,7 @@ export default function PaymentsAndDuesPage() {
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
             <input
               type="text"
-              placeholder="Search by Bill #, Resident, ID, UTR, or Room..."
+              placeholder="Search by Bill #, Resident, ID, or UTR..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -594,7 +594,7 @@ export default function PaymentsAndDuesPage() {
                     <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[11px] tracking-wider">
                       <tr>
                         <th className="py-3 px-4">Bill Number</th>
-                        <th className="py-3 px-4">Resident & Room</th>
+                        <th className="py-3 px-4">Resident</th>
                         <th className="py-3 px-4">Bill Amount</th>
                         <th className="py-3 px-4">Paid Amount</th>
                         <th className="py-3 px-4">Balance Due</th>
@@ -631,11 +631,11 @@ export default function PaymentsAndDuesPage() {
                                 </span>
                               </td>
 
-                              {/* Resident & Room */}
+                              {/* Resident */}
                               <td className="py-3.5 px-4">
                                 <div className="font-bold text-slate-900">{bill.studentName}</div>
                                 <div className="text-xs text-indigo-600 font-mono font-medium">
-                                  {bill.studentId} • Room {bill.roomNumber} ({bill.bedNumber})
+                                  {bill.studentId} • Bed {bill.bedNumber}
                                 </div>
                                 {bill.phone && (
                                   <a
@@ -780,7 +780,7 @@ export default function PaymentsAndDuesPage() {
                           <td className="py-3.5 px-4">
                             <div className="font-bold text-slate-900">{stu.fullName}</div>
                             <div className="text-xs text-indigo-600 font-mono font-semibold">
-                              {stu.studentId} • Room {stu.roomNumber} ({stu.bedNumber})
+                              {stu.studentId} • Bed {stu.bedNumber}
                             </div>
                             {stu.phone && (
                               <a
@@ -1051,7 +1051,7 @@ export default function PaymentsAndDuesPage() {
                     <thead>
                       <tr className="border-b border-slate-200/80 bg-slate-50/50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                         <th className="py-3 px-4">Resident / ID</th>
-                        <th className="py-3 px-4">Room & Bed</th>
+                        <th className="py-3 px-4">Bed</th>
                         <th className="py-3 px-4">Amount Paid</th>
                         <th className="py-3 px-4">App & UTR Ref</th>
                         <th className="py-3 px-4">Receipt Screenshot</th>
@@ -1074,12 +1074,9 @@ export default function PaymentsAndDuesPage() {
                               <div className="text-[10px] text-slate-400">{sub.studentPhone}</div>
                             </td>
 
-                            {/* Room */}
+                            {/* Bed */}
                             <td className="py-3.5 px-4 text-slate-600">
-                              <span className="font-bold text-slate-800">Room {sub.roomNumber}</span>
-                              {sub.bedNumber && (
-                                <div className="text-[10px] text-slate-500">{sub.bedNumber}</div>
-                              )}
+                              <span className="font-bold text-slate-800">Bed {sub.bedNumber || 'N/A'}</span>
                             </td>
 
                             {/* Amount */}
@@ -1273,7 +1270,7 @@ export default function PaymentsAndDuesPage() {
                 >
                   {students.map((stu) => (
                     <option key={stu.id} value={stu.id}>
-                      {stu.fullName} ({stu.studentId}) • Room {stu.roomNumber} ({stu.bedNumber})
+                      {stu.fullName} ({stu.studentId}) • Bed {stu.bedNumber}
                     </option>
                   ))}
                 </select>

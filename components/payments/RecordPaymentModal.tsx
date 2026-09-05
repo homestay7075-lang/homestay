@@ -162,7 +162,7 @@ export default function RecordPaymentModal({
 
 👤 *Resident Details:*
 • Name: *${currentStudent?.fullName || receiptResult.studentName}* (${currentStudent?.studentId || ''})
-• Room & Bed: Room ${currentStudent?.roomNumber || 'N/A'} (${currentStudent?.bedNumber || 'N/A'})
+• Bed Allocation: ${currentStudent?.bedNumber || 'N/A'}
 • Wing / Block: ${currentStudent?.blockName || 'Campus Residence'}
 
 💰 *Payment Particulars:*
@@ -191,7 +191,7 @@ Payment of *₹${receiptResult.amount?.toLocaleString('en-IN')}* for resident *$
 🧾 *Receipt:* ${receiptResult.receiptNumber}
 📅 *Date:* ${formatDateDMY(receiptResult.paymentDate)}
 💳 *Mode:* ${receiptResult.paymentMethod}
-🏠 *Room:* Room ${currentStudent?.roomNumber || 'N/A'} (${currentStudent?.bedNumber || 'N/A'})
+🛏️ *Bed:* ${currentStudent?.bedNumber || 'N/A'}
 
 Hostel Administration Contact: ${settings.phone || '9876543210'}
 ${hostelName}`
@@ -269,9 +269,9 @@ ${hostelName}`
                 </span>
               </div>
               <div className="flex justify-between items-center text-slate-600">
-                <span>Room & Bed:</span>
+                <span>Bed:</span>
                 <span className="font-semibold text-slate-800">
-                  Room {currentStudent?.roomNumber} ({currentStudent?.bedNumber})
+                  {currentStudent?.bedNumber}
                 </span>
               </div>
               <div className="flex justify-between items-center text-slate-600">
@@ -415,7 +415,7 @@ ${hostelName}`
               >
                 {students.map((stu) => (
                   <option key={stu.id} value={stu.id}>
-                    {stu.fullName} ({stu.studentId} • Room {stu.roomNumber}) — Due: ₹{stu.finances?.totalOutstanding || 0}
+                    {stu.fullName} ({stu.studentId} • Bed {stu.bedNumber}) — Due: ₹{stu.finances?.totalOutstanding || 0}
                   </option>
                 ))}
               </select>
@@ -429,7 +429,7 @@ ${hostelName}`
                     Exact Ledger Dues Breakdown
                   </span>
                   <span className="text-[11px] text-slate-500 font-mono">
-                    Room {currentStudent.roomNumber} ({currentStudent.bedNumber})
+                    Bed {currentStudent.bedNumber}
                   </span>
                 </div>
 

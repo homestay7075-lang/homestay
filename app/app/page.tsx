@@ -64,6 +64,7 @@ export default function StudentMobileApp() {
 
   const [activeTab, setActiveTab] = useState<'HOME' | 'DUES' | 'RECEIPTS' | 'NOTICES' | 'CHAT'>('HOME');
   const [docFilter, setDocFilter] = useState<'INVOICES' | 'RECEIPTS'>('INVOICES');
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [studentData, setStudentData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [notices, setNotices] = useState<any[]>([]);
@@ -199,7 +200,7 @@ export default function StudentMobileApp() {
 --------------------------------
 *Hostel:* ${hostelName}
 *Student:* ${studentData?.fullName} (${studentData?.studentId})
-*Room / Bed:* Room ${studentData?.roomNumber || 'N/A'}, ${studentData?.bedNumber || 'N/A'}
+*Bed Allocation:* ${studentData?.bedNumber || 'N/A'} (${studentData?.blockName || 'Campus'})
 *Amount Paid:* ₹${Number(amt).toLocaleString('en-IN')}
 *Payment App:* ${app}
 *UTR / Reference ID:* ${utr}
@@ -321,6 +322,110 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
     }
   };
 
+  const handlePrintPass = () => {
+    // 1. Android Native WebView hook
+    if (typeof window !== 'undefined' && (window as any).AndroidApp?.printPage) {
+      try {
+        (window as any).AndroidApp.printPage();
+        return;
+      } catch (e) {
+        console.warn('AndroidApp.printPage failed:', e);
+      }
+    }
+
+    // 2. Isolated iframe printable pass
+    try {
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'fixed';
+      iframe.style.right = '0';
+      iframe.style.bottom = '0';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      document.body.appendChild(iframe);
+
+      const doc = iframe.contentWindow?.document;
+      if (doc && studentData) {
+        doc.open();
+        doc.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Resident_Pass_${studentData.studentId}</title>
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+                body { padding: 24px; color: #0f172a; background: #fff; font-size: 13px; line-height: 1.5; }
+                .pass-card { max-width: 420px; margin: 0 auto; border: 2px solid #4f46e5; border-radius: 20px; padding: 24px; background: #f8fafc; }
+                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; }
+                .hostel-title { font-weight: 800; font-size: 16px; color: #312e81; }
+                .badge { background: #dcfce7; color: #15803d; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 9999px; }
+                .student-name { font-size: 20px; font-weight: 800; color: #0f172a; }
+                .student-id { font-family: monospace; font-weight: 700; color: #4f46e5; margin-top: 2px; }
+                .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; padding: 12px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; }
+                .label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 600; }
+                .value { font-size: 13px; font-weight: 700; color: #1e293b; margin-top: 2px; }
+                .footer { text-align: center; margin-top: 16px; font-size: 10px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+                @media print {
+                  body { padding: 0; }
+                  @page { margin: 10mm; size: auto; }
+                }
+              </style>
+            </head>
+            <body>
+              <div class="pass-card">
+                <div class="header">
+                  <div class="hostel-title">${hostelName}</div>
+                  <div class="badge">ACTIVE RESIDENT</div>
+                </div>
+                <div>
+                  <div class="student-name">${studentData.fullName}</div>
+                  <div class="student-id">Student ID: ${studentData.studentId}</div>
+                </div>
+                <div class="details-grid">
+                  <div>
+                    <div class="label">Bed Allocation</div>
+                    <div class="value">${studentData.bedNumber} (${studentData.blockName || 'Campus'})</div>
+                  </div>
+                  <div>
+                    <div class="label">Joining Date</div>
+                    <div class="value">${formatDateDMY(studentData.joiningDate)}</div>
+                  </div>
+                  <div>
+                    <div class="label">Contact</div>
+                    <div class="value">${studentData.phone}</div>
+                  </div>
+                  <div>
+                    <div class="label">Monthly Tariff</div>
+                    <div class="value">₹${studentData.monthlyRent}/mo</div>
+                  </div>
+                </div>
+                <div class="footer">
+                  Official Digital Pass • Valid for hostel accommodation • Homestay Residency
+                </div>
+              </div>
+            </body>
+          </html>
+        `);
+        doc.close();
+        setTimeout(() => {
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+          setTimeout(() => {
+            try {
+              document.body.removeChild(iframe);
+            } catch (e) {}
+          }, 1000);
+        }, 300);
+        return;
+      }
+    } catch (e) {
+      console.warn('Iframe print pass fallback:', e);
+    }
+
+    window.print();
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || !studentData) return;
@@ -368,27 +473,44 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
       <div className="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl relative pb-20 border-x border-slate-800">
         {/* ================= TOP MOBILE HEADER ================= */}
         <header className="px-5 py-4 border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-[31px] z-30 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsProfileModalOpen(true)}
+            className="flex items-center gap-3 text-left group cursor-pointer hover:opacity-90 transition"
+            title="Click to view Resident Profile"
+          >
             {studentData.photoUrl ? (
               <img
                 src={studentData.photoUrl}
                 alt={studentData.fullName}
-                className="w-9 h-9 rounded-full object-cover border-2 border-indigo-500"
+                className="w-9 h-9 rounded-full object-cover border-2 border-indigo-500 group-hover:border-indigo-400 transition"
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs border-2 border-indigo-400">
+              <div className="w-9 h-9 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-xs border-2 border-indigo-400 group-hover:border-indigo-300 transition">
                 {studentData.fullName.charAt(0).toUpperCase()}
               </div>
             )}
             <div>
-              <div className="font-bold text-sm text-white">{studentData.fullName}</div>
+              <div className="font-bold text-sm text-white flex items-center gap-1.5">
+                <span>{studentData.fullName}</span>
+                <span className="text-[10px] text-indigo-400 opacity-70 group-hover:opacity-100">ⓘ</span>
+              </div>
               <div className="text-[10px] text-indigo-400 font-mono font-semibold">
-                {studentData.studentId} • Room {studentData.roomNumber}
+                {studentData.studentId} • Bed {studentData.bedNumber}
               </div>
             </div>
-          </div>
+          </button>
 
           <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setIsProfileModalOpen(true)}
+              className="p-1 rounded-lg bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/50 text-[10px] px-2 py-1 font-semibold flex items-center gap-1 transition"
+              title="View Profile Details"
+            >
+              <User className="w-3 h-3" />
+              <span>Profile</span>
+            </button>
             <InstallPwaButton variant="compact" label="Install" className="bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-600/50 text-[10px] px-2 py-1" />
             {currentUser && currentUser.role !== 'STUDENT' && (
               <Link
@@ -440,8 +562,8 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => window.print()}
-                      className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[10px] font-semibold flex items-center gap-1 transition no-print"
+                      onClick={handlePrintPass}
+                      className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[10px] font-semibold flex items-center gap-1 transition no-print cursor-pointer"
                       title="Print or Save PDF Pass"
                     >
                       <Printer className="w-3 h-3 text-indigo-300" />
@@ -469,9 +591,9 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
 
                 <div className="grid grid-cols-2 gap-2 text-xs pt-3 border-t border-indigo-800/40 text-slate-300">
                   <div>
-                    <span className="text-[10px] text-indigo-400 block">Room & Bed</span>
+                    <span className="text-[10px] text-indigo-400 block">Bed Allocation</span>
                     <span className="font-bold text-white">
-                      Room {studentData.roomNumber} ({studentData.bedNumber})
+                      Bed {studentData.bedNumber}
                     </span>
                   </div>
 
@@ -536,31 +658,31 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
               {/* Quick Actions Grid */}
               <div className="grid grid-cols-3 gap-2">
                 <button
+                  onClick={() => setIsProfileModalOpen(true)}
+                  className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 cursor-pointer"
+                >
+                  <User className="w-4 h-4 text-cyan-400" />
+                  <div className="font-bold text-[11px] text-white">My Profile</div>
+                  <div className="text-[9px] text-slate-400">Personal & stay</div>
+                </button>
+
+                <button
                   onClick={() => setActiveTab('RECEIPTS')}
-                  className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1"
+                  className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 cursor-pointer"
                 >
                   <Receipt className="w-4 h-4 text-indigo-400" />
                   <div className="font-bold text-[11px] text-white">Invoices</div>
                   <div className="text-[9px] text-slate-400">Bills & receipts</div>
                 </button>
 
-                <button
-                  onClick={() => setActiveTab('CHAT')}
-                  className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1"
-                >
-                  <MessageSquare className="w-4 h-4 text-emerald-400" />
-                  <div className="font-bold text-[11px] text-white">Helpdesk</div>
-                  <div className="text-[9px] text-slate-400">Chat support</div>
-                </button>
-
                 <a
-                  href={`tel:${settings.phone || '+919876543210'}`}
+                  href={`tel:${cleanOwnerPhone}`}
                   className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
                   title="Call Warden / Desk Directly"
                 >
                   <Phone className="w-4 h-4 text-emerald-400" />
                   <div className="font-bold text-[11px] text-white">Call Desk</div>
-                  <div className="text-[9px] text-slate-400 truncate">{settings.phone || 'Direct Call'}</div>
+                  <div className="text-[9px] text-slate-400 truncate">{cleanOwnerPhone}</div>
                 </a>
               </div>
 
@@ -1300,7 +1422,235 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
             <MessageSquare className="w-4 h-4" />
             <span>Chat</span>
           </button>
+
+          <button
+            onClick={() => setIsProfileModalOpen(true)}
+            className="flex flex-col items-center gap-1 transition text-slate-400 hover:text-indigo-400 cursor-pointer"
+          >
+            <User className="w-4 h-4" />
+            <span>Profile</span>
+          </button>
         </nav>
+
+        {/* ================= RESIDENT PROFILE MODAL ================= */}
+        {isProfileModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+              {/* Profile Top Banner */}
+              <div className="p-5 bg-gradient-to-r from-indigo-900 via-indigo-800 to-slate-900 border-b border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    {studentData.photoUrl ? (
+                      <img
+                        src={studentData.photoUrl}
+                        alt={studentData.fullName}
+                        className="w-14 h-14 rounded-2xl object-cover border-2 border-indigo-400 shadow-md"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 rounded-2xl bg-indigo-600 text-white font-black text-lg flex items-center justify-center border-2 border-indigo-400 shadow-md">
+                        {studentData.fullName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <span className="w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-slate-900 absolute -bottom-1 -right-1"></span>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-white font-display">
+                      {studentData.fullName}
+                    </h3>
+                    <div className="text-xs text-indigo-300 font-mono font-semibold">
+                      ID: {studentData.studentId}
+                    </div>
+                    <span className="inline-block mt-0.5 px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
+                      Active Resident
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsProfileModalOpen(false)}
+                  className="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Profile Content Body */}
+              <div className="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
+                {/* 1. Bed Allocation & Stay Details (NO ROOM) */}
+                <div className="p-4 rounded-2xl bg-slate-800/70 border border-slate-700 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
+                    <span className="font-bold text-white text-xs flex items-center gap-1.5">
+                      <Bed className="w-4 h-4 text-indigo-400" />
+                      Bed & Stay Allocation
+                    </span>
+                    <span className="text-[10px] text-indigo-400 font-semibold font-mono">
+                      {studentData.blockName || 'Hostel Wing'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <span className="text-[10px] text-slate-400 block">Bed Number</span>
+                      <span className="font-bold text-white text-sm">{studentData.bedNumber || 'Assigned'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block">Wing / Block</span>
+                      <span className="font-bold text-white">{studentData.blockName || 'Campus Residence'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block">Joining Date</span>
+                      <span className="font-semibold text-slate-200">{formatDateDMY(studentData.joiningDate)}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-400 block">Monthly Tariff</span>
+                      <span className="font-bold text-emerald-400">₹{studentData.monthlyRent?.toLocaleString('en-IN')}/mo</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Personal & Contact Information */}
+                <div className="p-4 rounded-2xl bg-slate-800/70 border border-slate-700 space-y-3">
+                  <span className="font-bold text-white text-xs flex items-center gap-1.5 border-b border-slate-700/60 pb-2">
+                    <User className="w-4 h-4 text-cyan-400" />
+                    Contact & Guardian Details
+                  </span>
+
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Resident Mobile:</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-white font-mono">{studentData.phone}</span>
+                        <a
+                          href={`tel:${studentData.phone}`}
+                          className="p-1 rounded-md bg-slate-700 text-emerald-400 hover:bg-slate-600"
+                          title="Call Student"
+                        >
+                          <Phone className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Email Address:</span>
+                      <span className="font-semibold text-slate-200">{studentData.email || 'resident@homestay.com'}</span>
+                    </div>
+
+                    {studentData.guardianName && (
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-700/40">
+                        <span className="text-slate-400">Guardian / Parent:</span>
+                        <span className="font-semibold text-white">{studentData.guardianName}</span>
+                      </div>
+                    )}
+
+                    {studentData.guardianPhone && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400">Guardian Phone:</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-white font-mono">{studentData.guardianPhone}</span>
+                          <a
+                            href={`tel:${studentData.guardianPhone}`}
+                            className="p-1 rounded-md bg-slate-700 text-emerald-400 hover:bg-slate-600"
+                            title="Call Guardian"
+                          >
+                            <Phone className="w-3 h-3" />
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 3. Account Dues & Financial Summary */}
+                <div className="p-4 rounded-2xl bg-slate-800/70 border border-slate-700 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
+                    <span className="font-bold text-white text-xs flex items-center gap-1.5">
+                      <CreditCard className="w-4 h-4 text-emerald-400" />
+                      Financial Standing
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      (fin?.totalOutstanding || 0) > 0
+                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                        : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    }`}>
+                      {(fin?.totalOutstanding || 0) > 0 ? `₹${fin?.totalOutstanding} Due` : 'All Cleared'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="p-2 rounded-xl bg-slate-900 border border-slate-700/80">
+                      <span className="text-[10px] text-slate-400 block">Total Billed</span>
+                      <span className="font-bold text-white mt-0.5 block">
+                        ₹{(fin?.totalBilled || 0).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-slate-900 border border-slate-700/80">
+                      <span className="text-[10px] text-slate-400 block">Total Paid</span>
+                      <span className="font-bold text-emerald-400 mt-0.5 block">
+                        ₹{(fin?.totalPaid || 0).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-slate-900 border border-slate-700/80">
+                      <span className="text-[10px] text-slate-400 block">Outstanding</span>
+                      <span className={`font-black mt-0.5 block ${
+                        (fin?.totalOutstanding || 0) > 0 ? 'text-rose-400 font-display' : 'text-slate-400'
+                      }`}>
+                        ₹{(fin?.totalOutstanding || 0).toLocaleString('en-IN')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Action Buttons */}
+                <div className="space-y-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProfileModalOpen(false);
+                      handlePrintPass();
+                    }}
+                    className="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>Print Resident ID Pass</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProfileModalOpen(false);
+                      setActiveTab('RECEIPTS');
+                    }}
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold border border-slate-700 transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <FileText className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>View Invoices & Receipts</span>
+                  </button>
+
+                  <a
+                    href={`tel:${cleanOwnerPhone}`}
+                    className="w-full py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold border border-slate-700 transition flex items-center justify-center gap-2 text-center"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Call Hostel Helpdesk ({cleanOwnerPhone})</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsProfileModalOpen(false);
+                      logout();
+                    }}
+                    className="w-full py-2 px-4 rounded-xl bg-rose-950/40 hover:bg-rose-950/70 text-rose-300 font-semibold border border-rose-800/40 transition flex items-center justify-center gap-2 cursor-pointer mt-2"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span>Sign Out of Account</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Printable Voucher Modal (Invoices & Receipts) */}
         {voucherModalState.isOpen && (

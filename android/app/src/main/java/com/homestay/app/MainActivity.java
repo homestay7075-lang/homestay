@@ -120,6 +120,9 @@ public class MainActivity extends AppCompatActivity {
             cookieManager.setAcceptThirdPartyCookies(webView, true);
         }
 
+        // Bridge native Android capabilities (PrintManager, system share) to web app
+        webView.addJavascriptInterface(new WebAppInterface(this), "AndroidApp");
+
         // Handle hardware Back button
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -148,8 +151,20 @@ public class MainActivity extends AppCompatActivity {
             private boolean handleUrl(String url) {
                 if (url == null) return false;
 
+                // Handle phone call links directly with ACTION_DIAL so dialer opens cleanly
+                if (url.startsWith("tel:")) {
+                    try {
+                        Intent dialIntent = new Intent(Intent.ACTION_DIAL, Uri.parse(url));
+                        startActivity(dialIntent);
+                        return true;
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Cannot open phone dialer: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                }
+
                 // Handle UPI payment apps (PhonePe, Google Pay, Paytm, BHIM, etc.)
-                if (url.startsWith("upi:")) {
+                if (url.startsWith("upi:") || url.startsWith("upi://")) {
                     try {
                         Intent upiIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                         Intent chooser = Intent.createChooser(upiIntent, "Pay Hostel Dues via UPI");
@@ -164,8 +179,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                // Handle external apps (phone calls, email, WhatsApp, maps)
-                if (url.startsWith("tel:") || url.startsWith("mailto:") || 
+                // Handle external apps (email, WhatsApp, maps)
+                if (url.startsWith("mailto:") || 
                     url.startsWith("whatsapp:") || url.startsWith("https://wa.me/") || 
                     url.startsWith("geo:") || url.startsWith("intent:")) {
                     try {
@@ -449,6 +464,58 @@ public class MainActivity extends AppCompatActivity {
             }
             uploadMessage.onReceiveValue(results);
             uploadMessage = null;
+        }
+    }
+
+    /**
+     * Native JavascriptInterface exposed to window.AndroidApp inside web pages.
+     */
+    public class WebAppInterface {
+        Context mContext;
+
+        WebAppInterface(Context c) {
+            mContext = c;
+        }
+
+        @android.webkit.JavascriptInterface
+        public void printPage() {
+            runOnUiThread(() -> {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        android.print.PrintManager printManager = (android.print.PrintManager) getSystemService(Context.PRINT_SERVICE);
+                        String jobName = "Homestay_Receipt_" + System.currentTimeMillis();
+                        android.print.PrintDocumentAdapter printAdapter;
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                            printAdapter = webView.createPrintDocumentAdapter(jobName);
+                        } else {
+                            printAdapter = webView.createPrintDocumentAdapter();
+                        }
+                        if (printManager != null) {
+                            printManager.print(jobName, printAdapter, new android.print.PrintAttributes.Builder().build());
+                        }
+                    } else {
+                        Toast.makeText(MainActivity.this, "Printing requires Android 4.4+", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Cannot start printing: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        @android.webkit.JavascriptInterface
+        public void shareText(String title, String text) {
+            runOnUiThread(() -> {
+                try {
+                    Intent sendIntent = new Intent();
+                    sendIntent.setAction(Intent.ACTION_SEND);
+                    sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+                    sendIntent.setType("text/plain");
+                    Intent shareIntent = Intent.createChooser(sendIntent, title != null ? title : "Share Document");
+                    startActivity(shareIntent);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Share failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
 }

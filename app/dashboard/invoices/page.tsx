@@ -178,8 +178,7 @@ function InvoicesContent() {
                       </div>
                       {studentDetail && (
                         <div className="text-slate-600 mt-1">
-                          Room: <span className="font-semibold">{studentDetail.roomNumber}</span> • Bed:{' '}
-                          <span className="font-semibold">{studentDetail.bedNumber}</span> ({studentDetail.blockName})
+                          Bed: <span className="font-semibold">{studentDetail.bedNumber}</span> ({studentDetail.blockName})
                         </div>
                       )}
                       {studentDetail && (

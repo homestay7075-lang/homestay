@@ -1,7 +1,19 @@
 'use client';
 
-import React from 'react';
-import { X, Printer, Bed, CheckCircle2, AlertTriangle, ShieldCheck, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  X,
+  Printer,
+  Bed,
+  CheckCircle2,
+  AlertTriangle,
+  ShieldCheck,
+  Download,
+  Share2,
+  MessageCircle,
+  Copy,
+  Check,
+} from 'lucide-react';
 import { formatDateDMY } from '@/lib/utils/dateFormatter';
 
 interface VoucherModalProps {
@@ -21,6 +33,8 @@ export default function VoucherModal({
   student,
   settings,
 }: VoucherModalProps) {
+  const [copied, setCopied] = useState(false);
+
   if (!isOpen || !data || !student) return null;
 
   const hostelName = settings?.name || 'Homestay Residency';
@@ -43,15 +57,115 @@ export default function VoucherModal({
   const balanceDue = Number(data.balanceAmount ?? (isInvoice ? amount - paidAmount : 0));
   const isPaid = isInvoice ? balanceDue === 0 : true;
 
+  const voucherSummaryText = `🏢 *${hostelName} - ${isInvoice ? 'Official Invoice' : 'Verified Payment Receipt'}*
+🧾 *Doc #:* ${docNumber}
+📅 *Date:* ${formatDateDMY(docDate)}
+
+👤 *Resident:* ${student.fullName} (${student.studentId})
+🛏️ *Bed:* ${student.bedNumber || 'N/A'} (${student.blockName || 'Campus'})
+
+💰 *Financial Details:*
+• Amount: *₹${amount.toLocaleString('en-IN')}*
+• Paid: *₹${paidAmount.toLocaleString('en-IN')}*
+${isInvoice ? `• Balance Due: *₹${balanceDue.toLocaleString('en-IN')}*` : `• Payment Mode: ${data.paymentMethod || 'UPI / Online'}`}
+${data.transactionRef ? `• UTR / Ref: ${data.transactionRef}\n` : ''}✅ *Status:* ${isPaid ? 'PAID & SETTLED' : 'PAYMENT DUE'}
+
+Hostel Administration: ${hostelPhone}
+${hostelName}`;
+
   const handlePrint = () => {
+    // 1. If running inside Android WebView native APK shell
+    if (typeof window !== 'undefined' && (window as any).AndroidApp?.printPage) {
+      try {
+        (window as any).AndroidApp.printPage();
+        return;
+      } catch (e) {
+        console.warn('Native AndroidApp.printPage call error:', e);
+      }
+    }
+
+    // 2. Cross-browser printing using isolated printable iframe
+    try {
+      const voucherEl = document.querySelector('.printable-voucher');
+      if (voucherEl) {
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = 'none';
+        document.body.appendChild(iframe);
+
+        const doc = iframe.contentWindow?.document;
+        if (doc) {
+          doc.open();
+          doc.write(`
+            <!DOCTYPE html>
+            <html>
+              <head>
+                <title>${isInvoice ? 'Invoice' : 'Receipt'}_${docNumber}</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+                  body { padding: 24px; color: #0f172a; background: #fff; font-size: 13px; line-height: 1.5; }
+                  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+                  th, td { padding: 10px 14px; text-align: left; }
+                  th { background: #f8fafc; font-size: 11px; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+                  td { border-bottom: 1px solid #f1f5f9; }
+                  .text-right { text-align: right; }
+                  .font-bold { font-weight: 700; }
+                  .font-mono { font-family: monospace; }
+                  @media print {
+                    body { padding: 0; }
+                    @page { margin: 10mm; size: auto; }
+                  }
+                </style>
+              </head>
+              <body>
+                ${voucherEl.innerHTML}
+              </body>
+            </html>
+          `);
+          doc.close();
+          setTimeout(() => {
+            iframe.contentWindow?.focus();
+            iframe.contentWindow?.print();
+            setTimeout(() => {
+              try {
+                document.body.removeChild(iframe);
+              } catch (e) {}
+            }, 1000);
+          }, 300);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Iframe print fallback to window.print():', e);
+    }
+
+    // 3. Fallback
     window.print();
+  };
+
+  const handleShareWhatsApp = () => {
+    const studentPhoneClean = student.phone ? student.phone.replace(/\D/g, '') : '';
+    const normalized = studentPhoneClean.length === 10 ? `91${studentPhoneClean}` : studentPhoneClean;
+    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(voucherSummaryText)}${normalized ? `&phone=${normalized}` : ''}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleCopyText = () => {
+    navigator.clipboard.writeText(voucherSummaryText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
   };
 
   return (
     <div className="voucher-modal-overlay fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-white text-slate-900 rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto print:max-w-none print:shadow-none print:border-none print:rounded-none">
+      <div className="relative w-full max-w-2xl bg-white text-slate-900 rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-auto print:max-w-none print:shadow-none print:border-none print:rounded-none flex flex-col max-h-[92vh]">
         {/* Modal Action Bar (Hidden on Print) */}
-        <div className="no-print flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
+        <div className="no-print flex items-center justify-between px-5 py-3.5 border-b border-slate-200 bg-slate-50 shrink-0">
           <div className="flex items-center gap-2">
             <span
               className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
@@ -65,15 +179,29 @@ export default function VoucherModal({
             <span className="text-xs font-mono font-bold text-slate-600">{docNumber}</span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
+              type="button"
+              onClick={handleShareWhatsApp}
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+              title="Share Receipt on WhatsApp"
+            >
+              <MessageCircle className="w-3.5 h-3.5 fill-white" />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </button>
+
+            <button
+              type="button"
               onClick={handlePrint}
-              className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5"
+              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+              title="Print Receipt or Save as PDF"
             >
               <Printer className="w-3.5 h-3.5 text-indigo-300" />
-              Print / Save PDF
+              <span>Print / PDF</span>
             </button>
+
             <button
+              type="button"
               onClick={onClose}
               className="p-1.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700"
             >
@@ -83,7 +211,7 @@ export default function VoucherModal({
         </div>
 
         {/* Printable Voucher Body */}
-        <div className="p-6 sm:p-10 space-y-6 text-xs bg-white printable-voucher">
+        <div className="p-6 sm:p-8 space-y-5 text-xs bg-white printable-voucher overflow-y-auto flex-1">
           {/* Header: Hostel Information */}
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-5 border-b-2 border-slate-900">
             <div>
@@ -123,7 +251,7 @@ export default function VoucherModal({
             </div>
           </div>
 
-          {/* Resident Details Box */}
+          {/* Resident Details Box (No Room) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
             <div>
               <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">
@@ -134,8 +262,7 @@ export default function VoucherModal({
                 Student ID: {student.studentId}
               </div>
               <div className="text-slate-600 mt-1">
-                Room: <span className="font-semibold">{student.roomNumber}</span> • Bed:{' '}
-                <span className="font-semibold">{student.bedNumber}</span> ({student.blockName})
+                Bed: <span className="font-semibold">{student.bedNumber}</span> ({student.blockName || 'Residence Block'})
               </div>
               <div className="text-slate-500 mt-0.5">Contact: {student.phone}</div>
             </div>
@@ -189,7 +316,7 @@ export default function VoucherModal({
                     {data.description ||
                       (isInvoice
                         ? `Hostel Accommodation & Services (Month ${data.cycleNumber || 1})`
-                        : `Payment for Hostel Stay & Utilities`)}
+                        : `Payment for Hostel Stay & Services`)}
                   </td>
                   <td className="py-3 px-4 text-right font-bold text-slate-900">
                     ₹{amount.toLocaleString('en-IN')}
@@ -226,15 +353,15 @@ export default function VoucherModal({
           </div>
 
           {/* Verification & Stamp */}
-          <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-[11px] text-slate-500">
               <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>
-                System generated voucher by <strong>{hostelName}</strong>. Valid proof of accommodation & settlement.
+                System verified voucher by <strong>{hostelName}</strong>. Valid digital proof of settlement.
               </span>
             </div>
 
-            <div className="text-right">
+            <div className="flex items-center gap-2">
               <span
                 className={`px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1 ${
                   isPaid
@@ -254,6 +381,46 @@ export default function VoucherModal({
                   </>
                 )}
               </span>
+            </div>
+          </div>
+
+          {/* Mobile Bottom Quick Action Bar */}
+          <div className="no-print pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={handleCopyText}
+              className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span className="text-emerald-700">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Copy Text</span>
+                </>
+              )}
+            </button>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleShareWhatsApp}
+                className="py-2 px-3 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 font-semibold text-xs flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Share WhatsApp</span>
+              </button>
+              <button
+                type="button"
+                onClick={handlePrint}
+                className="py-2 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm cursor-pointer"
+              >
+                <Printer className="w-3.5 h-3.5 text-indigo-300" />
+                <span>Print Voucher</span>
+              </button>
             </div>
           </div>
         </div>
