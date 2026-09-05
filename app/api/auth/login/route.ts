@@ -1,0 +1,53 @@
+import { NextResponse } from 'next/server';
+import { getDatabase } from '@/lib/db/store';
+
+export async function POST(req: Request) {
+  try {
+    const { identifier, password } = await req.json();
+    if (!identifier) {
+      return NextResponse.json({ success: false, error: 'Phone number or email is required' }, { status: 400 });
+    }
+
+    const db = getDatabase();
+    const cleanId = identifier.trim().toLowerCase();
+
+    // Check if matching owner or staff
+    const matchedUser = db.users.find((u) => {
+      const matchEmail = u.email?.toLowerCase() === cleanId;
+      const matchPhone = u.phone === cleanId;
+      return (matchEmail || matchPhone) && u.isActive;
+    });
+
+    if (!matchedUser) {
+      return NextResponse.json({ success: false, error: 'User account not found. Please contact the Hostel Owner.' }, { status: 404 });
+    }
+
+    // Check password
+    if (password && matchedUser.passwordHash !== password) {
+      return NextResponse.json({ success: false, error: 'Incorrect password entered.' }, { status: 401 });
+    }
+
+    // If Student role, ensure student record is active
+    if (matchedUser.role === 'STUDENT') {
+      const studentRecord = db.students.find(s => s.phone === matchedUser.phone && s.status === 'Active');
+      if (!studentRecord) {
+        return NextResponse.json({ success: false, error: 'No active student enrolment found for this phone number.' }, { status: 403 });
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      user: {
+        id: matchedUser.id,
+        role: matchedUser.role,
+        fullName: matchedUser.fullName,
+        phone: matchedUser.phone,
+        email: matchedUser.email,
+        staffTitle: matchedUser.staffTitle,
+        permissions: matchedUser.permissions,
+      },
+    });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  }
+}
