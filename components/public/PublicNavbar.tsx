@@ -47,26 +47,26 @@ export default function PublicNavbar() {
     <>
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 sm:h-20">
+          <div className="flex items-center justify-between h-16 sm:h-20 gap-2">
             {/* Brand Logo */}
-            <Link href="/" className="flex items-center gap-3 group shrink-0">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-indigo-800 flex items-center justify-center text-white font-black text-lg shadow-md shadow-indigo-500/20 group-hover:scale-105 transition">
-                <Bed className="w-5 h-5 text-indigo-100" />
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-indigo-800 flex items-center justify-center text-white font-black text-base sm:text-lg shadow-md shadow-indigo-500/20 group-hover:scale-105 transition shrink-0">
+                <Bed className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-100" />
               </div>
-              <div>
+              <div className="hidden xs:block min-w-0">
                 <span
-                  className="font-display font-bold text-lg sm:text-xl text-slate-900 tracking-tight block leading-tight"
+                  className="font-display font-bold text-sm sm:text-lg text-slate-900 tracking-tight block leading-tight truncate max-w-[100px] sm:max-w-none"
                   suppressHydrationWarning
                 >
                   {hostelName}
                 </span>
-                <span className="text-[10px] font-medium tracking-wider uppercase text-indigo-600 block">
+                <span className="text-[9px] sm:text-[10px] font-medium tracking-wider uppercase text-indigo-600 hidden sm:block">
                   Luxury Student Residence
                 </span>
               </div>
             </Link>
 
-            {/* Top Side Navigation: Home, About, Contact */}
+            {/* Desktop Navigation Links: Home, About, Contact */}
             <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-slate-600">
               <Link href="/#home" className="hover:text-indigo-600 transition">
                 Home
@@ -79,86 +79,28 @@ export default function PublicNavbar() {
               </Link>
             </nav>
 
-            {/* Desktop Action Buttons: Book a Bed, Direct Download Dropdown, Login */}
-            <div className="hidden lg:flex items-center gap-3">
+            {/* Desktop Top Action Buttons: Book a Bed, Download App, Login */}
+            <div className="hidden lg:flex items-center gap-2.5">
               {/* 1. Book a Bed */}
               <button
                 onClick={() => setIsBookModalOpen(true)}
                 className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-md shadow-indigo-600/25 hover:shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-1.5"
               >
                 <Sparkles className="w-4 h-4 text-indigo-200 animate-pulse" />
-                Book a Bed
+                <span>Book a Bed</span>
               </button>
 
-              {/* 2. Direct Download Button & Dropdown (No page opening) */}
-              <div className="relative" ref={dropdownRef}>
-                <div className="inline-flex items-center rounded-xl bg-slate-100 hover:bg-slate-200/80 transition p-0.5 border border-slate-200">
-                  {/* Direct 1-click Download */}
-                  <a
-                    href="/downloads/homestay-app.apk"
-                    download="homestay-app.apk"
-                    onClick={() => notifyDownload('Home Stay App')}
-                    className="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-800 hover:text-indigo-600 flex items-center gap-1.5"
-                    title="Direct Download Official Home Stay App"
-                  >
-                    <Download className="w-4 h-4 text-indigo-600" />
-                    <span>Download App</span>
-                  </a>
-
-                  {/* Dropdown toggle */}
-                  <button
-                    type="button"
-                    onClick={() => setDownloadDropdownOpen(!downloadDropdownOpen)}
-                    className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition"
-                    title="More download options"
-                    aria-label="More download options"
-                  >
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${downloadDropdownOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                </div>
-
-                {/* Direct Download Dropdown Menu */}
-                {downloadDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
-                    <div className="px-3 py-1.5 border-b border-slate-100 mb-1">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                        Official App
-                      </span>
-                      <span className="text-[11px] text-slate-500">
-                        Students, Wardens &amp; Owners
-                      </span>
-                    </div>
-
-                    <div className="space-y-1">
-                      {/* Direct Phone APK */}
-                      <a
-                        href="/downloads/homestay-app.apk"
-                        download="homestay-app.apk"
-                        onClick={() => notifyDownload('Home Stay APK')}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 hover:bg-indigo-50 hover:text-indigo-700 transition"
-                      >
-                        <Smartphone className="w-4 h-4 text-indigo-600 shrink-0" />
-                        <div className="flex-1 text-left">
-                          <div>Download Android App</div>
-                          <div className="text-[10px] font-normal text-slate-400">Direct install (~860 KB)</div>
-                        </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono font-bold">APK</span>
-                      </a>
-
-                      {/* Link to /download page */}
-                      <div className="pt-1.5 border-t border-slate-100 mt-1">
-                        <Link
-                          href="/download"
-                          onClick={() => setDownloadDropdownOpen(false)}
-                          className="w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-[11px] font-semibold text-indigo-600 hover:bg-indigo-50 transition"
-                        >
-                          <span>View Installation Hub &rarr;</span>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              {/* 2. Download App */}
+              <a
+                href="/downloads/homestay-app.apk"
+                download="homestay-app.apk"
+                onClick={() => notifyDownload('Home Stay App')}
+                className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-1.5 shadow-xs"
+                title="Direct Download Official Home Stay App"
+              >
+                <Download className="w-4 h-4 text-emerald-400" />
+                <span>Download App</span>
+              </a>
 
               {/* 3. Login */}
               <Link
@@ -166,36 +108,47 @@ export default function PublicNavbar() {
                 className="px-3.5 py-2 text-xs sm:text-sm font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/80 rounded-xl transition flex items-center gap-1.5"
               >
                 <LogIn className="w-4 h-4 text-indigo-600" />
-                Login
+                <span>Login</span>
               </Link>
             </div>
 
-            {/* Mobile Actions: Top-side Download App (Always Visible!) + Book Bed + Menu Drawer */}
+            {/* Mobile Top Action Buttons: Book Bed, Download, Login (All visible at top!) + 3-line Menu */}
             <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
-              {/* Always Visible Download Button on Mobile Top-Side */}
+              {/* 1. Book Bed */}
+              <button
+                onClick={() => setIsBookModalOpen(true)}
+                className="px-2.5 py-1.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1 shrink-0"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
+                <span>Book Bed</span>
+              </button>
+
+              {/* 2. Download App */}
               <a
                 href="/downloads/homestay-app.apk"
                 download="homestay-app.apk"
                 onClick={() => notifyDownload('Home Stay App')}
-                className="px-2.5 sm:px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 shrink-0"
-                title="Direct Download Official Home Stay App"
+                className="px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1 shrink-0"
+                title="Direct Download App"
               >
-                <Download className="w-3.5 h-3.5" />
+                <Download className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Download</span>
               </a>
 
-              {/* Book Bed button */}
-              <button
-                onClick={() => setIsBookModalOpen(true)}
-                className="px-2.5 sm:px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl flex items-center gap-1 shrink-0"
+              {/* 3. Login */}
+              <Link
+                href="/login"
+                className="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 rounded-xl text-xs font-semibold flex items-center gap-1 shrink-0"
+                title="Sign In"
               >
-                <Sparkles className="w-3 h-3 text-indigo-600" />
-                <span>Book Bed</span>
-              </button>
+                <LogIn className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Login</span>
+              </Link>
 
+              {/* 4. Three-line Menu Toggle (Navigation only: Home, About, Contact) */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-1.5 rounded-xl text-slate-700 hover:bg-slate-100 transition"
+                className="p-1.5 rounded-xl text-slate-700 hover:bg-slate-100 transition shrink-0"
                 aria-label="Toggle navigation menu"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -204,9 +157,9 @@ export default function PublicNavbar() {
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile Dropdown Menu: Navigation only (Home, About, Contact) */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-5 space-y-2 animate-in slide-in-from-top-2">
+          <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-4 space-y-1 animate-in slide-in-from-top-2">
             <Link
               href="/#home"
               onClick={() => setMobileMenuOpen(false)}
@@ -228,31 +181,6 @@ export default function PublicNavbar() {
             >
               Contact
             </Link>
-
-            <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-              {/* Direct Download button in drawer as well */}
-              <a
-                href="/downloads/homestay-app.apk"
-                download="homestay-app.apk"
-                onClick={() => {
-                  notifyDownload('Home Stay App');
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full py-2.5 px-4 text-center text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl flex items-center justify-center gap-2 shadow-xs transition"
-              >
-                <Download className="w-4 h-4" />
-                <span>Download App (Android APK)</span>
-              </a>
-
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="w-full py-2.5 px-4 text-center text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl flex items-center justify-center gap-2 mt-1"
-              >
-                <LogIn className="w-4 h-4 text-indigo-600" />
-                <span>Universal Portal Login</span>
-              </Link>
-            </div>
           </div>
         )}
 
