@@ -95,14 +95,14 @@ export default function PublicNavbar() {
                 <div className="inline-flex items-center rounded-xl bg-slate-100 hover:bg-slate-200/80 transition p-0.5 border border-slate-200">
                   {/* Direct 1-click Download */}
                   <a
-                    href="/api/download/aab?role=single&format=aab"
-                    download="homestay-release.aab"
-                    onClick={() => notifyDownload('Home Stay App (.AAB)')}
+                    href="/downloads/homestay-app.apk"
+                    download="homestay-app.apk"
+                    onClick={() => notifyDownload('Home Stay App')}
                     className="px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-slate-800 hover:text-indigo-600 flex items-center gap-1.5"
                     title="Direct Download Official Home Stay App"
                   >
                     <Download className="w-4 h-4 text-indigo-600" />
-                    <span>Download App (.AAB)</span>
+                    <span>Download App</span>
                   </a>
 
                   {/* Dropdown toggle */}
@@ -110,8 +110,8 @@ export default function PublicNavbar() {
                     type="button"
                     onClick={() => setDownloadDropdownOpen(!downloadDropdownOpen)}
                     className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition"
-                    title="Select format to download"
-                    aria-label="Select format download"
+                    title="More download options"
+                    aria-label="More download options"
                   >
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${downloadDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -119,60 +119,30 @@ export default function PublicNavbar() {
 
                 {/* Direct Download Dropdown Menu */}
                 {downloadDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                     <div className="px-3 py-1.5 border-b border-slate-100 mb-1">
                       <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
-                        Single Unified App
+                        Official App
                       </span>
                       <span className="text-[11px] text-slate-500">
-                        For Students, Wardens &amp; Owners
+                        Students, Wardens &amp; Owners
                       </span>
                     </div>
 
                     <div className="space-y-1">
-                      {/* Unified AAB */}
-                      <a
-                        href="/api/download/aab?role=single&format=aab"
-                        download="homestay-release.aab"
-                        onClick={() => notifyDownload('Home Stay Official .AAB')}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 hover:bg-indigo-50 hover:text-indigo-700 transition"
-                      >
-                        <Package className="w-4 h-4 text-indigo-600 shrink-0" />
-                        <div className="flex-1 text-left">
-                          <div>Official App (.AAB)</div>
-                          <div className="text-[10px] font-normal text-slate-400">Google Play Store Bundle</div>
-                        </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono font-bold">.AAB</span>
-                      </a>
-
                       {/* Direct Phone APK */}
                       <a
-                        href="/api/download/aab?role=single&format=apk"
-                        download="homestay-v1.0.0.apk"
-                        onClick={() => notifyDownload('Direct APK')}
+                        href="/downloads/homestay-app.apk"
+                        download="homestay-app.apk"
+                        onClick={() => notifyDownload('Home Stay APK')}
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 hover:bg-indigo-50 hover:text-indigo-700 transition"
                       >
-                        <Smartphone className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <Smartphone className="w-4 h-4 text-indigo-600 shrink-0" />
                         <div className="flex-1 text-left">
-                          <div>Direct Phone APK</div>
-                          <div className="text-[10px] font-normal text-slate-400">Instant Android sideload</div>
+                          <div>Download Android App</div>
+                          <div className="text-[10px] font-normal text-slate-400">Direct install (~860 KB)</div>
                         </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 font-mono font-bold">APK</span>
-                      </a>
-
-                      {/* All Bundles ZIP */}
-                      <a
-                        href="/api/download/aab?role=all"
-                        download="homestay-all-aab-bundles.zip"
-                        onClick={() => notifyDownload('Complete App ZIP')}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-800 hover:bg-indigo-50 hover:text-indigo-700 transition"
-                      >
-                        <Download className="w-4 h-4 text-slate-600 shrink-0" />
-                        <div className="flex-1 text-left">
-                          <div>Complete Bundles (.ZIP)</div>
-                          <div className="text-[10px] font-normal text-slate-400">All packages &amp; publishing guide</div>
-                        </div>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-mono">ZIP</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 font-mono font-bold">APK</span>
                       </a>
 
                       {/* Link to /download page */}
