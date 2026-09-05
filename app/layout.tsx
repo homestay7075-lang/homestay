@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/lib/context/AuthContext';
 import { SettingsProvider } from '@/lib/context/SettingsContext';
-import TopDemoBar from '@/components/layout/TopDemoBar';
 import { getDatabase } from '@/lib/db/store';
 
 export const metadata: Metadata = {
@@ -54,7 +53,6 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
         <SettingsProvider initialSettings={initialSettings}>
           <AuthProvider>
-            <TopDemoBar />
             <div className="flex-1 flex flex-col">
               {children}
             </div>
