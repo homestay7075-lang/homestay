@@ -21,9 +21,11 @@ export const PHONE_ERROR_MESSAGE =
  */
 export function normalizePhoneNumber(phone?: string | null): string {
   if (!phone) return '';
-  const digitsOnly = String(phone).replace(/\D/g, '');
+  let digitsOnly = String(phone).replace(/\D/g, '');
   if (digitsOnly.length === 12 && digitsOnly.startsWith('91')) {
     return digitsOnly.slice(2);
+  } else if (digitsOnly.length === 11 && digitsOnly.startsWith('0')) {
+    return digitsOnly.slice(1);
   }
   return digitsOnly;
 }

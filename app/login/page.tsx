@@ -231,14 +231,43 @@ export default function LoginPage() {
           </form>
 
           {/* Emergency Support? Call Host matching screenshot */}
-          <div className="pt-2 text-center text-xs text-slate-400">
-            <span>Emergency Support? </span>
-            <a
-              href={`tel:${supportPhone}`}
-              className="text-purple-400 hover:text-purple-300 font-semibold transition hover:underline"
-            >
-              Call Host
-            </a>
+          <div className="pt-2 text-center text-xs text-slate-400 space-y-2">
+            <div>
+              <span>Emergency Support? </span>
+              <a
+                href={`tel:${supportPhone}`}
+                className="text-purple-400 hover:text-purple-300 font-semibold transition hover:underline"
+              >
+                Call Host
+              </a>
+            </div>
+
+            {/* Quick Demo Credentials Autofill */}
+            <div className="pt-1 flex items-center justify-center gap-2 text-[11px] text-slate-500 font-mono">
+              <span>Demo Logins:</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setIdentifier('9876543210');
+                  setPassword('admin123');
+                  setErrorMsg('');
+                }}
+                className="px-2.5 py-1 rounded-xl bg-purple-950/40 border border-purple-500/30 hover:border-purple-400 text-purple-300 text-[11px] font-semibold transition"
+              >
+                Owner (admin123)
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setIdentifier('9123456780');
+                  setPassword('student123');
+                  setErrorMsg('');
+                }}
+                className="px-2.5 py-1 rounded-xl bg-cyan-950/40 border border-cyan-500/30 hover:border-cyan-400 text-cyan-300 text-[11px] font-semibold transition"
+              >
+                Student (student123)
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -284,12 +313,12 @@ export default function LoginPage() {
         </div>
       )}
 
-      {/* Forgot Password Modal */}
+      {/* Forgot Password / Default Credentials Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-white">Reset Account Access</h3>
+              <h3 className="text-base font-bold text-white">Default Access Credentials</h3>
               <button
                 onClick={() => setShowForgotModal(false)}
                 className="p-1.5 rounded-xl hover:bg-slate-800 text-slate-400"
@@ -299,15 +328,68 @@ export default function LoginPage() {
             </div>
 
             <p className="text-xs text-slate-300 leading-relaxed">
-              Student and Staff account passwords are verified through the hostel administration desk. Please contact your warden or administrator to reset your PIN.
+              Use these standard system credentials or select one below to autofill and sign in:
             </p>
+
+            <div className="space-y-2 pt-1 font-mono text-xs">
+              <button
+                type="button"
+                onClick={() => {
+                  setIdentifier('9876543210');
+                  setPassword('admin123');
+                  setShowForgotModal(false);
+                  setErrorMsg('');
+                }}
+                className="w-full p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-purple-500/40 text-left flex items-center justify-between transition"
+              >
+                <div>
+                  <div className="text-purple-300 font-bold">Owner / Admin</div>
+                  <div className="text-slate-400 text-[11px]">Phone: 9876543210 | Pass: admin123</div>
+                </div>
+                <span className="text-[11px] text-purple-400 font-sans font-semibold">Autofill ➔</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIdentifier('9123456780');
+                  setPassword('student123');
+                  setShowForgotModal(false);
+                  setErrorMsg('');
+                }}
+                className="w-full p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-cyan-500/40 text-left flex items-center justify-between transition"
+              >
+                <div>
+                  <div className="text-cyan-300 font-bold">Student Resident</div>
+                  <div className="text-slate-400 text-[11px]">Phone: 9123456780 | Pass: student123</div>
+                </div>
+                <span className="text-[11px] text-cyan-400 font-sans font-semibold">Autofill ➔</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setIdentifier('9876543211');
+                  setPassword('warden123');
+                  setShowForgotModal(false);
+                  setErrorMsg('');
+                }}
+                className="w-full p-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-emerald-500/40 text-left flex items-center justify-between transition"
+              >
+                <div>
+                  <div className="text-emerald-300 font-bold">Chief Warden</div>
+                  <div className="text-slate-400 text-[11px]">Phone: 9876543211 | Pass: warden123</div>
+                </div>
+                <span className="text-[11px] text-emerald-400 font-sans font-semibold">Autofill ➔</span>
+              </button>
+            </div>
 
             <div className="pt-2">
               <a
                 href={`tel:${supportPhone}`}
-                className="w-full py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition"
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs flex items-center justify-center gap-2 transition"
               >
-                <Phone className="w-4 h-4" />
+                <Phone className="w-3.5 h-3.5" />
                 <span>Call Host Desk ({supportPhone})</span>
               </a>
             </div>
