@@ -1,0 +1,49 @@
+name: Build Android App Bundles (.AAB)
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'android/**'
+      - '.github/workflows/build-aab.yml'
+  workflow_dispatch:
+
+jobs:
+  build-aab:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Set up Android SDK
+      uses: android-actions/setup-android@v3
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Build Android App Bundles (.aab)
+      working-directory: ./android
+      run: |
+        chmod +x gradlew || true
+        gradle wrapper
+        ./gradlew bundleRelease --stacktrace
+
+    - name: Copy generated .AAB files
+      run: |
+        mkdir -p release-aab
+        find android/app/build/outputs/bundle -name "*.aab" -exec cp {} release-aab/ \;
+        ls -la release-aab
+
+    - name: Upload .AAB Bundles as Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: homestay-playstore-aab-bundles
+        path: release-aab/*.aab
+        retention-days: 30

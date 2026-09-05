@@ -1,0 +1,74 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.homestay.app'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        manifestPlaceholders = [
+            hostName: "homestay-alpha.vercel.app",
+            defaultUrl: "https://homestay-alpha.vercel.app/app",
+            assetStatements: '[{"relation": ["delegate_permission/common.handle_all_urls"], "target": {"namespace": "android_app", "package_name": "com.homestay.resident", "sha256_cert_fingerprints": ["14:6D:E9:7A:5A:F4:DF:5E:AE:4B:B2:67:EE:7F:C2:59:E4:73:C0:00:23:4E:91:DE:3C:76:83:8B:7F:1B:4F:9E"]}}]'
+        ]
+    }
+
+    flavorDimensions = ["role"]
+    productFlavors {
+        resident {
+            dimension "role"
+            applicationId "com.homestay.resident"
+            manifestPlaceholders = [
+                appName: "Home Stay Resident",
+                startUrl: "https://homestay-alpha.vercel.app/app"
+            ]
+        }
+        owner {
+            dimension "role"
+            applicationId "com.homestay.owner"
+            manifestPlaceholders = [
+                appName: "Home Stay Owner Hub",
+                startUrl: "https://homestay-alpha.vercel.app/dashboard"
+            ]
+        }
+        staff {
+            dimension "role"
+            applicationId "com.homestay.staff"
+            manifestPlaceholders = [
+                appName: "Home Stay Staff Desk",
+                startUrl: "https://homestay-alpha.vercel.app/dashboard"
+            ]
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            debuggable true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.browser:browser:1.8.0'
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
+}
