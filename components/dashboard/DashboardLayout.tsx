@@ -99,10 +99,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, visible: true },
     { name: 'Students', href: '/dashboard/students', icon: Users, visible: canAccess('students') },
+    { name: 'Expenses', href: '/dashboard/expenses', icon: Wallet, visible: canAccess('expenses') },
+    { name: 'Payments & Dues', href: '/dashboard/payments', icon: CreditCard, visible: canAccess('payments') },
     { name: 'Rooms & Beds', href: '/dashboard/rooms', icon: Bed, visible: canAccess('rooms') },
     { name: 'Web Bookings', href: '/dashboard/bookings', icon: CalendarCheck, visible: canAccess('bookings') },
-    { name: 'Payments & Dues', href: '/dashboard/payments', icon: CreditCard, visible: canAccess('payments') },
-    { name: 'Expenses', href: '/dashboard/expenses', icon: Wallet, visible: canAccess('expenses') },
     { name: 'Staff & Roles', href: '/dashboard/staff', icon: UserCheck, visible: isOwner },
     { name: 'Notifications', href: '/dashboard/notifications', icon: Bell, visible: canAccess('notifications') },
     { name: 'Messages', href: '/dashboard/messages', icon: MessageSquare, visible: canAccess('messages') },
@@ -301,13 +301,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           </Link>
 
           <Link
-            href="/dashboard/rooms"
+            href="/dashboard/expenses"
             className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
-              pathname === '/dashboard/rooms' ? 'text-blue-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+              pathname === '/dashboard/expenses' ? 'text-blue-700 font-bold' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
-            <Bed className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">Rooms</span>
+            <Wallet className="w-5 h-5 mb-0.5" />
+            <span className="text-[10px]">Expenses</span>
           </Link>
 
           <Link
