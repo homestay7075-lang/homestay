@@ -61,8 +61,19 @@ export interface DatabaseState {
   customBills?: any[];
 }
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DB_FILE = path.join(DATA_DIR, 'hostel-db.json');
+function getDataDir(): string {
+  if (process.env.DATA_DIR) {
+    return process.env.DATA_DIR;
+  }
+  if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+    return path.join('/tmp', 'homestay-data');
+  }
+  return path.join(process.cwd(), 'data');
+}
+
+function getDbFile(): string {
+  return path.join(getDataDir(), 'hostel-db.json');
+}
 
 function getDefaultState(): DatabaseState {
   return {
@@ -154,12 +165,13 @@ export function getDatabase(): DatabaseState {
   }
 
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
+    const dataDir = getDataDir();
+    const dbFile = getDbFile();
+    const fallbackFile = path.join('/tmp', 'homestay-data', 'hostel-db.json');
+    const targetFile = fs.existsSync(dbFile) ? dbFile : (fs.existsSync(fallbackFile) ? fallbackFile : dbFile);
 
-    if (fs.existsSync(DB_FILE)) {
-      const content = fs.readFileSync(DB_FILE, 'utf-8');
+    if (fs.existsSync(targetFile)) {
+      const content = fs.readFileSync(targetFile, 'utf-8');
       inMemoryDb = JSON.parse(content);
       if (!inMemoryDb!.bills || inMemoryDb!.bills.length === 0) {
         inMemoryDb!.bills = inMemoryDb!.customBills && inMemoryDb!.customBills.length > 0
@@ -169,9 +181,9 @@ export function getDatabase(): DatabaseState {
       const pruned = filterExpiredAuditLogs(inMemoryDb!, 12);
       if (pruned > 0) {
         try {
-          fs.writeFileSync(DB_FILE, JSON.stringify(inMemoryDb, null, 2), 'utf-8');
+          fs.writeFileSync(targetFile, JSON.stringify(inMemoryDb, null, 2), 'utf-8');
         } catch (e) {
-          console.error('Failed to write initial pruned database to file:', e);
+          // ignore
         }
       }
       lastAutoPruneTimestamp = Date.now();
@@ -179,7 +191,22 @@ export function getDatabase(): DatabaseState {
     } else {
       inMemoryDb = getDefaultState();
       filterExpiredAuditLogs(inMemoryDb, 12);
-      fs.writeFileSync(DB_FILE, JSON.stringify(inMemoryDb, null, 2), 'utf-8');
+      try {
+        if (!fs.existsSync(dataDir)) {
+          fs.mkdirSync(dataDir, { recursive: true });
+        }
+        fs.writeFileSync(dbFile, JSON.stringify(inMemoryDb, null, 2), 'utf-8');
+      } catch (e) {
+        try {
+          const fallbackDir = path.join('/tmp', 'homestay-data');
+          if (!fs.existsSync(fallbackDir)) {
+            fs.mkdirSync(fallbackDir, { recursive: true });
+          }
+          fs.writeFileSync(fallbackFile, JSON.stringify(inMemoryDb, null, 2), 'utf-8');
+        } catch (e2) {
+          // fallback to memory
+        }
+      }
       lastAutoPruneTimestamp = Date.now();
       return inMemoryDb;
     }
@@ -205,12 +232,22 @@ export function saveDatabase(db: DatabaseState): void {
   }
 
   try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    const dataDir = getDataDir();
+    const dbFile = getDbFile();
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
     }
-    fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2), 'utf-8');
+    fs.writeFileSync(dbFile, JSON.stringify(db, null, 2), 'utf-8');
   } catch (err) {
-    console.error('Failed to persist database to file:', err);
+    try {
+      const fallbackDir = path.join('/tmp', 'homestay-data');
+      if (!fs.existsSync(fallbackDir)) {
+        fs.mkdirSync(fallbackDir, { recursive: true });
+      }
+      fs.writeFileSync(path.join(fallbackDir, 'hostel-db.json'), JSON.stringify(db, null, 2), 'utf-8');
+    } catch (fallbackErr) {
+      console.warn('Fallback persistence failed, operating in memory:', fallbackErr);
+    }
   }
 }
 

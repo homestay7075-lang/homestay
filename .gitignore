@@ -40,4 +40,6 @@ next-env.d.ts
 # scratch
 scratch/
 push-to-github.bat
+redeploy.bat
+
 
