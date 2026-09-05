@@ -42,6 +42,7 @@ scratch/
 push-to-github.bat
 redeploy.bat
 redeploy-now.bat
+build-apk.bat
 
 # android build artifacts
 android/.gradle/

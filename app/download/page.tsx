@@ -25,7 +25,7 @@ export default function DownloadAppPage() {
   const appUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}/login`
-      : 'https://homestay-alpha.vercel.app/login';
+      : 'https://homestay-homestay7075-langs-projects.vercel.app/login';
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(appUrl);

@@ -28,22 +28,23 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Build Android App Bundles (.aab)
+    - name: Build Android Release APK and App Bundle (.aab)
       working-directory: ./android
       run: |
         chmod +x gradlew || true
         gradle wrapper
-        ./gradlew bundleRelease --stacktrace
+        ./gradlew assembleRelease bundleRelease --stacktrace
 
-    - name: Copy generated .AAB files
+    - name: Copy generated APK and AAB files
       run: |
-        mkdir -p release-aab
-        find android/app/build/outputs/bundle -name "*.aab" -exec cp {} release-aab/ \;
-        ls -la release-aab
+        mkdir -p release-packages
+        find android/app/build/outputs -name "*.aab" -exec cp {} release-packages/ \;
+        find android/app/build/outputs -name "*.apk" -exec cp {} release-packages/ \;
+        ls -la release-packages
 
-    - name: Upload .AAB Bundles as Artifacts
+    - name: Upload APK & AAB Packages as Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: homestay-playstore-aab-bundles
-        path: release-aab/*.aab
+        name: homestay-android-packages
+        path: release-packages/*
         retention-days: 30

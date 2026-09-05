@@ -112,7 +112,7 @@ foreach ($app in $apps) {
             android:exported="true">
             <meta-data
                 android:name="android.support.customtabs.trusted.DEFAULT_URL"
-                android:value="https://homestay-alpha.vercel.app$($app.TargetUrl)" />
+                android:value="https://homestay-homestay7075-langs-projects.vercel.app$($app.TargetUrl)" />
             <meta-data
                 android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR"
                 android:resource="@color/colorPrimary" />
@@ -131,7 +131,7 @@ foreach ($app in $apps) {
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="https"
-                    android:host="homestay-alpha.vercel.app"
+                    android:host="homestay-homestay7075-langs-projects.vercel.app"
                     android:pathPrefix="$($app.TargetUrl)" />
             </intent-filter>
         </activity>
@@ -146,7 +146,7 @@ foreach ($app in $apps) {
 <resources>
     <string name="app_name">$($app.AppName)</string>
     <string name="package_name">$($app.PackageName)</string>
-    <string name="host_url">https://homestay-alpha.vercel.app$($app.TargetUrl)</string>
+    <string name="host_url">https://homestay-homestay7075-langs-projects.vercel.app$($app.TargetUrl)</string>
     <string name="asset_statements">[{\"relation\": [\"delegate_permission/common.handle_all_urls\"], \"target\": {\"namespace\": \"android_app\", \"package_name\": \"$($app.PackageName)\", \"sha256_cert_fingerprints\": [\"14:6D:E9:7A:5A:F4:DF:5E:AE:4B:B2:67:EE:7F:C2:59:E4:73:C0:00:23:4E:91:DE:3C:76:83:8B:7F:1B:4F:9E\"]}}]</string>
 </resources>
 "@
@@ -179,19 +179,19 @@ foreach ($app in $apps) {
     # TWA Manifest in assets
     $twaManifest = @{
         packageId = $app.PackageName
-        host = "homestay-alpha.vercel.app"
+        host = "homestay-homestay7075-langs-projects.vercel.app"
         name = $app.AppName
         launcherName = $app.AppName
         themeColor = $app.ThemeColor
         navigationColor = $app.ThemeColor
         backgroundColor = "#0f172a"
         startUrl = $app.TargetUrl
-        iconUrl = "https://homestay-alpha.vercel.app/icon-512.png"
-        maskableIconUrl = "https://homestay-alpha.vercel.app/icon-512.png"
+        iconUrl = "https://homestay-homestay7075-langs-projects.vercel.app/icon-512.png"
+        maskableIconUrl = "https://homestay-homestay7075-langs-projects.vercel.app/icon-512.png"
         appVersionCode = $app.VersionCode
         appVersionName = $app.VersionName
         generatorApp = "bubblewrap-cli-v1.21.0"
-        webManifestUrl = "https://homestay-alpha.vercel.app/manifest.json"
+        webManifestUrl = "https://homestay-homestay7075-langs-projects.vercel.app/manifest.json"
         signingKey = @{
             storeFile = "android.keystore"
             alias = "android"
