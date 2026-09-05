@@ -62,15 +62,37 @@ function OwnerProfileContent() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Tab 1: Owner Profile state
-  const [ownerName, setOwnerName] = useState(currentUser?.fullName || 'Rajesh Kumar');
-  const [ownerTitle, setOwnerTitle] = useState(currentUser?.staffTitle || 'Hostel Owner & Lead Administrator');
-  const [ownerEmail, setOwnerEmail] = useState(currentUser?.email || 'owner@serenityliving.com');
-  const [ownerPhone, setOwnerPhone] = useState(currentUser?.phone || '9876543210');
+  const isOwner = currentUser?.role === 'OWNER';
+
+  // Tab 1: Profile state
+  const [ownerName, setOwnerName] = useState(currentUser?.fullName || '');
+  const [ownerTitle, setOwnerTitle] = useState(currentUser?.staffTitle || '');
+  const [ownerEmail, setOwnerEmail] = useState(currentUser?.email || '');
+  const [ownerPhone, setOwnerPhone] = useState(currentUser?.phone || '');
   const [avatarUrl, setAvatarUrl] = useState(
     currentUser?.avatarUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop'
   );
   const avatarFileRef = useRef<HTMLInputElement>(null);
+
+  // Sync state whenever currentUser loads or switches
+  useEffect(() => {
+    if (currentUser) {
+      setOwnerName(currentUser.fullName || '');
+      setOwnerTitle(currentUser.staffTitle || (currentUser.role === 'OWNER' ? 'Hostel Owner & Lead Administrator' : currentUser.role));
+      setOwnerEmail(currentUser.email || '');
+      setOwnerPhone(currentUser.phone || '');
+      if (currentUser.avatarUrl) {
+        setAvatarUrl(currentUser.avatarUrl);
+      }
+    }
+  }, [currentUser]);
+
+  // Restrict tabs for non-owners (Warden, Staff, etc. can only view Profile and Security)
+  useEffect(() => {
+    if (currentUser && currentUser.role !== 'OWNER' && activeTab !== 'PROFILE' && activeTab !== 'SECURITY') {
+      setActiveTab('PROFILE');
+    }
+  }, [currentUser, activeTab]);
 
   // Tab 2: Hostel & Campus state
   const [brandHostelName, setBrandHostelName] = useState(hostelName);
@@ -210,11 +232,11 @@ function OwnerProfileContent() {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!ownerName.trim()) {
-      alert('Owner name is required.');
+      alert('Name is required.');
       return;
     }
     if (!isValidPhoneNumber(ownerPhone)) {
-      alert(`Owner Mobile: ${PHONE_ERROR_MESSAGE}`);
+      alert(`Mobile Number: ${PHONE_ERROR_MESSAGE}`);
       return;
     }
 
@@ -224,6 +246,8 @@ function OwnerProfileContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          userId: currentUser?.id,
+          role: currentUser?.role,
           fullName: ownerName.trim(),
           staffTitle: ownerTitle.trim(),
           phone: ownerPhone.trim(),
@@ -243,9 +267,9 @@ function OwnerProfileContent() {
             avatarUrl: data.user.avatarUrl,
           });
         }
-        showToast('Owner profile details updated successfully!');
+        showToast(isOwner ? 'Owner profile details updated successfully!' : 'Profile details updated successfully!');
       } else {
-        alert(data.error || 'Failed to update owner profile.');
+        alert(data.error || 'Failed to update profile.');
       }
     } catch (err: any) {
       alert(err.message || 'Error updating profile.');
@@ -396,18 +420,20 @@ function OwnerProfileContent() {
           </div>
         )}
 
-        {/* Page Header with Single-Owner Status */}
+        {/* Page Header with Role-Aware Status */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold mb-1">
               <Sparkles className="w-3.5 h-3.5" />
-              Unified Owner Command Center
+              {isOwner ? 'Unified Owner Command Center' : 'Staff Account Command Center'}
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
-              Owner Profile & Settings
+              {isOwner ? 'Owner Profile & Settings' : 'My Profile & Account'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-500">
-              Manage your administrator credentials, hostel property branding, billing defaults, security, and system audit trail.
+              {isOwner
+                ? 'Manage your administrator credentials, hostel property branding, billing defaults, security, and system audit trail.'
+                : 'Manage your staff credentials, personal contact information, and account password.'}
             </p>
           </div>
 
@@ -415,10 +441,7 @@ function OwnerProfileContent() {
             <button
               type="button"
               onClick={() => {
-                if (confirm('Are you sure you want to sign out of the hostel command center?')) {
-                  logout();
-                  router.push('/login');
-                }
+                logout();
               }}
               className="px-3.5 py-2 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 text-slate-600 hover:text-rose-700 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 shadow-2xs"
             >
@@ -439,14 +462,14 @@ function OwnerProfileContent() {
             <div>
               <div className="flex items-center gap-2 justify-center sm:justify-start flex-wrap">
                 <span className="font-extrabold text-slate-900 text-base sm:text-lg font-display">
-                  {ownerName}
+                  {ownerName || 'User'}
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-[11px] font-bold">
                   <BadgeCheck className="w-3 h-3" />
-                  Hostel Owner
+                  {isOwner ? 'Hostel Owner' : currentUser?.staffTitle || currentUser?.role || 'Staff Member'}
                 </span>
                 <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
-                  ID: {settings?.systemId || 'HS-8492'}
+                  ID: {currentUser?.id || settings?.systemId || 'HS-USER'}
                 </span>
               </div>
               <div className="text-xs text-slate-500 mt-1 flex items-center gap-4 justify-center sm:justify-start flex-wrap">
@@ -468,7 +491,7 @@ function OwnerProfileContent() {
 
           <div className="px-4 py-2 bg-emerald-50 rounded-2xl border border-emerald-200/80 text-emerald-800 text-xs font-semibold flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span>Single-Owner Governance Active</span>
+            <span>{isOwner ? 'Single-Owner Governance Active' : 'Staff Account Active'}</span>
           </div>
         </div>
 
@@ -484,34 +507,38 @@ function OwnerProfileContent() {
             }`}
           >
             <User className="w-3.5 h-3.5" />
-            <span>Owner Profile</span>
+            <span>{isOwner ? 'Owner Profile' : 'My Profile'}</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('HOSTEL')}
-            className={`px-4 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-2 shrink-0 ${
-              activeTab === 'HOSTEL'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-white hover:bg-slate-50 text-slate-600 border border-slate-200'
-            }`}
-          >
-            <Building className="w-3.5 h-3.5" />
-            <span>Hostel & Campus</span>
-          </button>
+          {isOwner && (
+            <>
+              <button
+                type="button"
+                onClick={() => setActiveTab('HOSTEL')}
+                className={`px-4 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-2 shrink-0 ${
+                  activeTab === 'HOSTEL'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'bg-white hover:bg-slate-50 text-slate-600 border border-slate-200'
+                }`}
+              >
+                <Building className="w-3.5 h-3.5" />
+                <span>Hostel & Campus</span>
+              </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('BILLING')}
-            className={`px-4 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-2 shrink-0 ${
-              activeTab === 'BILLING'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-white hover:bg-slate-50 text-slate-600 border border-slate-200'
-            }`}
-          >
-            <Settings className="w-3.5 h-3.5" />
-            <span>System & Billing</span>
-          </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('BILLING')}
+                className={`px-4 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-2 shrink-0 ${
+                  activeTab === 'BILLING'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'bg-white hover:bg-slate-50 text-slate-600 border border-slate-200'
+                }`}
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span>System & Billing</span>
+              </button>
+            </>
+          )}
 
           <button
             type="button"
@@ -526,34 +553,40 @@ function OwnerProfileContent() {
             <span>Security & Password</span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('AUDIT')}
-            className={`px-4 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-2 shrink-0 ${
-              activeTab === 'AUDIT'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'bg-white hover:bg-slate-50 text-slate-600 border border-slate-200'
-            }`}
-          >
-            <History className="w-3.5 h-3.5" />
-            <span>System Audit Logs</span>
-            {auditLogs.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 text-slate-800">
-                {auditLogs.length}
-              </span>
-            )}
-          </button>
+          {isOwner && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('AUDIT')}
+              className={`px-4 py-2.5 text-xs font-bold rounded-xl transition flex items-center gap-2 shrink-0 ${
+                activeTab === 'AUDIT'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'bg-white hover:bg-slate-50 text-slate-600 border border-slate-200'
+              }`}
+            >
+              <History className="w-3.5 h-3.5" />
+              <span>System Audit Logs</span>
+              {auditLogs.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 text-slate-800">
+                  {auditLogs.length}
+                </span>
+              )}
+            </button>
+          )}
         </div>
 
         {/* ========================================================================= */}
-        {/* TAB 1: OWNER PROFILE                                                     */}
+        {/* TAB 1: PROFILE                                                           */}
         {/* ========================================================================= */}
         {activeTab === 'PROFILE' && (
           <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-6 sm:p-8 space-y-6">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 font-display">Administrator Particulars</h2>
+              <h2 className="text-lg font-bold text-slate-900 font-display">
+                {isOwner ? 'Administrator Particulars' : 'My Account Particulars'}
+              </h2>
               <p className="text-xs text-slate-500">
-                Update your personal name, official designation, login phone, and executive profile photo.
+                {isOwner
+                  ? 'Update your personal name, official designation, login phone, and executive profile photo.'
+                  : 'Update your personal details, designation, contact phone number, and profile photo.'}
               </p>
             </div>
 
@@ -562,13 +595,15 @@ function OwnerProfileContent() {
               <div className="relative group shrink-0">
                 <img
                   src={avatarUrl}
-                  alt={ownerName}
+                  alt={ownerName || 'User'}
                   className="w-20 h-20 rounded-2xl object-cover border-2 border-indigo-400 shadow-sm"
                 />
               </div>
 
               <div className="space-y-1.5 text-center sm:text-left flex-1">
-                <span className="text-xs font-bold text-slate-900 block">Executive Profile Photo</span>
+                <span className="text-xs font-bold text-slate-900 block">
+                  {isOwner ? 'Executive Profile Photo' : 'Profile Photo'}
+                </span>
                 <p className="text-[11px] text-slate-500">
                   Upload a photo from your computer or choose from professional presets.
                 </p>
@@ -616,14 +651,14 @@ function OwnerProfileContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Owner Full Name <span className="text-rose-500">*</span>
+                    {isOwner ? 'Owner Full Name' : 'Full Name'} <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={ownerName}
                     onChange={(e) => setOwnerName(e.target.value)}
-                    placeholder="e.g. Rajesh Kumar"
+                    placeholder={isOwner ? "e.g. Rajesh Kumar" : "Your full name"}
                     className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
                   />
                 </div>
@@ -636,7 +671,7 @@ function OwnerProfileContent() {
                     type="text"
                     value={ownerTitle}
                     onChange={(e) => setOwnerTitle(e.target.value)}
-                    placeholder="e.g. Hostel Owner & Lead Administrator"
+                    placeholder={isOwner ? "e.g. Hostel Owner & Lead Administrator" : "e.g. Warden / Staff"}
                     className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
                   />
                 </div>
@@ -645,7 +680,7 @@ function OwnerProfileContent() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Owner Mobile Number (Login) <span className="text-rose-500">*</span>
+                    {isOwner ? 'Owner Mobile Number (Login)' : 'Mobile Number (Login)'} <span className="text-rose-500">*</span>
                   </label>
                   <input
                     type="tel"
@@ -1224,7 +1259,7 @@ export default function OwnerProfilePage() {
         <DashboardLayout>
           <div className="py-24 text-center">
             <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-            <p className="text-sm text-slate-500">Loading Owner Hub & Settings...</p>
+            <p className="text-sm text-slate-500">Loading Profile & Settings...</p>
           </div>
         </DashboardLayout>
       }

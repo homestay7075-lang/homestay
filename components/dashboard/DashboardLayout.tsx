@@ -39,15 +39,26 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, currentRole, logout } = useAuth();
+  const { currentUser, currentRole, isLoading, logout } = useAuth();
   const { hostelName } = useHostelSettings();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
-    if (currentUser?.role === 'STUDENT') {
+    if (!isLoading && !currentUser) {
+      router.replace('/login');
+    } else if (currentUser?.role === 'STUDENT') {
       router.replace('/app');
     }
-  }, [currentUser?.role, router]);
+  }, [isLoading, currentUser, router]);
+
+  if (isLoading || !currentUser) {
+    return (
+      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4">
+        <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p className="text-xs text-slate-400 font-medium">Verifying authorization...</p>
+      </div>
+    );
+  }
 
   if (currentUser?.role === 'STUDENT') {
     return (
@@ -83,6 +94,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     return true;
   };
 
+  const isOwner = currentRole === 'OWNER';
+
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, visible: true },
     { name: 'Students', href: '/dashboard/students', icon: Users, visible: canAccess('students') },
@@ -90,12 +103,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { name: 'Web Bookings', href: '/dashboard/bookings', icon: CalendarCheck, visible: canAccess('bookings') },
     { name: 'Payments & Dues', href: '/dashboard/payments', icon: CreditCard, visible: canAccess('payments') },
     { name: 'Expenses', href: '/dashboard/expenses', icon: Wallet, visible: canAccess('expenses') },
-    { name: 'Staff & Roles', href: '/dashboard/staff', icon: UserCheck, visible: currentRole === 'OWNER' },
+    { name: 'Staff & Roles', href: '/dashboard/staff', icon: UserCheck, visible: isOwner },
     { name: 'Notifications', href: '/dashboard/notifications', icon: Bell, visible: canAccess('notifications') },
     { name: 'Messages', href: '/dashboard/messages', icon: MessageSquare, visible: canAccess('messages') },
     { name: 'Reports & Print', href: '/dashboard/reports', icon: BarChart3, visible: canAccess('reports') },
-    { name: 'Owner Profile & Settings', href: '/dashboard/profile', icon: Settings, visible: currentRole === 'OWNER' },
+    { name: isOwner ? 'Owner Profile & Settings' : 'My Profile & Account', href: '/dashboard/profile', icon: isOwner ? Settings : Shield, visible: true },
   ].filter(item => item.visible);
+
+  const profileCardTitle = isOwner ? 'Open Owner Profile & Settings' : 'Open My Profile & Account';
 
   return (
     <div className="min-h-screen flex bg-slate-100/90 text-slate-800">
@@ -120,7 +135,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <Link
           href="/dashboard/profile"
           className="p-3 m-3 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700/60 hover:border-indigo-500/50 transition block group"
-          title="Open Owner Profile & Settings"
+          title={profileCardTitle}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5 min-w-0">
@@ -129,11 +144,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </div>
               <div className="overflow-hidden">
                 <div className="font-semibold text-white text-xs truncate">
-                  {currentUser?.fullName || 'Hostel Administrator'}
+                  {currentUser?.fullName || 'Hostel Staff'}
                 </div>
                 <div className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  {currentRole === 'OWNER' ? 'Single Hostel Owner' : currentUser?.staffTitle || currentRole}
+                  {isOwner ? 'Single Hostel Owner' : currentUser?.staffTitle || currentRole || 'Staff Member'}
                 </div>
               </div>
             </div>

@@ -262,10 +262,10 @@ function InvoicesContent() {
 
                     <div className="text-center sm:text-right space-y-3">
                       <div className="font-signature text-xl text-slate-700 italic font-semibold">
-                        Rajesh Kumar Singhania
+                        {(settings as any)?.authorizedSignatory || `${settings.name} Authority`}
                       </div>
                       <div className="border-t border-slate-300 pt-1 text-[11px] text-slate-600 font-medium">
-                        Hostel Owner / Authorized Signatory
+                        Authorized Signatory & Management
                       </div>
                     </div>
                   </div>

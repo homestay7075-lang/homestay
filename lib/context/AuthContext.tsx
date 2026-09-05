@@ -58,7 +58,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = () => {
     setCurrentUser(null);
-    localStorage.removeItem('homestay_active_user');
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('homestay_active_user');
+        sessionStorage.clear();
+      } catch (e) {}
+      window.location.href = '/login';
+    }
     fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
   };
 

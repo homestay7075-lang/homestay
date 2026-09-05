@@ -27,9 +27,11 @@ import MultiStepStudentRegistrationModal from '@/components/students/MultiStepSt
 import RecordPaymentModal from '@/components/payments/RecordPaymentModal';
 import AddExpenseModal from '@/components/expenses/AddExpenseModal';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
+import { useAuth } from '@/lib/context/AuthContext';
 
 export default function DashboardOverview() {
   const { hostelName, settings } = useHostelSettings();
+  const { currentUser, currentRole } = useAuth();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -88,7 +90,9 @@ export default function DashboardOverview() {
 
           <div className="flex items-center gap-2 text-xs font-semibold px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 shadow-xs">
             <Clock className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Live System • Rajesh Kumar (Owner)</span>
+            <span>
+              Live System • {currentUser?.fullName || 'Administrator'} ({currentRole === 'OWNER' ? 'Owner' : currentUser?.staffTitle || currentRole || 'Staff'})
+            </span>
           </div>
         </div>
 

@@ -5,18 +5,32 @@ import { isValidPhoneNumber, normalizePhoneNumber, PHONE_ERROR_MESSAGE } from '@
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const userId = searchParams.get('userId');
+  const role = searchParams.get('role');
+
   const db = getDatabase();
-  const owner = db.users.find(u => u.role === 'OWNER') || db.users[0];
+  let targetUser = null;
+  if (userId) {
+    targetUser = db.users.find(u => u.id === userId);
+  }
+  if (!targetUser && role) {
+    targetUser = db.users.find(u => u.role === role);
+  }
+  if (!targetUser) {
+    targetUser = db.users.find(u => u.role === 'OWNER') || db.users[0];
+  }
+
   return NextResponse.json({
-    user: owner ? {
-      id: owner.id,
-      role: owner.role,
-      fullName: owner.fullName,
-      email: owner.email,
-      phone: owner.phone,
-      staffTitle: owner.staffTitle || 'Owner & Lead Administrator',
-      avatarUrl: owner.avatarUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop',
+    user: targetUser ? {
+      id: targetUser.id,
+      role: targetUser.role,
+      fullName: targetUser.fullName,
+      email: targetUser.email,
+      phone: targetUser.phone,
+      staffTitle: targetUser.staffTitle || (targetUser.role === 'OWNER' ? 'Owner & Lead Administrator' : targetUser.role),
+      avatarUrl: targetUser.avatarUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=300&fit=crop',
     } : null,
   });
 }
@@ -25,10 +39,20 @@ export async function POST(req: Request) {
   try {
     const data = await req.json();
     const db = getDatabase();
-    const ownerIndex = db.users.findIndex(u => u.role === 'OWNER');
 
-    if (ownerIndex === -1) {
-      return NextResponse.json({ success: false, error: 'Owner user not found' }, { status: 404 });
+    let userIndex = -1;
+    if (data.userId) {
+      userIndex = db.users.findIndex(u => u.id === data.userId);
+    }
+    if (userIndex === -1 && data.role && data.role !== 'OWNER') {
+      userIndex = db.users.findIndex(u => u.role === data.role);
+    }
+    if (userIndex === -1) {
+      userIndex = db.users.findIndex(u => u.role === 'OWNER');
+    }
+
+    if (userIndex === -1) {
+      return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
     }
 
     if (data.phone !== undefined) {
@@ -37,28 +61,29 @@ export async function POST(req: Request) {
       }
     }
 
-    const currentOwner = db.users[ownerIndex];
-    const updatedOwner = {
-      ...currentOwner,
-      fullName: data.fullName !== undefined ? data.fullName : currentOwner.fullName,
-      email: data.email !== undefined ? data.email : currentOwner.email,
-      phone: data.phone !== undefined ? normalizePhoneNumber(data.phone) : currentOwner.phone,
-      staffTitle: data.staffTitle !== undefined ? data.staffTitle : currentOwner.staffTitle,
-      avatarUrl: data.avatarUrl !== undefined ? data.avatarUrl : currentOwner.avatarUrl,
+    const currentUser = db.users[userIndex];
+    const updatedUser = {
+      ...currentUser,
+      fullName: data.fullName !== undefined ? data.fullName : currentUser.fullName,
+      email: data.email !== undefined ? data.email : currentUser.email,
+      phone: data.phone !== undefined ? normalizePhoneNumber(data.phone) : currentUser.phone,
+      staffTitle: data.staffTitle !== undefined ? data.staffTitle : currentUser.staffTitle,
+      avatarUrl: data.avatarUrl !== undefined ? data.avatarUrl : currentUser.avatarUrl,
       updatedAt: new Date().toISOString(),
     };
 
-    db.users[ownerIndex] = updatedOwner;
+    db.users[userIndex] = updatedUser;
 
     // Log audit
+    const isOwner = updatedUser.role === 'OWNER';
     const audit: AuditLog = {
       id: `log-${Date.now()}`,
       timestamp: new Date().toISOString(),
-      userId: updatedOwner.id,
-      userName: updatedOwner.fullName,
-      userRole: 'OWNER',
-      action: 'OWNER_PROFILE_UPDATED',
-      details: `Updated owner profile: name="${updatedOwner.fullName}", title="${updatedOwner.staffTitle}", email="${updatedOwner.email}".`,
+      userId: updatedUser.id,
+      userName: updatedUser.fullName,
+      userRole: updatedUser.role,
+      action: isOwner ? 'OWNER_PROFILE_UPDATED' : 'STAFF_PROFILE_UPDATED',
+      details: `Updated ${isOwner ? 'owner' : 'staff'} profile: name="${updatedUser.fullName}", title="${updatedUser.staffTitle}", email="${updatedUser.email}".`,
     };
     db.auditLogs.unshift(audit);
 
@@ -67,13 +92,13 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       user: {
-        id: updatedOwner.id,
-        role: updatedOwner.role,
-        fullName: updatedOwner.fullName,
-        email: updatedOwner.email,
-        phone: updatedOwner.phone,
-        staffTitle: updatedOwner.staffTitle,
-        avatarUrl: updatedOwner.avatarUrl,
+        id: updatedUser.id,
+        role: updatedUser.role,
+        fullName: updatedUser.fullName,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        staffTitle: updatedUser.staffTitle,
+        avatarUrl: updatedUser.avatarUrl,
       },
     });
   } catch (err: any) {
