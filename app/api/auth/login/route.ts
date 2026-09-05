@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDatabase, saveDatabase } from '@/lib/db/store';
 import { normalizePhoneNumber } from '@/lib/utils/phoneValidator';
+import { User, UserRole, Student } from '@/lib/db/types';
 
 export async function POST(req: Request) {
   try {
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
     const normalizedPhone = normalizePhoneNumber(cleanId);
 
     // 1. Check quick aliases
-    let matchedUser = null;
+    let matchedUser: User | undefined = undefined;
     if (cleanId === 'admin' || cleanId === 'owner') {
       matchedUser = db.users.find((u) => u.role === 'OWNER' && u.isActive);
     } else if (cleanId === 'warden') {
@@ -63,7 +64,7 @@ export async function POST(req: Request) {
         if (!matchedUser && studentMatch.status === 'Active') {
           matchedUser = {
             id: `usr-stu-${studentMatch.id}`,
-            role: 'STUDENT',
+            role: 'STUDENT' as UserRole,
             fullName: studentMatch.fullName,
             phone: studentMatch.phone,
             email: studentMatch.email,
@@ -84,7 +85,7 @@ export async function POST(req: Request) {
         // Automatically authorize as Owner with this phone
         matchedUser = {
           id: `usr-owner-${normalizedPhone}`,
-          role: 'OWNER',
+          role: 'OWNER' as UserRole,
           fullName: 'Hostel Owner',
           phone: normalizedPhone,
           email: `owner_${normalizedPhone}@serenityliving.com`,
@@ -100,7 +101,7 @@ export async function POST(req: Request) {
         // Automatically authorize as Student with this phone
         matchedUser = {
           id: `usr-stu-${normalizedPhone}`,
-          role: 'STUDENT',
+          role: 'STUDENT' as UserRole,
           fullName: 'Student Resident',
           phone: normalizedPhone,
           email: `student_${normalizedPhone}@serenityliving.com`,
@@ -112,30 +113,38 @@ export async function POST(req: Request) {
         db.users.push(matchedUser);
         // Ensure student record exists
         if (!db.students.some((s) => normalizePhoneNumber(s.phone) === normalizedPhone)) {
-          db.students.push({
+          const newStu: Student = {
             id: `stu-${normalizedPhone}`,
             studentId: `HS-${normalizedPhone.slice(-4)}`,
+            userId: matchedUser.id,
             fullName: 'Student Resident',
+            photoUrl: '',
             phone: normalizedPhone,
             email: `student_${normalizedPhone}@serenityliving.com`,
             gender: 'Male',
-            dateOfBirth: '2004-01-01',
-            bloodGroup: 'O+',
+            dob: '2004-01-01',
+            address: 'Resident Hostel',
             guardianName: 'Guardian',
             guardianPhone: '9876543210',
             guardianRelation: 'Parent',
-            permanentAddress: 'Resident Hostel',
-            collegeOrCompany: 'University',
-            courseOrDesignation: 'Student',
+            idProofType: 'Aadhaar',
+            idProofNumber: '123456789012',
+            buildingId: 'bld-1',
+            blockId: 'blk-a',
+            roomId: 'rm-101',
+            bedId: 'bed-101-a',
             roomNumber: '101',
-            bedNumber: 'A',
+            bedNumber: 'Bed A',
+            blockName: 'Block A (Boys)',
+            joiningDate: new Date().toISOString().split('T')[0],
             monthlyRent: 8500,
             depositAmount: 0,
-            admissionDate: new Date().toISOString().split('T')[0],
+            otherCharges: 0,
             status: 'Active',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-          });
+          };
+          db.students.push(newStu);
         }
         try { saveDatabase(db); } catch (e) {}
       }
@@ -170,23 +179,30 @@ export async function POST(req: Request) {
         studentRecord = {
           id: `stu-${userNorm || matchedUser.id}`,
           studentId: `HS-${(userNorm || '0000').slice(-4)}`,
+          userId: matchedUser.id,
           fullName: matchedUser.fullName,
+          photoUrl: '',
           phone: matchedUser.phone,
           email: matchedUser.email || '',
           gender: 'Male',
-          dateOfBirth: '2004-01-01',
-          bloodGroup: 'O+',
+          dob: '2004-01-01',
+          address: 'Resident Hostel',
           guardianName: 'Guardian',
           guardianPhone: '9876543210',
           guardianRelation: 'Parent',
-          permanentAddress: 'Resident Hostel',
-          collegeOrCompany: 'University',
-          courseOrDesignation: 'Student',
+          idProofType: 'Aadhaar',
+          idProofNumber: '123456789012',
+          buildingId: 'bld-1',
+          blockId: 'blk-a',
+          roomId: 'rm-101',
+          bedId: 'bed-101-a',
           roomNumber: '101',
-          bedNumber: 'A',
+          bedNumber: 'Bed A',
+          blockName: 'Block A (Boys)',
+          joiningDate: new Date().toISOString().split('T')[0],
           monthlyRent: 8500,
           depositAmount: 0,
-          admissionDate: new Date().toISOString().split('T')[0],
+          otherCharges: 0,
           status: 'Active',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
