@@ -30,20 +30,22 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Setup Gradle
+    - name: Setup Gradle 8.4
       uses: gradle/actions/setup-gradle@v3
+      with:
+        gradle-version: '8.4'
 
-    - name: Generate Signing Keystore
+    - name: Ensure Signing Keystore
       working-directory: ./android/app
       run: |
-        keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=HomeStay, OU=Mobile, O=HomeStay, L=Mumbai, S=Maharashtra, C=IN"
+        if [ ! -f debug.keystore ]; then
+          keytool -genkey -v -keystore debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=HomeStay, OU=Mobile, O=HomeStay, L=Mumbai, S=Maharashtra, C=IN"
+        fi
 
     - name: Build Android Release APK and App Bundle (.aab)
       working-directory: ./android
       run: |
-        chmod +x gradlew || true
-        gradle wrapper
-        ./gradlew assembleRelease bundleRelease --stacktrace
+        gradle assembleRelease bundleRelease --stacktrace
 
     - name: Copy generated APK and AAB files
       run: |
@@ -55,7 +57,11 @@ jobs:
     - name: Update APK in public/downloads
       run: |
         mkdir -p public/downloads
-        APK_SRC=$(find android/app/build/outputs/apk -name "*.apk" | head -n 1)
+        APK_SRC=$(find android/app/build/outputs/apk/release -name "*.apk" | head -n 1)
+        if [ -z "$APK_SRC" ]; then
+          APK_SRC=$(find android/app/build/outputs -name "*.apk" | head -n 1)
+        fi
+        echo "Found APK at: $APK_SRC"
         if [ -n "$APK_SRC" ] && [ -f "$APK_SRC" ]; then
           cp "$APK_SRC" public/downloads/homestay-app.apk
           cp "$APK_SRC" public/downloads/homestay-v1.0.0.apk
@@ -63,7 +69,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add public/downloads/homestay-app.apk public/downloads/homestay-v1.0.0.apk
           if ! git diff --cached --quiet; then
-            git commit -m "build(apk): auto-update genuine release APK with production URL [skip ci]"
+            git commit -m "build(apk): auto-update genuine release APK with production URL"
             git push origin main
           fi
         fi
@@ -74,3 +80,20 @@ jobs:
         name: homestay-android-packages
         path: release-packages/*
         retention-days: 30
+
+    - name: Publish GitHub Release
+      uses: softprops/action-gh-release@v2
+      if: startsWith(github.ref, 'refs/heads/main')
+      with:
+        tag_name: v1.0.0
+        name: "Home Stay Android App v1.0.0"
+        body: |
+          ### Home Stay Official Android App (Release v1.0.0)
+          - Single universal app for Students, Wardens, and Owners
+          - Pointed to live production server: `https://homestay-homestay7075-langs-projects.vercel.app/login`
+          - Includes genuine release APK and Google Play AAB
+        files: |
+          release-packages/*.apk
+          release-packages/*.aab
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

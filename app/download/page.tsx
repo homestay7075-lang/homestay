@@ -104,6 +104,20 @@ export default function DownloadAppPage() {
               <div className="pt-1">
                 <InstallPwaButton label="Or Install Web App to Device" className="w-full justify-center py-2.5 text-xs" />
               </div>
+
+              {/* GitHub Release Mirror */}
+              <div className="flex items-center justify-center gap-2 text-[11px] text-slate-500 pt-1">
+                <span>Direct Mirror:</span>
+                <a
+                  href="https://github.com/homestay7075-lang/homestay/releases/latest"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 font-semibold hover:underline flex items-center gap-1"
+                >
+                  <span>GitHub Release Downloads</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
             </div>
 
             {/* Feature Highlights */}

@@ -27,12 +27,14 @@ android {
 
     signingConfigs {
         release {
-            if (file("debug.keystore").exists()) {
+            if (file("${projectDir}/debug.keystore").exists()) {
+                storeFile file("${projectDir}/debug.keystore")
+            } else if (file("debug.keystore").exists()) {
                 storeFile file("debug.keystore")
             } else if (file("C:/Users/laksh/.android/debug.keystore").exists()) {
                 storeFile file("C:/Users/laksh/.android/debug.keystore")
             } else {
-                storeFile file("debug.keystore")
+                storeFile file("${projectDir}/debug.keystore")
             }
             storePassword 'android'
             keyAlias 'androiddebugkey'
