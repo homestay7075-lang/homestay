@@ -137,6 +137,26 @@ export default function StudentMobileApp() {
     }
   };
 
+  const [deletingMsgId, setDeletingMsgId] = useState<string | null>(null);
+
+  const handleDeleteSentMessage = async (messageId: string) => {
+    if (!messageId || deletingMsgId) return;
+    try {
+      setDeletingMsgId(messageId);
+      const res = await fetch(`/api/messages?messageId=${encodeURIComponent(messageId)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      }
+    } catch (e) {
+      console.error('Failed to delete message:', e);
+    } finally {
+      setDeletingMsgId(null);
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || !studentData) return;

@@ -8,14 +8,21 @@ import { isValidPhoneNumber, PHONE_HTML_PATTERN, PHONE_ERROR_MESSAGE } from '@/l
 interface BookBedModalProps {
   isOpen: boolean;
   onClose: () => void;
+  defaultRoomType?: string;
 }
 
-export default function BookBedModal({ isOpen, onClose }: BookBedModalProps) {
+export default function BookBedModal({ isOpen, onClose, defaultRoomType }: BookBedModalProps) {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [joiningDate, setJoiningDate] = useState('2026-09-15');
   const [address, setAddress] = useState('');
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(defaultRoomType ? `Preferred Room: ${defaultRoomType}` : '');
+
+  React.useEffect(() => {
+    if (defaultRoomType) {
+      setNotes(`Preferred Room: ${defaultRoomType}`);
+    }
+  }, [defaultRoomType]);
 
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);

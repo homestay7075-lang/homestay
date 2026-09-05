@@ -45,6 +45,7 @@ interface MultiStepModalProps {
     phone?: string;
     address?: string;
     joiningDate?: string;
+    email?: string;
     bookingId?: string;
   } | null;
 }
@@ -128,7 +129,6 @@ export default function MultiStepStudentRegistrationModal({
         if (prefillData.phone) setPhone(prefillData.phone.replace(/\D/g, '').slice(0, 10));
         if (prefillData.address) setAddress(prefillData.address);
         if (prefillData.joiningDate) setJoiningDate(prefillData.joiningDate);
-        if (prefillData.email) setEmail(prefillData.email);
         setOwnerChecked(true);
         setStep(1);
       }
