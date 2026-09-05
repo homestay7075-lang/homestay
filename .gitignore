@@ -41,5 +41,13 @@ next-env.d.ts
 scratch/
 push-to-github.bat
 redeploy.bat
+redeploy-now.bat
+
+# android build artifacts
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+
 
 

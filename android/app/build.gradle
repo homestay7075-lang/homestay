@@ -25,13 +25,23 @@ android {
         ]
     }
 
+    signingConfigs {
+        release {
+            storeFile file("C:/Users/laksh/.android/debug.keystore")
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            applicationIdSuffix ".debug"
+            signingConfig signingConfigs.release
             debuggable true
         }
     }

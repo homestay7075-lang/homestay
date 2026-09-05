@@ -97,7 +97,7 @@ export default function DownloadAppPage() {
               >
                 <Download className="w-5 h-5 animate-bounce" />
                 <span>{isDownloading ? 'Starting Download...' : 'Download App (Android APK)'}</span>
-                <span className="text-xs font-normal opacity-80">(~860 KB)</span>
+                <span className="text-xs font-normal opacity-80">(~5.4 MB)</span>
               </a>
 
               {/* Instant Web PWA Install option */}
