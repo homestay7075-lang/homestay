@@ -85,12 +85,13 @@ jobs:
       uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/heads/main')
       with:
-        tag_name: v1.0.0
-        name: "Home Stay Android App v1.0.0"
+        tag_name: v1.0.1
+        name: "Home Stay Android App v1.0.1 (Full-Screen Native)"
         body: |
-          ### Home Stay Official Android App (Release v1.0.0)
-          - Single universal app for Students, Wardens, and Owners
+          ### Home Stay Official Android App (Release v1.0.1)
+          - True Full-Screen Native App Experience (Zero browser header, no URL bar, no share button)
           - Pointed to live production server: `https://homestay-homestay7075-langs-projects.vercel.app/login`
+          - Dark neon theme with immersive status bar and hardware acceleration
           - Includes genuine release APK and Google Play AAB
         files: |
           release-packages/*.apk

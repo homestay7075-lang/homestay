@@ -10,13 +10,13 @@ echo [1/3] Staging all changes...
 git add -A
 
 echo [2/3] Committing changes...
-git commit -m "feat(ui): match login page exactly to mobile app design and clean extra sections"
+git commit -m "feat(android): full-screen native app with zero browser chrome (no URL bar, no share, no menu)"
 
 echo [3/3] Pushing to GitHub (origin main)...
-git push -u origin main
+git push origin main
 
 echo.
 echo ================================================================
 echo [SUCCESS] Pushed to https://github.com/homestay7075-lang/homestay
-echo Vercel auto-deployment is in progress!
+echo GitHub Actions is building the new release APK v1.0.1!
 echo ================================================================
