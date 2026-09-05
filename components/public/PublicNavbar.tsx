@@ -170,19 +170,32 @@ export default function PublicNavbar() {
               </Link>
             </div>
 
-            {/* Mobile Actions: Book Bed + Menu Drawer */}
-            <div className="flex lg:hidden items-center gap-2">
+            {/* Mobile Actions: Top-side Download App (Always Visible!) + Book Bed + Menu Drawer */}
+            <div className="flex lg:hidden items-center gap-1.5 sm:gap-2">
+              {/* Always Visible Download Button on Mobile Top-Side */}
+              <a
+                href="/downloads/homestay-app.apk"
+                download="homestay-app.apk"
+                onClick={() => notifyDownload('Home Stay App')}
+                className="px-2.5 sm:px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 shrink-0"
+                title="Direct Download Official Home Stay App"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Download</span>
+              </a>
+
+              {/* Book Bed button */}
               <button
                 onClick={() => setIsBookModalOpen(true)}
-                className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-xs flex items-center gap-1"
+                className="px-2.5 sm:px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl flex items-center gap-1 shrink-0"
               >
-                <Sparkles className="w-3 h-3 text-indigo-200" />
-                Book Bed
+                <Sparkles className="w-3 h-3 text-indigo-600" />
+                <span>Book Bed</span>
               </button>
 
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition"
+                className="p-1.5 rounded-xl text-slate-700 hover:bg-slate-100 transition"
                 aria-label="Toggle navigation menu"
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -217,51 +230,19 @@ export default function PublicNavbar() {
             </Link>
 
             <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-              {/* Direct Download .AAB without opening page */}
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-1">
-                Direct .AAB Downloads
-              </div>
-
+              {/* Direct Download button in drawer as well */}
               <a
-                href="/api/download/aab?role=all"
-                download="homestay-all-aab-bundles.zip"
+                href="/downloads/homestay-app.apk"
+                download="homestay-app.apk"
                 onClick={() => {
-                  notifyDownload('All .AAB Bundles');
+                  notifyDownload('Home Stay App');
                   setMobileMenuOpen(false);
                 }}
                 className="w-full py-2.5 px-4 text-center text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl flex items-center justify-center gap-2 shadow-xs transition"
               >
                 <Download className="w-4 h-4" />
-                <span>Download All .AAB Bundles (.ZIP)</span>
+                <span>Download App (Android APK)</span>
               </a>
-
-              <div className="grid grid-cols-2 gap-2">
-                <a
-                  href="/api/download/aab?role=student"
-                  download="homestay-student-release.aab"
-                  onClick={() => {
-                    notifyDownload('Student .AAB');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="py-2 px-3 text-center text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center gap-1.5 transition"
-                >
-                  <Smartphone className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>Student .AAB</span>
-                </a>
-
-                <a
-                  href="/api/download/aab?role=owner"
-                  download="homestay-owner-release.aab"
-                  onClick={() => {
-                    notifyDownload('Owner .AAB');
-                    setMobileMenuOpen(false);
-                  }}
-                  className="py-2 px-3 text-center text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center gap-1.5 transition"
-                >
-                  <Building className="w-3.5 h-3.5 text-slate-800" />
-                  <span>Owner .AAB</span>
-                </a>
-              </div>
 
               <Link
                 href="/login"
@@ -269,7 +250,7 @@ export default function PublicNavbar() {
                 className="w-full py-2.5 px-4 text-center text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-xl flex items-center justify-center gap-2 mt-1"
               >
                 <LogIn className="w-4 h-4 text-indigo-600" />
-                Resident &amp; Staff Login
+                <span>Universal Portal Login</span>
               </Link>
             </div>
           </div>
