@@ -18,6 +18,7 @@ import {
   MessageThreadItem,
   AuditLog,
   Bill,
+  PaymentSubmission,
 } from './types';
 import {
   initialHostelSettings,
@@ -59,6 +60,7 @@ export interface DatabaseState {
   auditLogs: AuditLog[];
   bills: Bill[];
   customBills?: any[];
+  paymentSubmissions?: PaymentSubmission[];
 }
 
 function getDataDir(): string {
@@ -94,6 +96,7 @@ function getDefaultState(): DatabaseState {
     auditLogs: [...initialAuditLogs],
     bills: [...initialBills],
     customBills: [],
+    paymentSubmissions: [],
   };
 }
 
@@ -177,6 +180,9 @@ export function getDatabase(): DatabaseState {
         inMemoryDb!.bills = inMemoryDb!.customBills && inMemoryDb!.customBills.length > 0
           ? [...inMemoryDb!.customBills]
           : [...initialBills];
+      }
+      if (!inMemoryDb!.paymentSubmissions) {
+        inMemoryDb!.paymentSubmissions = [];
       }
       const pruned = filterExpiredAuditLogs(inMemoryDb!, 12);
       if (pruned > 0) {

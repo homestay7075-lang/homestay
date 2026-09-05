@@ -5,6 +5,7 @@ import Link from 'next/link';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import RecordPaymentModal from '@/components/payments/RecordPaymentModal';
 import { formatDateDMY } from '@/lib/utils/dateFormatter';
+import { useAuth } from '@/lib/context/AuthContext';
 import {
   CreditCard,
   Receipt,
@@ -25,17 +26,31 @@ import {
   Phone,
   ShieldAlert,
   Trash2,
+  Smartphone,
+  Copy,
+  Check,
+  ExternalLink,
+  MessageSquare,
+  Eye,
+  Bell,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 export default function PaymentsAndDuesPage() {
-  const [activeTab, setActiveTab] = useState<'BILLS' | 'PAYMENTS'>('BILLS');
+  const { currentUser } = useAuth();
+  const [activeTab, setActiveTab] = useState<'BILLS' | 'PAYMENTS' | 'SUBMISSIONS'>('BILLS');
   const [billFilter, setBillFilter] = useState<'ALL' | 'PENDING' | 'PAID' | 'RESIDENTS'>('ALL');
+  const [submissionFilter, setSubmissionFilter] = useState<'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED'>('ALL');
   
   const [duesData, setDuesData] = useState<any>(null);
   const [payments, setPayments] = useState<any[]>([]);
   const [students, setStudents] = useState<any[]>([]);
+  const [submissions, setSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [reviewingId, setReviewingId] = useState<string | null>(null);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const [copiedUtr, setCopiedUtr] = useState<string | null>(null);
   
   // Modals
   const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
@@ -65,17 +80,20 @@ export default function PaymentsAndDuesPage() {
 
   const fetchData = async () => {
     try {
-      const [duesRes, payRes, stuRes] = await Promise.all([
+      const [duesRes, payRes, stuRes, subRes] = await Promise.all([
         fetch('/api/billing'),
         fetch('/api/payments'),
         fetch('/api/students?status=Active'),
+        fetch('/api/payment-submissions'),
       ]);
       const duesJson = await duesRes.json();
       const payJson = await payRes.json();
       const stuJson = await stuRes.json();
+      const subJson = await subRes.json();
       setDuesData(duesJson);
       setPayments(payJson.payments || []);
       setStudents(stuJson.students || []);
+      setSubmissions(subJson.submissions || []);
 
       if (!selectedStudentForBill && stuJson.students && stuJson.students.length > 0) {
         setSelectedStudentForBill(stuJson.students[0].id);
@@ -91,6 +109,72 @@ export default function PaymentsAndDuesPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  const handleCopyUtr = (utr: string) => {
+    navigator.clipboard.writeText(utr);
+    setCopiedUtr(utr);
+    setTimeout(() => setCopiedUtr(null), 2000);
+  };
+
+  const handleApproveSubmission = async (submissionId: string) => {
+    if (!confirm('Approve this student UPI payment? This will record the official receipt and clear the student dues immediately.')) {
+      return;
+    }
+    setReviewingId(submissionId);
+    try {
+      const res = await fetch('/api/payment-submissions/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submissionId,
+          action: 'APPROVE',
+          actorName: currentUser?.fullName || 'Hostel Owner',
+          actorRole: currentUser?.role || 'OWNER',
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showFeedback(data.message || 'Payment approved and dues cleared!');
+        fetchData();
+      } else {
+        alert(data.error || 'Failed to approve payment');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error approving payment');
+    } finally {
+      setReviewingId(null);
+    }
+  };
+
+  const handleRejectSubmission = async (submissionId: string) => {
+    const reason = prompt('Please enter the rejection reason (e.g. UTR not found in bank statement, incorrect amount):');
+    if (reason === null) return;
+    setReviewingId(submissionId);
+    try {
+      const res = await fetch('/api/payment-submissions/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submissionId,
+          action: 'REJECT',
+          rejectionReason: reason || 'Transaction could not be verified.',
+          actorName: currentUser?.fullName || 'Hostel Owner',
+          actorRole: currentUser?.role || 'OWNER',
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showFeedback('Payment submission rejected.');
+        fetchData();
+      } else {
+        alert(data.error || 'Failed to reject payment');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error rejecting payment');
+    } finally {
+      setReviewingId(null);
+    }
+  };
 
   const generatedBills: any[] = duesData?.generatedBills || [];
   const duesList: any[] = duesData?.dues || []; // Only students with generated bills!
@@ -124,6 +208,22 @@ export default function PaymentsAndDuesPage() {
     p.receiptNumber?.toLowerCase().includes(search.toLowerCase()) ||
     p.paymentMethod?.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Filter UPI submissions
+  const filteredSubmissions = (submissions || []).filter((s: any) => {
+    const matchesSearch =
+      s.studentName?.toLowerCase().includes(search.toLowerCase()) ||
+      s.studentId?.toLowerCase().includes(search.toLowerCase()) ||
+      s.transactionRef?.toLowerCase().includes(search.toLowerCase()) ||
+      s.roomNumber?.toLowerCase().includes(search.toLowerCase()) ||
+      s.upiApp?.toLowerCase().includes(search.toLowerCase());
+
+    if (!matchesSearch) return false;
+    if (submissionFilter === 'PENDING') return s.status === 'PENDING';
+    if (submissionFilter === 'APPROVED') return s.status === 'APPROVED';
+    if (submissionFilter === 'REJECTED') return s.status === 'REJECTED';
+    return true;
+  });
 
   // Handle Generate Bill Submission
   const handleGenerateBillSubmit = async (e: React.FormEvent) => {
@@ -337,9 +437,39 @@ export default function PaymentsAndDuesPage() {
           </span>
         </div>
 
+        {/* Pending UPI Verifications Banner */}
+        {submissions.filter((s: any) => s.status === 'PENDING').length > 0 && (
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-indigo-500/10 border border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Bell className="w-5 h-5 animate-bounce" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-amber-950">
+                  {submissions.filter((s: any) => s.status === 'PENDING').length} Student UPI Payment Receipt(s) Awaiting Your Verification
+                </h4>
+                <p className="text-[11px] text-amber-800">
+                  Students have submitted UTR reference numbers via PhonePe / GPay. Review and approve to clear their dues immediately.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab('SUBMISSIONS');
+                setSubmissionFilter('PENDING');
+              }}
+              className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition shadow-xs shrink-0 flex items-center gap-1.5"
+            >
+              <span>Review Submissions</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
+
         {/* Main Tab Switcher & Search Bar */}
         <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex rounded-xl bg-slate-100 p-1 border border-slate-200 w-full sm:w-auto">
+          <div className="flex rounded-xl bg-slate-100 p-1 border border-slate-200 w-full sm:w-auto flex-wrap">
             <button
               onClick={() => setActiveTab('BILLS')}
               className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
@@ -362,13 +492,31 @@ export default function PaymentsAndDuesPage() {
               <Receipt className="w-3.5 h-3.5" />
               <span>Payment Receipts ({payments.length})</span>
             </button>
+            <button
+              onClick={() => setActiveTab('SUBMISSIONS')}
+              className={`px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+                activeTab === 'SUBMISSIONS'
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              <span>UPI Submissions</span>
+              {submissions.filter((s: any) => s.status === 'PENDING').length > 0 ? (
+                <span className="px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-black animate-pulse">
+                  {submissions.filter((s: any) => s.status === 'PENDING').length} pending
+                </span>
+              ) : (
+                <span className="text-[10px] text-slate-400">({submissions.length})</span>
+              )}
+            </button>
           </div>
 
           <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
             <input
               type="text"
-              placeholder="Search by Bill #, Resident, ID, or Room..."
+              placeholder="Search by Bill #, Resident, ID, UTR, or Room..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -819,6 +967,263 @@ export default function PaymentsAndDuesPage() {
             </div>
           </div>
         )}
+
+        {/* ================= TAB 3: STUDENT UPI SUBMISSIONS ================= */}
+        {activeTab === 'SUBMISSIONS' && (
+          <div className="space-y-4">
+            {/* Sub-filter bar */}
+            <div className="flex items-center justify-between gap-3 overflow-x-auto pb-1 text-xs">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-slate-400 font-semibold flex items-center gap-1 mr-1">
+                  <Filter className="w-3.5 h-3.5" /> Filter:
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSubmissionFilter('ALL')}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition ${
+                    submissionFilter === 'ALL'
+                      ? 'bg-slate-900 text-white shadow-xs'
+                      : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  All ({submissions.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSubmissionFilter('PENDING')}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 ${
+                    submissionFilter === 'PENDING'
+                      ? 'bg-amber-600 text-white shadow-xs'
+                      : 'bg-white text-amber-700 border border-amber-200 hover:bg-amber-50'
+                  }`}
+                >
+                  <span>Pending Verification</span>
+                  <span className="px-1.5 py-0.2 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold">
+                    {submissions.filter((s: any) => s.status === 'PENDING').length}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSubmissionFilter('APPROVED')}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 ${
+                    submissionFilter === 'APPROVED'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-white text-emerald-700 border border-emerald-200 hover:bg-emerald-50'
+                  }`}
+                >
+                  Approved ({submissions.filter((s: any) => s.status === 'APPROVED').length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSubmissionFilter('REJECTED')}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 ${
+                    submissionFilter === 'REJECTED'
+                      ? 'bg-rose-600 text-white shadow-xs'
+                      : 'bg-white text-rose-700 border border-rose-200 hover:bg-rose-50'
+                  }`}
+                >
+                  Rejected ({submissions.filter((s: any) => s.status === 'REJECTED').length})
+                </button>
+              </div>
+
+              <div className="text-slate-500 font-medium text-[11px] shrink-0">
+                Showing {filteredSubmissions.length} of {submissions.length} submissions
+              </div>
+            </div>
+
+            {/* Submissions List / Table */}
+            <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+              {filteredSubmissions.length === 0 ? (
+                <div className="p-12 text-center space-y-3">
+                  <Smartphone className="w-12 h-12 text-slate-300 mx-auto" />
+                  <h4 className="text-base font-bold text-slate-800 font-display">
+                    No UPI Payment Submissions Found
+                  </h4>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    {submissionFilter === 'PENDING'
+                      ? 'Great job! There are no pending student UPI receipts waiting for approval.'
+                      : 'When residents pay via PhonePe, GPay, or Paytm in their student portal and submit their UTR, their receipts will appear here for verification.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-200/80 bg-slate-50/50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        <th className="py-3 px-4">Resident / ID</th>
+                        <th className="py-3 px-4">Room & Bed</th>
+                        <th className="py-3 px-4">Amount Paid</th>
+                        <th className="py-3 px-4">App & UTR Ref</th>
+                        <th className="py-3 px-4">Receipt Screenshot</th>
+                        <th className="py-3 px-4">Submitted Date</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {filteredSubmissions.map((sub: any) => {
+                        const cleanStuPhone = (sub.studentPhone || '').replace(/\D/g, '').slice(-10);
+                        return (
+                          <tr key={sub.id} className="hover:bg-slate-50/60 transition">
+                            {/* Resident */}
+                            <td className="py-3.5 px-4 font-medium text-slate-900">
+                              <div className="font-bold text-slate-900">{sub.studentName}</div>
+                              <div className="text-[10px] text-indigo-600 font-mono font-bold">
+                                {sub.studentId}
+                              </div>
+                              <div className="text-[10px] text-slate-400">{sub.studentPhone}</div>
+                            </td>
+
+                            {/* Room */}
+                            <td className="py-3.5 px-4 text-slate-600">
+                              <span className="font-bold text-slate-800">Room {sub.roomNumber}</span>
+                              {sub.bedNumber && (
+                                <div className="text-[10px] text-slate-500">{sub.bedNumber}</div>
+                              )}
+                            </td>
+
+                            {/* Amount */}
+                            <td className="py-3.5 px-4">
+                              <div className="font-extrabold text-slate-900 font-display text-sm">
+                                ₹{sub.amount.toLocaleString('en-IN')}
+                              </div>
+                            </td>
+
+                            {/* Mode & UTR */}
+                            <td className="py-3.5 px-4">
+                              <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-semibold text-[11px] border border-purple-200">
+                                {sub.upiApp || 'UPI'}
+                              </span>
+                              <div className="flex items-center gap-1.5 mt-1 font-mono text-[11px] text-slate-800 font-bold">
+                                <span>{sub.transactionRef}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleCopyUtr(sub.transactionRef)}
+                                  className="text-slate-400 hover:text-slate-700 p-0.5 rounded"
+                                  title="Copy UTR"
+                                >
+                                  {copiedUtr === sub.transactionRef ? (
+                                    <Check className="w-3 h-3 text-emerald-600" />
+                                  ) : (
+                                    <Copy className="w-3 h-3" />
+                                  )}
+                                </button>
+                              </div>
+                            </td>
+
+                            {/* Screenshot */}
+                            <td className="py-3.5 px-4">
+                              {sub.receiptImageUrl ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setPreviewImageUrl(sub.receiptImageUrl)}
+                                  className="group flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-[10px] font-semibold text-slate-700 transition"
+                                >
+                                  <img
+                                    src={sub.receiptImageUrl}
+                                    alt="Receipt"
+                                    className="w-7 h-7 object-cover rounded-lg"
+                                  />
+                                  <span>View Proof</span>
+                                </button>
+                              ) : (
+                                <span className="text-slate-400 text-[10px]">No image</span>
+                              )}
+                            </td>
+
+                            {/* Date */}
+                            <td className="py-3.5 px-4 text-slate-600 text-[11px]">
+                              {formatDateDMY(sub.paymentDate)}
+                              <div className="text-[9px] text-slate-400">
+                                {formatDateDMY(sub.createdAt)}
+                              </div>
+                            </td>
+
+                            {/* Status */}
+                            <td className="py-3.5 px-4">
+                              {sub.status === 'APPROVED' ? (
+                                <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[10px] inline-flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                                  Verified ({sub.receiptNumber || 'Approved'})
+                                </span>
+                              ) : sub.status === 'REJECTED' ? (
+                                <div>
+                                  <span className="px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 font-bold text-[10px] inline-flex items-center gap-1">
+                                    <X className="w-3 h-3 text-rose-600" />
+                                    Rejected
+                                  </span>
+                                  {sub.rejectionReason && (
+                                    <div className="text-[9px] text-rose-600 mt-0.5 truncate max-w-xs" title={sub.rejectionReason}>
+                                      {sub.rejectionReason}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold text-[10px] inline-flex items-center gap-1 animate-pulse">
+                                  <Clock className="w-3 h-3 text-amber-600" />
+                                  Pending Verification
+                                </span>
+                              )}
+                            </td>
+
+                            {/* Action Buttons */}
+                            <td className="py-3.5 px-4 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                {sub.status === 'PENDING' && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      disabled={reviewingId === sub.id}
+                                      onClick={() => handleApproveSubmission(sub.id)}
+                                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition flex items-center gap-1 shadow-xs disabled:opacity-50"
+                                      title="Approve & Clear Dues"
+                                    >
+                                      {reviewingId === sub.id ? (
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                      ) : (
+                                        <Check className="w-3.5 h-3.5" />
+                                      )}
+                                      <span>Approve & Clear Dues</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      disabled={reviewingId === sub.id}
+                                      onClick={() => handleRejectSubmission(sub.id)}
+                                      className="px-2 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold rounded-lg text-xs transition flex items-center gap-1"
+                                      title="Reject Submission"
+                                    >
+                                      <X className="w-3.5 h-3.5" />
+                                      <span>Reject</span>
+                                    </button>
+                                  </>
+                                )}
+
+                                {cleanStuPhone && (
+                                  <a
+                                    href={`https://wa.me/91${cleanStuPhone}?text=${encodeURIComponent(
+                                      `Hello ${sub.studentName}, regarding your UPI payment submission of ₹${sub.amount} (UTR: ${sub.transactionRef})...`
+                                    )}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 text-slate-500 hover:text-emerald-700 transition"
+                                    title="Message Student on WhatsApp"
+                                  >
+                                    <MessageSquare className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ================= MODAL: GENERATE NEW BILL ================= */}
@@ -1030,6 +1435,43 @@ export default function PaymentsAndDuesPage() {
         onSuccess={fetchData}
         preselectedStudent={preselectedStudent}
       />
+
+      {/* Receipt Image Preview Modal */}
+      {previewImageUrl && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="relative max-w-lg w-full bg-slate-900 rounded-3xl p-4 border border-slate-700 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+              <h4 className="text-white text-xs font-bold flex items-center gap-1.5">
+                <ImageIcon className="w-4 h-4 text-cyan-400" />
+                <span>Student Payment Receipt Screenshot</span>
+              </h4>
+              <button
+                type="button"
+                onClick={() => setPreviewImageUrl(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="max-h-[70vh] overflow-auto flex items-center justify-center bg-black/40 rounded-2xl p-2">
+              <img
+                src={previewImageUrl}
+                alt="Receipt Proof"
+                className="max-h-[65vh] w-auto rounded-xl object-contain shadow-md"
+              />
+            </div>
+            <div className="text-right">
+              <button
+                type="button"
+                onClick={() => setPreviewImageUrl(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold"
+              >
+                Close Preview
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

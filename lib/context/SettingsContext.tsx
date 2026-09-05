@@ -28,6 +28,7 @@ const DEFAULT_SETTINGS: HostelSettings = {
   defaultDeposit: 0,
   currency: 'INR',
   currencySymbol: '₹',
+  upiId: '9876543210@upi',
   rulesAndPolicies: '1. Biometric entry after 10:30 PM requires warden pre-approval.\n2. Quiet study hours observed between 11:00 PM and 6:00 AM.\n3. Monthly dues payable within 5 days of cycle date.\n4. Non-transferable bed allocation.',
   updatedAt: '2026-09-04T17:03:58.319Z',
 };

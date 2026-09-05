@@ -148,6 +148,22 @@ public class MainActivity extends AppCompatActivity {
             private boolean handleUrl(String url) {
                 if (url == null) return false;
 
+                // Handle UPI payment apps (PhonePe, Google Pay, Paytm, BHIM, etc.)
+                if (url.startsWith("upi:")) {
+                    try {
+                        Intent upiIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        Intent chooser = Intent.createChooser(upiIntent, "Pay Hostel Dues via UPI");
+                        startActivity(chooser);
+                        return true;
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(MainActivity.this, "No UPI app found. Please install Google Pay, PhonePe or Paytm.", Toast.LENGTH_LONG).show();
+                        return true;
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Cannot open UPI app: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return true;
+                    }
+                }
+
                 // Handle external apps (phone calls, email, WhatsApp, maps)
                 if (url.startsWith("tel:") || url.startsWith("mailto:") || 
                     url.startsWith("whatsapp:") || url.startsWith("https://wa.me/") || 

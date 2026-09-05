@@ -61,6 +61,7 @@ export interface HostelSettings {
   defaultDeposit: number;
   currency: string;
   currencySymbol: string;
+  upiId?: string; // Owner UPI VPA (e.g. 9876543210@upi)
   rulesAndPolicies: string;
   // Operations, Notifications & Security
   systemId?: string; // e.g. "HS-8492"
@@ -343,4 +344,29 @@ export interface AuditLog {
   action: string; // e.g. "STUDENT_REGISTERED", "PAYMENT_RECORDED", "CHECKOUT_COMPLETED"
   details: string;
   ipAddress?: string;
+}
+
+export type SubmissionStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export interface PaymentSubmission {
+  id: string;
+  studentDbId: string;
+  studentId: string;
+  studentName: string;
+  studentPhone: string;
+  roomNumber: string;
+  bedNumber?: string;
+  amount: number;
+  paymentDate: string;
+  paymentMethod: string; // 'UPI'
+  upiApp: string; // 'PhonePe' | 'Google Pay' | 'Paytm' | 'BHIM' | 'CRED' | 'Other'
+  transactionRef: string; // UTR or Reference Number
+  receiptImageUrl?: string;
+  notes?: string;
+  status: SubmissionStatus;
+  rejectionReason?: string;
+  receiptNumber?: string; // Generated on approval (e.g. REC-26-005)
+  reviewedBy?: string;
+  reviewedAt?: string;
+  createdAt: string;
 }

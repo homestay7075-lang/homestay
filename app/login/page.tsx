@@ -190,19 +190,25 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-11 py-3.5 bg-[#050713]/90 border border-slate-800/90 focus:border-purple-500/80 rounded-2xl text-white text-sm font-mono placeholder:text-slate-600 focus:ring-2 focus:ring-purple-500/20 outline-none transition tracking-wider"
+                  className="w-full pl-11 pr-24 py-3.5 bg-[#050713]/90 border border-slate-800/90 focus:border-purple-500/80 rounded-2xl text-white text-sm font-mono placeholder:text-slate-600 focus:ring-2 focus:ring-purple-500/20 outline-none transition tracking-wider"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 p-1 rounded-lg text-slate-500 hover:text-slate-200 transition"
+                  className="absolute right-2.5 px-2.5 py-1.5 rounded-xl bg-slate-800/95 hover:bg-slate-700 border border-slate-700/80 text-slate-200 hover:text-white transition-all flex items-center gap-1.5 shadow-sm active:scale-95 z-10 select-none"
                   title={showPassword ? 'Hide password' : 'Show password'}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? (
-                    <EyeOff className="w-4 h-4 text-purple-400" />
+                    <>
+                      <EyeOff className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                      <span className="text-[11px] font-semibold text-purple-300">Hide</span>
+                    </>
                   ) : (
-                    <Eye className="w-4 h-4 text-slate-500" />
+                    <>
+                      <Eye className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                      <span className="text-[11px] font-semibold text-slate-200">Show</span>
+                    </>
                   )}
                 </button>
               </div>
