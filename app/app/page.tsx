@@ -40,6 +40,7 @@ import {
   Lock,
   Eye,
   EyeOff,
+  Fingerprint,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
@@ -55,7 +56,17 @@ const formatBed = (bed: string | undefined | null) => {
 
 export default function StudentMobileApp() {
   const router = useRouter();
-  const { currentUser, logout, switchRoleQuick, isLoading } = useAuth();
+  const {
+    currentUser,
+    logout,
+    switchRoleQuick,
+    isLoading,
+    isBiometricSupported,
+    isBiometricEnabled,
+    enableBiometrics,
+    disableBiometrics,
+    lockApp,
+  } = useAuth();
   const { hostelName, settings } = useHostelSettings();
 
   useEffect(() => {
@@ -122,6 +133,27 @@ export default function StudentMobileApp() {
   const [passwordSaving, setPasswordSaving] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+
+  // Biometric / Phone Lock State
+  const [togglingBio, setTogglingBio] = useState(false);
+  const [bioFeedback, setBioFeedback] = useState<{ text: string; isError: boolean } | null>(null);
+
+  const handleToggleBiometrics = async () => {
+    setBioFeedback(null);
+    if (isBiometricEnabled) {
+      disableBiometrics();
+      setBioFeedback({ text: 'Phone Lock & Fingerprint security disabled.', isError: false });
+    } else {
+      setTogglingBio(true);
+      const res = await enableBiometrics();
+      setTogglingBio(false);
+      if (res.success) {
+        setBioFeedback({ text: 'Fingerprint & Phone Lock enabled successfully!', isError: false });
+      } else {
+        setBioFeedback({ text: res.error || 'Failed to enable phone lock.', isError: true });
+      }
+    }
+  };
 
   // Student phone: use logged in student phone or default to Devika Nair (9123456783)
   const studentPhone = currentUser?.role === 'STUDENT' ? currentUser.phone : '9123456783';
@@ -575,6 +607,16 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
             </button>
 
             <div className="flex items-center gap-1.5 shrink-0">
+              {isBiometricEnabled && (
+                <button
+                  type="button"
+                  onClick={() => lockApp()}
+                  className="p-1.5 rounded-lg bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 text-purple-300 hover:text-white transition cursor-pointer"
+                  title="Lock App with Phone Lock / Fingerprint"
+                >
+                  <Lock className="w-4 h-4" />
+                </button>
+              )}
               <InstallPwaButton
                 variant="compact"
                 label="Install"
@@ -1787,6 +1829,91 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                       </div>
                     </form>
                   )}
+                </div>
+
+                {/* 3. Phone Lock & Fingerprint Security Card */}
+                <div className="p-4 rounded-2xl bg-slate-800/70 border border-slate-700 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-xl bg-purple-600/25 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
+                        <Fingerprint className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-bold text-white text-xs">Phone Lock & Fingerprint</span>
+                          {isBiometricEnabled && (
+                            <span className="px-1.5 py-0.2 rounded-md bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold">
+                              Active
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[10px] text-slate-400 block mt-0.5 truncate">
+                          {isBiometricEnabled
+                            ? 'Screen lock required on app reopen'
+                            : 'Lock app using fingerprint or phone PIN'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleToggleBiometrics}
+                      disabled={togglingBio}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 cursor-pointer shadow-sm ${
+                        isBiometricEnabled
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-rose-500/20 hover:text-rose-300 hover:border-rose-500/40'
+                          : 'bg-purple-600 hover:bg-purple-500 text-white'
+                      }`}
+                    >
+                      {togglingBio ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : isBiometricEnabled ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Enabled</span>
+                        </>
+                      ) : (
+                        <>
+                          <Fingerprint className="w-3.5 h-3.5" />
+                          <span>Enable Lock</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {bioFeedback && (
+                    <div
+                      className={`p-2 rounded-xl text-xs flex items-center gap-2 animate-in fade-in ${
+                        bioFeedback.isError
+                          ? 'bg-rose-950/80 border border-rose-800 text-rose-300'
+                          : 'bg-emerald-950/80 border border-emerald-800 text-emerald-300'
+                      }`}
+                    >
+                      {bioFeedback.isError ? (
+                        <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                      ) : (
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      )}
+                      <span className="text-[11px]">{bioFeedback.text}</span>
+                    </div>
+                  )}
+
+                  <div className="pt-2 flex items-center justify-between border-t border-slate-700/50 text-[10px] text-slate-400">
+                    <span>Auto-logout if unused for &gt; 6 days</span>
+                    {isBiometricEnabled && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsProfileModalOpen(false);
+                          lockApp();
+                        }}
+                        className="text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-1 transition"
+                      >
+                        <Lock className="w-3 h-3" />
+                        <span>Lock App Now</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* 4. Account Dues & Financial Summary */}

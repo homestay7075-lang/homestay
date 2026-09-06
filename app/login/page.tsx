@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/context/AuthContext';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
 import {
@@ -16,12 +16,30 @@ import {
   AlertCircle,
   X,
   MessageCircle,
+  Clock,
 } from 'lucide-react';
 
 export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#060814] text-slate-100 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
+  );
+}
+
+function LoginContent() {
   const router = useRouter();
-  const { loginWithCredentials } = useAuth();
+  const searchParams = useSearchParams();
+  const { currentUser, isLoading: authLoading, loginWithCredentials } = useAuth();
   const { settings, hostelName } = useHostelSettings();
+
+  const isExpired = searchParams.get('reason') === 'expired' || searchParams.get('expired') === '1';
 
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -32,6 +50,17 @@ export default function LoginPage() {
   const [showForgotModal, setShowForgotModal] = useState(false);
 
   const supportPhone = settings?.phone || '9876543210';
+
+  // Stay logged in: If user session is active and not expired, redirect to app directly
+  useEffect(() => {
+    if (!authLoading && currentUser) {
+      if (currentUser.role === 'STUDENT') {
+        router.replace('/app');
+      } else {
+        router.replace('/dashboard');
+      }
+    }
+  }, [currentUser, authLoading, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,6 +168,17 @@ export default function LoginPage() {
               Single-tenant authentication gateway.
             </p>
           </div>
+
+          {/* 6-Day Inactivity Session Expiration Alert */}
+          {isExpired && (
+            <div className="p-3 bg-amber-950/80 border border-amber-600/70 rounded-2xl text-amber-200 text-xs flex items-center gap-2.5 animate-in fade-in duration-200 shadow-md">
+              <Clock className="w-4 h-4 shrink-0 text-amber-400" />
+              <div className="leading-snug text-left">
+                <strong className="block font-bold text-amber-300">Session Expired (6 Days Inactive)</strong>
+                <span>You were automatically signed out after 6 days of inactivity. Please sign in again.</span>
+              </div>
+            </div>
+          )}
 
           {/* Error Alert */}
           {errorMsg && (

@@ -29,6 +29,7 @@ import {
   Sparkles,
   Smartphone,
   MoreHorizontal,
+  Fingerprint,
 } from 'lucide-react';
 import InstallPwaButton from '@/components/common/InstallPwaButton';
 
@@ -39,7 +40,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, currentRole, isLoading, logout } = useAuth();
+  const { currentUser, currentRole, isLoading, logout, isBiometricEnabled, lockApp } = useAuth();
   const { hostelName } = useHostelSettings();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -187,8 +188,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             />
           </div>
 
+          {isBiometricEnabled && (
+            <button
+              onClick={lockApp}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-purple-400 hover:bg-purple-950/40 hover:text-purple-300 text-xs font-medium transition"
+              title="Lock Dashboard with Phone Lock / Fingerprint"
+            >
+              <Fingerprint className="w-3.5 h-3.5 text-purple-400" />
+              <span>Lock Dashboard</span>
+            </button>
+          )}
+
           <button
-            onClick={logout}
+            onClick={() => logout()}
             className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-slate-400 hover:bg-rose-950/40 hover:text-rose-300 text-xs font-medium transition"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -211,6 +223,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <span className="font-bold text-sm font-display truncate max-w-[160px]" title={hostelName}>{hostelName}</span>
           </div>
           <div className="flex items-center gap-2">
+            {isBiometricEnabled && (
+              <button
+                onClick={lockApp}
+                className="p-1.5 rounded-lg bg-purple-950/60 border border-purple-500/40 text-purple-300 hover:text-white"
+                title="Lock Dashboard with Phone Lock / Fingerprint"
+              >
+                <Fingerprint className="w-4 h-4" />
+              </button>
+            )}
             <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-800 text-indigo-300 font-semibold">
               {currentRole}
             </span>
@@ -257,7 +278,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 })}
               </nav>
 
-              <div className="p-3 border-t border-slate-800">
+              <div className="p-3 border-t border-slate-800 space-y-1">
+                {isBiometricEnabled && (
+                  <button
+                    onClick={() => {
+                      setMobileSidebarOpen(false);
+                      lockApp();
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-purple-300 hover:bg-purple-950/40 text-xs font-medium transition"
+                  >
+                    <Fingerprint className="w-4 h-4 text-purple-400" />
+                    <span>Lock Dashboard</span>
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     logout();
