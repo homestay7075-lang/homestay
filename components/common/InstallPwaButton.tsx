@@ -14,17 +14,36 @@ export default function InstallPwaButton({
   className = '',
   variant = 'button',
 }: InstallPwaButtonProps) {
+  const [mounted, setMounted] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSModal, setShowIOSModal] = useState(false);
 
   useEffect(() => {
-    // Check if running in standalone PWA mode
-    if (
-      window.matchMedia('(display-mode: standalone)').matches ||
-      (window.navigator as any).standalone === true
-    ) {
+    setMounted(true);
+    // Check if running in standalone PWA, APK, TWA, or installed mode
+    const checkIsInstalled = () => {
+      if (typeof window === 'undefined') return false;
+
+      const isStandaloneMode =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.matchMedia('(display-mode: fullscreen)').matches ||
+        window.matchMedia('(display-mode: minimal-ui)').matches;
+
+      const isIOSStandalone = (window.navigator as any).standalone === true;
+
+      const isAppEnvironment =
+        document.referrer.startsWith('android-app://') ||
+        /wv|WebView/i.test(window.navigator.userAgent) ||
+        window.location.search.includes('source=pwa') ||
+        window.location.search.includes('mode=standalone') ||
+        window.location.search.includes('source=apk');
+
+      return isStandaloneMode || isIOSStandalone || isAppEnvironment;
+    };
+
+    if (checkIsInstalled()) {
       setIsStandalone(true);
     }
 
@@ -39,10 +58,28 @@ export default function InstallPwaButton({
       setDeferredPrompt(e);
     };
 
+    const handleAppInstalled = () => {
+      setIsStandalone(true);
+      setDeferredPrompt(null);
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    const mediaQuery = window.matchMedia('(display-mode: standalone)');
+    const handleDisplayChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setIsStandalone(true);
+    };
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleDisplayChange);
+    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleDisplayChange);
+      }
     };
   }, []);
 
@@ -52,6 +89,7 @@ export default function InstallPwaButton({
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
         setDeferredPrompt(null);
+        setIsStandalone(true);
       }
     } else if (isIOS) {
       setShowIOSModal(true);
@@ -63,13 +101,9 @@ export default function InstallPwaButton({
     }
   };
 
-  if (isStandalone) {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-xs font-semibold">
-        <CheckCircle2 className="w-3.5 h-3.5" />
-        <span>App Installed</span>
-      </span>
-    );
+  // Only show install option in website view. If installed / standalone / APK, do not show anything.
+  if (!mounted || isStandalone) {
+    return null;
   }
 
   return (
