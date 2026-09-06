@@ -97,6 +97,7 @@ export async function POST(req: Request) {
       monthlyRent: Number(body.monthlyRent || 0),
       depositAmount: Number(body.depositAmount || 0),
       otherCharges: Number(body.otherCharges || 0),
+      password: body.password,
       actorName: body.actorName || 'Hostel Owner',
       actorRole: body.actorRole || 'OWNER',
       actorId: body.actorId || 'usr-owner-1',
@@ -106,7 +107,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: result.error }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, student: result.student });
+    return NextResponse.json({
+      success: true,
+      student: result.student,
+      initialPassword: result.initialPassword || 'student123',
+    });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

@@ -24,9 +24,11 @@ import {
   MessageCircle,
   Copy,
   Check,
-  ExternalLink,
   LayoutDashboard,
   Share2,
+  Printer,
+  KeyRound,
+  ExternalLink,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import confetti from 'canvas-confetti';
@@ -115,12 +117,14 @@ export default function MultiStepStudentRegistrationModal({
 
   // Step 3: Terms acceptance & History Detection
   const [termsAccepted, setTermsAccepted] = useState(true);
+  const [customPassword, setCustomPassword] = useState('');
   const [historicalRecords, setHistoricalRecords] = useState<any[]>([]);
 
   useEffect(() => {
     if (isOpen) {
       setRegisteredStudent(null);
       setCopiedMessage(false);
+      setCustomPassword('');
       setDepositAmount(settings?.defaultDeposit !== undefined ? settings.defaultDeposit : 0);
 
       // Handle prefill data from booking approval
@@ -392,6 +396,7 @@ export default function MultiStepStudentRegistrationModal({
           monthlyRent,
           depositAmount,
           otherCharges,
+          password: customPassword.trim() || 'student123',
         }),
       });
 
@@ -406,19 +411,24 @@ export default function MultiStepStudentRegistrationModal({
         }
         stopCamera();
         onSuccess();
-        const studentInfo = data.student || {
-          fullName,
-          studentId: generatedIdPreview,
-          phone,
-          guardianName,
-          guardianPhone,
-          guardianRelation,
-          roomNumber: roomsData?.rooms.find(r => r.id === selectedRoomId)?.roomNumber || 'Room',
-          bedNumber: roomsData?.beds.find(b => b.id === selectedBedId)?.bedNumber || 'Bed',
-          blockName: roomsData?.blocks.find(b => b.id === selectedBlockId)?.name || 'Hostel Wing',
-          joiningDate,
-          monthlyRent,
-          photoUrl: photoPreview,
+        const studentInfo = {
+          ...(data.student || {
+            fullName,
+            studentId: generatedIdPreview,
+            phone,
+            guardianName,
+            guardianPhone,
+            guardianRelation,
+            roomNumber: roomsData?.rooms.find(r => r.id === selectedRoomId)?.roomNumber || 'Room',
+            bedNumber: roomsData?.beds.find(b => b.id === selectedBedId)?.bedNumber || 'Bed',
+            blockName: roomsData?.blocks.find(b => b.id === selectedBlockId)?.name || 'Hostel Wing',
+            joiningDate,
+            monthlyRent,
+            depositAmount,
+            otherCharges,
+            photoUrl: photoPreview,
+          }),
+          initialPassword: data.initialPassword || customPassword.trim() || 'student123',
         };
         setRegisteredStudent(studentInfo);
 
@@ -449,40 +459,49 @@ export default function MultiStepStudentRegistrationModal({
     const guardianPhoneClean = (registeredStudent.guardianPhone || '').replace(/\D/g, '');
     const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
     const residentPortalUrl = `${origin}/app`;
+    const studentPassword = registeredStudent.initialPassword || customPassword.trim() || 'student123';
 
-    const studentWhatsAppText = `🏢 *${hostelName} - Official Admission Confirmation*
+    const studentWhatsAppText = `🏢 *${hostelName} - Official Admission Confirmation & Receipt*
 
 Dear *${registeredStudent.fullName}*,
-Welcome to ${hostelName}! Your hostel room & bed allocation has been successfully confirmed.
+Welcome to ${hostelName}! Your hostel admission, bed allocation, and registration receipt have been confirmed.
 
-📋 *Student Profile & Allocation:*
+📋 *Student Admission Particulars:*
 • Student ID: *${registeredStudent.studentId}*
-• Allocated Room & Bed: Room ${registeredStudent.roomNumber} (Bed ${registeredStudent.bedNumber})
+• Allocated Bed: Room ${registeredStudent.roomNumber} (${registeredStudent.bedNumber})
 • Wing / Block: ${registeredStudent.blockName || 'Hostel Wing'}
 • Joining Date: ${formatDateDMY(registeredStudent.joiningDate)}
 • Monthly Rent: ₹${registeredStudent.monthlyRent?.toLocaleString('en-IN')}/month
 • Registered Mobile: ${registeredStudent.phone}
 
-📱 *Resident Mobile App Access:*
-Log in to view monthly rent invoices, payment receipts, gate passes, and announcements:
-👉 ${residentPortalUrl}
-*Login with your mobile:* ${registeredStudent.phone}
+🔑 *Your Student Mobile App Login Credentials:*
+👉 Resident Portal Link: ${residentPortalUrl}
+• Username / Mobile: *${registeredStudent.phone}* (or *${registeredStudent.studentId}*)
+• Password: *${studentPassword}*
+
+📱 *Resident App Features:*
+Log in to view monthly rent invoices, download verified payment receipts, show your active digital resident pass, and chat with management.
 
 Hostel Administration Contact: ${settings.phone || '9876543210'}
 ${hostelName}`;
 
-    const guardianWhatsAppText = `🏢 *${hostelName} - Student Admission Confirmation*
+    const guardianWhatsAppText = `🏢 *${hostelName} - Student Admission Confirmation & Receipt*
 
 Dear Parent / Guardian,
 This is to inform you that *${registeredStudent.fullName}* has been successfully registered and admitted to *${hostelName}*.
 
 📋 *Admission Particulars:*
 • Student ID: *${registeredStudent.studentId}*
-• Allocated Room & Bed: Room ${registeredStudent.roomNumber} (Bed ${registeredStudent.bedNumber})
+• Allocated Bed: Room ${registeredStudent.roomNumber} (${registeredStudent.bedNumber})
 • Wing / Block: ${registeredStudent.blockName || 'Hostel Wing'}
 • Joining Date: ${formatDateDMY(registeredStudent.joiningDate)}
 • Monthly Rent: ₹${registeredStudent.monthlyRent?.toLocaleString('en-IN')}/month
 • Student Mobile: ${registeredStudent.phone}
+
+🔑 *Student Resident Portal Access Credentials:*
+👉 Portal Link: ${residentPortalUrl}
+• Login ID: *${registeredStudent.phone}*
+• Initial Password: *${studentPassword}*
 
 Hostel Administration Contact: ${settings.phone || '9876543210'}
 ${hostelName}, ${settings.city || 'Campus'}`;
@@ -499,6 +518,113 @@ ${hostelName}, ${settings.city || 'Campus'}`;
       setTimeout(() => setCopiedMessage(false), 2500);
     };
 
+    const handlePrintAdmissionReceipt = () => {
+      try {
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = '0';
+        document.body.appendChild(iframe);
+
+        const doc = iframe.contentWindow?.document;
+        if (!doc) return;
+
+        doc.open();
+        doc.write(`
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Admission_Receipt_${registeredStudent.studentId}</title>
+              <style>
+                @page { size: A4 portrait; margin: 12mm; }
+                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #0f172a; margin: 0; padding: 20px; font-size: 13px; line-height: 1.5; }
+                .receipt-box { border: 2px solid #0f172a; border-radius: 12px; padding: 24px; max-width: 680px; margin: 0 auto; }
+                .header { border-bottom: 2px solid #e2e8f0; padding-bottom: 16px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+                .title { font-size: 20px; font-weight: 800; color: #1e1b4b; text-transform: uppercase; }
+                .subtitle { font-size: 12px; color: #64748b; margin-top: 2px; }
+                .badge { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+                .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+                .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
+                .card-title { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 8px; }
+                .row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 12px; }
+                .label { color: #64748b; }
+                .value { font-weight: 600; color: #0f172a; }
+                .credentials { background: #eef2ff; border: 1.5px dashed #6366f1; border-radius: 8px; padding: 12px; margin-top: 16px; }
+                .footer { text-align: center; margin-top: 24px; font-size: 11px; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 12px; }
+              </style>
+            </head>
+            <body>
+              <div class="receipt-box">
+                <div class="header">
+                  <div>
+                    <div class="title">${hostelName}</div>
+                    <div class="subtitle">Official Hostel Admission Confirmation & Allocation Receipt</div>
+                  </div>
+                  <div class="badge">ADMISSION CONFIRMED</div>
+                </div>
+
+                <div class="grid-2">
+                  <div class="card">
+                    <div class="card-title">Resident Particulars</div>
+                    <div class="row"><span class="label">Full Name:</span><span class="value">${registeredStudent.fullName}</span></div>
+                    <div class="row"><span class="label">Student ID:</span><span class="value">${registeredStudent.studentId}</span></div>
+                    <div class="row"><span class="label">Mobile Number:</span><span class="value">${registeredStudent.phone}</span></div>
+                    <div class="row"><span class="label">Joining Date:</span><span class="value">${formatDateDMY(registeredStudent.joiningDate)}</span></div>
+                  </div>
+
+                  <div class="card">
+                    <div class="card-title">Room & Bed Allocation</div>
+                    <div class="row"><span class="label">Hostel Wing:</span><span class="value">${registeredStudent.blockName || 'Main Wing'}</span></div>
+                    <div class="row"><span class="label">Room Number:</span><span class="value">Room ${registeredStudent.roomNumber}</span></div>
+                    <div class="row"><span class="label">Bed Allocated:</span><span class="value">${registeredStudent.bedNumber}</span></div>
+                    <div class="row"><span class="label">Monthly Tariff:</span><span class="value">₹${registeredStudent.monthlyRent?.toLocaleString('en-IN')}/mo</span></div>
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-title">Admission Financial Details</div>
+                  <div class="row"><span class="label">Monthly Room Rent:</span><span class="value">₹${registeredStudent.monthlyRent?.toLocaleString('en-IN')}</span></div>
+                  ${registeredStudent.depositAmount > 0 ? `<div class="row"><span class="label">Security Deposit:</span><span class="value">₹${registeredStudent.depositAmount?.toLocaleString('en-IN')}</span></div>` : ''}
+                  ${registeredStudent.otherCharges > 0 ? `<div class="row"><span class="label">Maintenance / Other Charges:</span><span class="value">₹${registeredStudent.otherCharges?.toLocaleString('en-IN')}</span></div>` : ''}
+                  <div class="row" style="border-top: 1px solid #e2e8f0; padding-top: 4px; margin-top: 4px; font-weight: 700;">
+                    <span>Total Admission Dues:</span>
+                    <span>₹${((registeredStudent.monthlyRent || 0) + (registeredStudent.depositAmount || 0) + (registeredStudent.otherCharges || 0)).toLocaleString('en-IN')}</span>
+                  </div>
+                </div>
+
+                <div class="credentials">
+                  <div style="font-weight: 700; color: #3730a3; font-size: 12px; margin-bottom: 4px;">🔑 Student Mobile Portal Access Credentials</div>
+                  <div class="row"><span class="label">Web App Portal Link:</span><span class="value">${residentPortalUrl}</span></div>
+                  <div class="row"><span class="label">Login Username / Mobile:</span><span class="value">${registeredStudent.phone} (or ${registeredStudent.studentId})</span></div>
+                  <div class="row"><span class="label">Initial Password:</span><span class="value">${studentPassword}</span></div>
+                  <div style="font-size: 10px; color: #4338ca; margin-top: 4px;">Resident can log in anytime to view rent invoices, gate pass, and receipts.</div>
+                </div>
+
+                <div class="footer">
+                  Official Admission Record • ${hostelName} • Phone: ${settings.phone || '9876543210'}
+                </div>
+              </div>
+            </body>
+          </html>
+        `);
+        doc.close();
+        setTimeout(() => {
+          iframe.contentWindow?.focus();
+          iframe.contentWindow?.print();
+          setTimeout(() => {
+            try {
+              document.body.removeChild(iframe);
+            } catch (e) {}
+          }, 1000);
+        }, 300);
+      } catch (e) {
+        console.error('Print receipt failed:', e);
+      }
+    };
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-sm animate-in fade-in duration-200">
         <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
@@ -513,7 +639,7 @@ ${hostelName}, ${settings.city || 'Campus'}`;
                   Registration Successful
                 </span>
                 <h2 className="text-lg font-extrabold text-slate-900 font-display">
-                  Student Profile Created!
+                  Student Profile & Credentials Created!
                 </h2>
               </div>
             </div>
@@ -528,7 +654,7 @@ ${hostelName}, ${settings.city || 'Campus'}`;
           </div>
 
           {/* Body */}
-          <div className="p-6 space-y-5 overflow-y-auto flex-1">
+          <div className="p-6 space-y-4 overflow-y-auto flex-1">
             {/* Student Summary Card */}
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center gap-4">
               {registeredStudent.photoUrl ? (
@@ -567,18 +693,43 @@ ${hostelName}, ${settings.city || 'Campus'}`;
               </div>
             </div>
 
-            {/* WhatsApp Send Profile Section */}
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50 via-emerald-50/60 to-teal-50 border border-emerald-200/80 space-y-3.5 shadow-xs">
+            {/* Student Login Credentials Card */}
+            <div className="p-4 rounded-2xl bg-indigo-50/80 border border-indigo-200/90 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-indigo-950 flex items-center gap-1.5 font-display">
+                  <KeyRound className="w-4 h-4 text-indigo-600" />
+                  Resident App Login Credentials
+                </span>
+                <span className="text-[10px] bg-indigo-200/70 text-indigo-800 font-bold px-2 py-0.5 rounded-full">
+                  Included in WhatsApp Receipt
+                </span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="p-2.5 rounded-xl bg-white border border-indigo-100 shadow-2xs">
+                  <span className="text-[10px] font-semibold text-slate-500 block">Login ID / Mobile</span>
+                  <span className="font-mono font-bold text-slate-900 text-xs">{registeredStudent.phone}</span>
+                  <span className="text-[9px] text-indigo-600 block font-mono mt-0.5">or {registeredStudent.studentId}</span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white border border-indigo-100 shadow-2xs">
+                  <span className="text-[10px] font-semibold text-slate-500 block">Initial Password</span>
+                  <span className="font-mono font-bold text-emerald-700 text-xs">{studentPassword}</span>
+                  <span className="text-[9px] text-slate-400 block mt-0.5">Changeable in app</span>
+                </div>
+              </div>
+            </div>
+
+            {/* WhatsApp Send Profile & Credentials Section */}
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50 via-emerald-50/60 to-teal-50 border border-emerald-200/80 space-y-3 shadow-xs">
               <div className="flex items-start gap-3">
                 <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
                   <MessageCircle className="w-5 h-5" />
                 </div>
                 <div>
                   <h4 className="font-bold text-slate-900 text-sm">
-                    Send Profile on WhatsApp
+                    Send Receipt & Login Credentials on WhatsApp
                   </h4>
                   <p className="text-xs text-slate-600 leading-relaxed mt-0.5">
-                    Instantly deliver the official admission confirmation, room & bed details, and mobile app login link to the resident or parent.
+                    Instantly delivers admission details, room & bed allocation, resident portal link, and login credentials to the student.
                   </p>
                 </div>
               </div>
@@ -591,7 +742,7 @@ ${hostelName}, ${settings.city || 'Campus'}`;
                   className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4 fill-white" />
-                  <span>Send Profile to Student WhatsApp ({registeredStudent.phone})</span>
+                  <span>Send Receipt & Credentials to Student WhatsApp ({registeredStudent.phone})</span>
                   <ExternalLink className="w-3.5 h-3.5 opacity-70" />
                 </button>
 
@@ -617,12 +768,12 @@ ${hostelName}, ${settings.city || 'Campus'}`;
                   {copiedMessage ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="text-emerald-700 font-semibold">Admission Details Copied to Clipboard!</span>
+                      <span className="text-emerald-700 font-semibold">Admission Receipt & Credentials Copied to Clipboard!</span>
                     </>
                   ) : (
                     <>
                       <Copy className="w-3.5 h-3.5 text-slate-500" />
-                      <span>Copy Admission Profile Text</span>
+                      <span>Copy Admission Receipt & Credentials Text</span>
                     </>
                   )}
                 </button>
@@ -631,14 +782,26 @@ ${hostelName}, ${settings.city || 'Campus'}`;
           </div>
 
           {/* Footer Navigation */}
-          <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={handleStayOnDirectory}
-              className="px-4 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition cursor-pointer"
-            >
-              Stay on Students Roster
-            </button>
+          <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleStayOnDirectory}
+                className="px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition cursor-pointer"
+              >
+                Students Roster
+              </button>
+
+              <button
+                type="button"
+                onClick={handlePrintAdmissionReceipt}
+                className="px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                title="Print or Save PDF Admission Receipt"
+              >
+                <Printer className="w-3.5 h-3.5 text-indigo-600" />
+                <span>Print Receipt</span>
+              </button>
+            </div>
 
             <button
               type="button"
@@ -1392,6 +1555,40 @@ ${hostelName}, ${settings.city || 'Campus'}`;
                   </span>
                 </div>
               )}
+
+              {/* Student App Login Credentials Configuration */}
+              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200/80 space-y-2 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-800 flex items-center gap-1.5 font-display">
+                    <KeyRound className="w-3.5 h-3.5 text-indigo-600" />
+                    Resident App Login Password (Optional)
+                  </span>
+                  <span className="text-[10px] text-indigo-700 font-semibold bg-indigo-100/70 px-2 py-0.5 rounded-md">
+                    Included in WhatsApp Receipt
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={customPassword}
+                    onChange={(e) => setCustomPassword(e.target.value)}
+                    placeholder="student123 (Default)"
+                    className="flex-1 px-3 py-2 text-xs border border-slate-300 rounded-xl bg-white text-slate-900 font-mono outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setCustomPassword(phone.replace(/\D/g, '').slice(-6))}
+                    disabled={phone.replace(/\D/g, '').length < 6}
+                    className="px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-[11px] font-semibold transition cursor-pointer"
+                    title="Quick preset: last 6 digits of student phone number"
+                  >
+                    Mobile Last 6
+                  </button>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-relaxed">
+                  Default password is <strong>student123</strong>. Student logs in with mobile (<strong>{phone || 'mobile'}</strong>) or Student ID.
+                </p>
+              </div>
 
               {/* Terms Acceptance */}
               <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-100">

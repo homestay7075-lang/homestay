@@ -285,10 +285,11 @@ export function registerStudentTransaction(data: {
   monthlyRent: number;
   depositAmount: number;
   otherCharges: number;
+  password?: string;
   actorName: string;
   actorRole: any;
   actorId: string;
-}): { success: boolean; student?: Student; error?: string } {
+}): { success: boolean; student?: Student; initialPassword?: string; error?: string } {
   const db = getDatabase();
 
   // 1. Validate phone number is provided and strictly matches ^[6-9]\d{9}$
@@ -375,6 +376,10 @@ export function registerStudentTransaction(data: {
   targetBed.currentStudentId = newStudentId;
   targetBed.currentStudentName = data.fullName.trim();
 
+  const initialPassword = (data.password && data.password.trim().length >= 4)
+    ? data.password.trim()
+    : 'student123';
+
   // 5. Create auth user for student so they can log in via phone
   const studentUser: User = {
     id: userId,
@@ -382,7 +387,7 @@ export function registerStudentTransaction(data: {
     fullName: data.fullName.trim(),
     phone: trimmedPhone,
     email: data.email?.trim(),
-    passwordHash: 'student123',
+    passwordHash: initialPassword,
     isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -439,7 +444,7 @@ export function registerStudentTransaction(data: {
   db.auditLogs.unshift(audit);
 
   saveDatabase(db);
-  return { success: true, student: newStudent };
+  return { success: true, student: newStudent, initialPassword };
 }
 
 /**

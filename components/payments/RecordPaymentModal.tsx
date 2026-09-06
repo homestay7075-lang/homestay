@@ -172,10 +172,11 @@ ${receiptResult.transactionRef ? `• Ref / UTR: ${receiptResult.transactionRef}
 
 ✅ *Status:* PAID & RECONCILED
 
-📱 *View & Download PDF Voucher:*
+🔑 *Resident Mobile App Access & Credentials:*
 Access your resident mobile portal anytime to view or print your official stamped receipt:
 👉 ${residentPortalUrl}
-*Login Phone:* ${currentStudent?.phone || ''}
+• Username / Mobile: *${currentStudent?.phone || ''}* (or *${currentStudent?.studentId || ''}*)
+• Password: *student123* (or your updated password)
 
 Hostel Administration Contact: ${settings.phone || '9876543210'}
 ${hostelName}`

@@ -58,6 +58,8 @@ export default function VoucherModal({
   const balanceDue = Number(data.balanceAmount ?? (isInvoice ? amount - paidAmount : 0));
   const isPaid = isInvoice ? balanceDue === 0 : true;
 
+  const residentPortalUrl = typeof window !== 'undefined' ? `${window.location.origin}/app` : 'http://localhost:3000/app';
+
   const voucherSummaryText = `🏢 *${hostelName} - ${isInvoice ? 'Official Invoice' : 'Verified Payment Receipt'}*
 🧾 *Doc #:* ${docNumber}
 📅 *Date:* ${formatDateDMY(docDate)}
@@ -70,6 +72,11 @@ export default function VoucherModal({
 • Paid: *₹${paidAmount.toLocaleString('en-IN')}*
 ${isInvoice ? `• Balance Due: *₹${balanceDue.toLocaleString('en-IN')}*` : `• Payment Mode: ${data.paymentMethod || 'UPI / Online'}`}
 ${data.transactionRef ? `• UTR / Ref: ${data.transactionRef}\n` : ''}✅ *Status:* ${isPaid ? 'PAID & SETTLED' : 'PAYMENT DUE'}
+
+🔑 *Resident App Access Credentials:*
+👉 Portal: ${residentPortalUrl}
+• Username / Mobile: *${student.phone}* (or *${student.studentId}*)
+• Password: *student123* (or your updated password)
 
 Hostel Administration: ${hostelPhone}
 ${hostelName}`;
