@@ -43,6 +43,7 @@ export async function GET() {
       totalExpenses,
       netOperatingProfit,
       totalDuesOutstanding,
+      pendingDuesAmount: totalDuesOutstanding,
       pendingBookings: db.bookings.filter(b => b.status === 'Pending').length,
     },
     students: db.students,

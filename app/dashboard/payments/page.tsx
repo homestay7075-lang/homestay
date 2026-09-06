@@ -808,11 +808,11 @@ export default function PaymentsAndDuesPage() {
                           </td>
 
                           <td className="py-3.5 px-4 font-semibold text-slate-900">
-                            ₹{stu.totalBilled.toLocaleString('en-IN')}
+                            ₹{(stu.totalBilled || 0).toLocaleString('en-IN')}
                           </td>
 
                           <td className="py-3.5 px-4 font-semibold text-emerald-600">
-                            ₹{stu.totalPaid.toLocaleString('en-IN')}
+                            ₹{(stu.totalPaid || 0).toLocaleString('en-IN')}
                           </td>
 
                           {/* Old Balance (Arrears from prior cycles) */}
@@ -834,10 +834,10 @@ export default function PaymentsAndDuesPage() {
                             <div>
                               <span
                                 className={
-                                  stu.totalOutstanding > 0 ? 'text-rose-600 font-display text-sm font-black' : 'text-emerald-600'
+                                  (stu.totalOutstanding || 0) > 0 ? 'text-rose-600 font-display text-sm font-black' : 'text-emerald-600'
                                 }
                               >
-                                ₹{stu.totalOutstanding.toLocaleString('en-IN')}
+                                ₹{(stu.totalOutstanding || 0).toLocaleString('en-IN')}
                               </span>
                               {stu.totalOutstanding > 0 && (
                                 <div className="text-[10px] text-slate-400 font-mono">
@@ -934,7 +934,7 @@ export default function PaymentsAndDuesPage() {
                       </td>
 
                       <td className="py-3.5 px-4 font-black text-emerald-600 font-display">
-                        ₹{p.amount.toLocaleString('en-IN')}
+                        ₹{(p?.amount || 0).toLocaleString('en-IN')}
                       </td>
 
                       <td className="py-3.5 px-4">
@@ -1076,7 +1076,7 @@ export default function PaymentsAndDuesPage() {
                             {/* Amount */}
                             <td className="py-3.5 px-4">
                               <div className="font-extrabold text-slate-900 font-display text-sm">
-                                ₹{sub.amount.toLocaleString('en-IN')}
+                                ₹{(sub?.amount || 0).toLocaleString('en-IN')}
                               </div>
                             </td>
 
@@ -1372,20 +1372,20 @@ export default function PaymentsAndDuesPage() {
                   <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-500 font-medium">Resident Current Unpaid Dues:</span>
-                      <span className={`font-bold ${residentOldBalance > 0 ? 'text-amber-700 font-mono' : 'text-slate-600'}`}>
-                        ₹{residentOldBalance.toLocaleString('en-IN')}
+                      <span className={`font-bold ${(residentOldBalance || 0) > 0 ? 'text-amber-700 font-mono' : 'text-slate-600'}`}>
+                        ₹{(residentOldBalance || 0).toLocaleString('en-IN')}
                       </span>
                     </div>
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-500 font-medium">New Bill Being Issued:</span>
                       <span className="font-bold text-indigo-700 font-mono">
-                        + ₹{newBillTotal.toLocaleString('en-IN')}
+                        + ₹{(newBillTotal || 0).toLocaleString('en-IN')}
                       </span>
                     </div>
                     <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-xs">
                       <span className="font-bold text-slate-800">Total Due After Issuing Bill:</span>
                       <span className="font-black text-rose-600 text-sm font-display">
-                        ₹{projectedTotal.toLocaleString('en-IN')}
+                        ₹{(projectedTotal || 0).toLocaleString('en-IN')}
                       </span>
                     </div>
                   </div>

@@ -759,11 +759,11 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                 <div className="grid grid-cols-2 gap-2 text-xs pt-2.5 sm:pt-3 border-t border-slate-700">
                   <div>
                     <span className="text-slate-400 text-[10px] block">Total Billed</span>
-                    <span className="font-bold text-white">₹{fin?.totalBilled.toLocaleString('en-IN')}</span>
+                    <span className="font-bold text-white">₹{(fin?.totalBilled || 0).toLocaleString('en-IN')}</span>
                   </div>
                   <div>
                     <span className="text-slate-400 text-[10px] block">Total Cleared</span>
-                    <span className="font-bold text-emerald-400">₹{fin?.totalPaid.toLocaleString('en-IN')}</span>
+                    <span className="font-bold text-emerald-400">₹{(fin?.totalPaid || 0).toLocaleString('en-IN')}</span>
                   </div>
                 </div>
               </div>
@@ -792,7 +792,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                     className="w-full py-3 sm:py-3.5 px-3 sm:px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black rounded-xl sm:rounded-2xl text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
                   >
                     <CreditCard className="w-4 h-4 text-slate-950 shrink-0" />
-                    <span className="truncate">Pay via UPI (₹{fin.totalOutstanding.toLocaleString('en-IN')})</span>
+                    <span className="truncate">Pay via UPI (₹{(fin?.totalOutstanding || 0).toLocaleString('en-IN')})</span>
                     <ExternalLink className="w-4 h-4 text-slate-950 shrink-0" />
                   </button>
 
@@ -874,7 +874,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                           className="w-36 h-36 rounded-lg shadow-sm"
                         />
                         <span className="text-[11px] text-slate-800 font-semibold font-mono">
-                          Scan to pay ₹{fin.totalOutstanding.toLocaleString('en-IN')}
+                          Scan to pay ₹{(fin?.totalOutstanding || 0).toLocaleString('en-IN')}
                         </span>
                         <span className="text-[9px] text-slate-500">
                           Scan using PhonePe, Google Pay or Paytm scanner
@@ -1075,7 +1075,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                         <div className="flex items-center justify-between">
                           <div>
                             <span className="font-bold text-white">
-                              ₹{sub.amount.toLocaleString('en-IN')} via {sub.upiApp}
+                              ₹{(sub?.amount || 0).toLocaleString('en-IN')} via {sub.upiApp}
                             </span>
                             <div className="text-[10px] text-slate-400 mt-0.5 font-mono">
                               UTR: {sub.transactionRef} • {formatDateDMY(sub.paymentDate)}
@@ -1149,7 +1149,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-white">₹{cycle.amount.toLocaleString('en-IN')}</div>
+                        <div className="font-bold text-white">₹{(cycle?.amount || 0).toLocaleString('en-IN')}</div>
                         <span
                           className={`text-[10px] font-bold ${cycle.status === 'Paid' ? 'text-emerald-400' : 'text-rose-400'
                             }`}
@@ -1221,7 +1221,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                               </span>
                             </div>
                             <div className="font-bold text-sm text-white mt-1">
-                              ₹{c.amount?.toLocaleString('en-IN')}
+                              ₹{(c?.amount || 0).toLocaleString('en-IN')}
                             </div>
                             <div className="text-[10px] text-slate-400 mt-0.5">
                               Due: {formatDateDMY(c.dueDate)} • {c.description}
@@ -1235,7 +1235,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                                   : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
                                 }`}
                             >
-                              {isPaid ? 'Paid' : `Due ₹${c.balanceAmount?.toLocaleString('en-IN')}`}
+                              {isPaid ? 'Paid' : `Due ₹${(c?.balanceAmount || 0).toLocaleString('en-IN')}`}
                             </span>
 
                             <button
@@ -1279,7 +1279,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                         <div>
                           <div className="font-mono font-bold text-emerald-400">{p.receiptNumber}</div>
                           <div className="font-bold text-sm text-white mt-1">
-                            ₹{p.amount.toLocaleString('en-IN')}
+                            ₹{(p?.amount || 0).toLocaleString('en-IN')}
                           </div>
                           <div className="text-[10px] text-slate-400 mt-0.5">
                             {formatDateDMY(p.paymentDate)} • {p.paymentMethod}
@@ -1538,7 +1538,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 block">Monthly Tariff</span>
-                      <span className="font-bold text-emerald-400">₹{studentData.monthlyRent?.toLocaleString('en-IN')}/mo</span>
+                      <span className="font-bold text-emerald-400">₹{(studentData?.monthlyRent || 0).toLocaleString('en-IN')}/mo</span>
                     </div>
                   </div>
                 </div>

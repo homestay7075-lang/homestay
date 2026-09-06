@@ -395,7 +395,7 @@ export default function StudentsPage() {
                       </td>
 
                       <td className="py-3.5 px-4 font-bold text-slate-900">
-                        ₹{stu.monthlyRent.toLocaleString('en-IN')}
+                        ₹{(stu.monthlyRent || 0).toLocaleString('en-IN')}
                       </td>
 
                       <td className="py-3.5 px-4">
@@ -403,7 +403,7 @@ export default function StudentsPage() {
                           <div className="space-y-0.5">
                             <span className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold bg-rose-100 text-rose-800 border border-rose-300 inline-flex items-center gap-1 shadow-2xs">
                               <AlertTriangle className="w-3 h-3 text-rose-600" />
-                              Due: ₹{fin.totalOutstanding.toLocaleString('en-IN')}
+                              Due: ₹{(fin?.totalOutstanding || 0).toLocaleString('en-IN')}
                             </span>
                             <div className="text-[10px] text-rose-700 font-semibold mt-0.5">
                               {dueInfo.overdueDays > 0
@@ -413,13 +413,13 @@ export default function StudentsPage() {
                                 : 'Due Immediately'}
                             </div>
                           </div>
-                        ) : fin?.totalOutstanding > 0 ? (
+                        ) : (fin?.totalOutstanding || 0) > 0 ? (
                           <div>
                             <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 inline-flex items-center gap-1">
-                              Due: ₹{fin.totalOutstanding.toLocaleString('en-IN')}
+                              Due: ₹{(fin?.totalOutstanding || 0).toLocaleString('en-IN')}
                             </span>
                             <div className="text-[10px] text-slate-500 mt-0.5">
-                              Status: {fin.overallStatus}
+                              Status: {fin?.overallStatus || 'Pending'}
                             </div>
                           </div>
                         ) : (
@@ -873,7 +873,7 @@ export default function StudentsPage() {
                           <div className="flex items-center gap-3">
                             <div className="text-right">
                               <div className="font-bold text-slate-900 font-display">
-                                ₹{c.amount?.toLocaleString('en-IN')}
+                                ₹{(c?.amount || 0).toLocaleString('en-IN')}
                               </div>
                               <span
                                 className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
@@ -882,7 +882,7 @@ export default function StudentsPage() {
                                     : 'bg-rose-100 text-rose-800'
                                 }`}
                               >
-                                {c.balanceAmount === 0 ? 'Paid' : `Due ₹${c.balanceAmount?.toLocaleString('en-IN')}`}
+                                {c.balanceAmount === 0 ? 'Paid' : `Due ₹${(c?.balanceAmount || 0).toLocaleString('en-IN')}`}
                               </span>
                             </div>
 
@@ -934,7 +934,7 @@ export default function StudentsPage() {
                           <div className="flex items-center gap-3">
                             <div className="text-right">
                               <div className="font-bold text-emerald-600 font-display text-sm">
-                                ₹{p.amount?.toLocaleString('en-IN')}
+                                ₹{(p?.amount || 0).toLocaleString('en-IN')}
                               </div>
                               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
                                 Settled

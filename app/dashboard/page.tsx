@@ -118,10 +118,10 @@ export default function DashboardOverview() {
               </div>
             </div>
             <div className="text-2xl font-black text-slate-900 font-display">
-              {kpis.activeStudents}
+              {kpis?.activeStudents ?? 0}
             </div>
             <div className="text-[10px] text-indigo-600 font-medium flex items-center gap-1">
-              <span>{kpis.totalBeds} total beds capacity</span>
+              <span>{kpis?.totalBeds ?? 0} total beds capacity</span>
             </div>
           </div>
 
@@ -134,7 +134,7 @@ export default function DashboardOverview() {
               </div>
             </div>
             <div className="text-2xl font-black text-emerald-600 font-display">
-              {kpis.availableBeds}
+              {kpis?.availableBeds ?? 0}
             </div>
             <div className="text-[10px] text-emerald-600 font-medium">
               Ready for immediate allocation
@@ -150,12 +150,12 @@ export default function DashboardOverview() {
               </div>
             </div>
             <div className="text-2xl font-black text-slate-900 font-display">
-              {kpis.occupancyRate}%
+              {kpis?.occupancyRate ?? 0}%
             </div>
             <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
               <div
                 className="bg-blue-600 h-1.5 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(100, kpis.occupancyRate)}%` }}
+                style={{ width: `${Math.min(100, kpis?.occupancyRate ?? 0)}%` }}
               ></div>
             </div>
           </div>
@@ -169,7 +169,7 @@ export default function DashboardOverview() {
               </div>
             </div>
             <div className="text-2xl font-black text-rose-600 font-display">
-              ₹{kpis.pendingDuesAmount.toLocaleString('en-IN')}
+              ₹{(kpis?.pendingDuesAmount ?? kpis?.totalDuesOutstanding ?? 0).toLocaleString('en-IN')}
             </div>
             <div className="text-[10px] text-rose-600 font-medium">
               Across uncollected monthly rent
@@ -185,7 +185,7 @@ export default function DashboardOverview() {
               </div>
             </div>
             <div className="text-2xl font-black text-slate-900 font-display">
-              ₹{kpis.netOperatingProfit.toLocaleString('en-IN')}
+              ₹{(kpis?.netOperatingProfit ?? 0).toLocaleString('en-IN')}
             </div>
             <div className="text-[10px] text-emerald-600 font-medium">
               Revenue minus expenses
@@ -213,7 +213,7 @@ export default function DashboardOverview() {
                 Gross Collected Revenue
               </span>
               <div className="text-3xl font-black font-display text-emerald-400">
-                ₹{kpis.totalPaymentsCollected.toLocaleString('en-IN')}
+                ₹{(kpis?.totalPaymentsCollected ?? 0).toLocaleString('en-IN')}
               </div>
               <p className="text-xs text-slate-400">Rent, deposits & one-time fees</p>
             </div>
@@ -223,7 +223,7 @@ export default function DashboardOverview() {
                 Total Operating Expenses
               </span>
               <div className="text-3xl font-black font-display text-rose-400">
-                ₹{kpis.totalExpenses.toLocaleString('en-IN')}
+                ₹{(kpis?.totalExpenses ?? 0).toLocaleString('en-IN')}
               </div>
               <p className="text-xs text-slate-400">Mess, salaries, maintenance, utilities</p>
             </div>
@@ -233,7 +233,7 @@ export default function DashboardOverview() {
                 Net Operating Surplus
               </span>
               <div className="text-3xl font-black font-display text-white">
-                ₹{kpis.netOperatingProfit.toLocaleString('en-IN')}
+                ₹{(kpis?.netOperatingProfit ?? 0).toLocaleString('en-IN')}
               </div>
               <p className="text-xs text-emerald-400 font-semibold">Positive Cash Flow</p>
             </div>

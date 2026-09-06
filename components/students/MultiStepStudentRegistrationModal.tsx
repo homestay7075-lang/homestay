@@ -1285,13 +1285,13 @@ ${hostelName}, ${settings.city || 'Campus'}`;
 
                   <div>
                     <span className="text-slate-400 block">Monthly Rent:</span>
-                    <span className="font-semibold text-slate-800">₹{monthlyRent.toLocaleString('en-IN')}/mo</span>
+                    <span className="font-semibold text-slate-800">₹{(monthlyRent || 0).toLocaleString('en-IN')}/mo</span>
                   </div>
 
                   <div>
                     <span className="text-slate-400 block">Total Admission Due:</span>
                     <span className="font-bold text-emerald-600">
-                      ₹{(monthlyRent + depositAmount + otherCharges).toLocaleString('en-IN')}
+                      ₹{((monthlyRent || 0) + (depositAmount || 0) + (otherCharges || 0)).toLocaleString('en-IN')}
                     </span>
                   </div>
                 </div>
@@ -1350,7 +1350,7 @@ ${hostelName}, ${settings.city || 'Campus'}`;
                           <div>
                             <span className="text-slate-400">Total Rent Paid:</span>{' '}
                             <span className="font-semibold text-emerald-600">
-                              ₹{hist.totalPaid?.toLocaleString('en-IN') || '45,000'}
+                              ₹{(hist.totalPaid || 0).toLocaleString('en-IN')}
                             </span>
                           </div>
                           <div>

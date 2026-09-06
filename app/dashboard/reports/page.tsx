@@ -139,7 +139,7 @@ export default function ReportsPage() {
                 <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-1">
                   <span className="text-xs font-bold text-emerald-800">Total Collections (Inflows)</span>
                   <div className="text-2xl font-black text-emerald-700 font-display">
-                    ₹{kpis.totalPaymentsCollected.toLocaleString('en-IN')}
+                    ₹{(kpis?.totalPaymentsCollected || 0).toLocaleString('en-IN')}
                   </div>
                   <span className="text-[10px] text-emerald-600">Reconciled student payments</span>
                 </div>
@@ -147,7 +147,7 @@ export default function ReportsPage() {
                 <div className="p-4 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-1">
                   <span className="text-xs font-bold text-rose-800">Total Operating Expenses (Outflows)</span>
                   <div className="text-2xl font-black text-rose-700 font-display">
-                    ₹{kpis.totalExpenses.toLocaleString('en-IN')}
+                    ₹{(kpis?.totalExpenses || 0).toLocaleString('en-IN')}
                   </div>
                   <span className="text-[10px] text-rose-600">Mess, salaries, maintenance</span>
                 </div>
@@ -155,7 +155,7 @@ export default function ReportsPage() {
                 <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-1">
                   <span className="text-xs font-bold text-indigo-800">Net Operating Profit</span>
                   <div className="text-2xl font-black text-indigo-700 font-display">
-                    ₹{kpis.netOperatingProfit.toLocaleString('en-IN')}
+                    ₹{(kpis?.netOperatingProfit || 0).toLocaleString('en-IN')}
                   </div>
                   <span className="text-[10px] text-indigo-600 font-semibold">Healthy Operating Margin</span>
                 </div>
@@ -166,7 +166,7 @@ export default function ReportsPage() {
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-slate-800">Total Student Dues Outstanding:</span>
                   <span className="font-mono font-bold text-rose-600 text-sm">
-                    ₹{kpis.totalDuesOutstanding.toLocaleString('en-IN')}
+                    ₹{(kpis?.totalDuesOutstanding ?? kpis?.pendingDuesAmount ?? 0).toLocaleString('en-IN')}
                   </span>
                 </div>
                 <p className="text-slate-500 text-[11px]">

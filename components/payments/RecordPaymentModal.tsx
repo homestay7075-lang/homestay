@@ -550,23 +550,23 @@ ${hostelName}`
                   <div className="flex justify-between">
                     <span>1. Applied to Old Balance (Arrears):</span>
                     <span className="font-bold font-mono text-amber-800">
-                      ₹{Math.min(amount, currentStudent.finances.oldBalance || 0).toLocaleString('en-IN')}
+                      ₹{Math.min(amount, currentStudent?.finances?.oldBalance || 0).toLocaleString('en-IN')}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>2. Applied to New Balance (Current Cycle):</span>
                     <span className="font-bold font-mono text-indigo-800">
                       ₹{Math.min(
-                        Math.max(0, amount - (currentStudent.finances.oldBalance || 0)),
-                        currentStudent.finances.newBalance || 0
+                        Math.max(0, amount - (currentStudent?.finances?.oldBalance || 0)),
+                        currentStudent?.finances?.newBalance || 0
                       ).toLocaleString('en-IN')}
                     </span>
                   </div>
-                  {amount > (currentStudent.finances.totalOutstanding || 0) && (
+                  {amount > (currentStudent?.finances?.totalOutstanding || 0) && (
                     <div className="flex justify-between text-emerald-700 font-semibold">
                       <span>3. Advance Credit Carry Forward:</span>
                       <span className="font-bold font-mono">
-                        ₹{(amount - (currentStudent.finances.totalOutstanding || 0)).toLocaleString('en-IN')}
+                        ₹{(amount - (currentStudent?.finances?.totalOutstanding || 0)).toLocaleString('en-IN')}
                       </span>
                     </div>
                   )}
@@ -576,12 +576,12 @@ ${hostelName}`
                   <span className="text-slate-800">Remaining Due Balance after this payment:</span>
                   <span
                     className={`font-mono text-sm font-black ${
-                      Math.max(0, (currentStudent.finances.totalOutstanding || 0) - amount) > 0
+                      Math.max(0, (currentStudent?.finances?.totalOutstanding || 0) - amount) > 0
                         ? 'text-rose-600'
                         : 'text-emerald-700'
                     }`}
                   >
-                    ₹{Math.max(0, (currentStudent.finances.totalOutstanding || 0) - amount).toLocaleString('en-IN')}
+                    ₹{Math.max(0, (currentStudent?.finances?.totalOutstanding || 0) - amount).toLocaleString('en-IN')}
                   </span>
                 </div>
               </div>
