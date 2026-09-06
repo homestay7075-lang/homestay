@@ -105,11 +105,11 @@ export default function ReportsPage() {
         </div>
 
         {/* Printable Report Document Surface */}
-        <div className="printable-document bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-sm space-y-8">
+        <div className="printable-document bg-white border border-slate-200 rounded-3xl p-3.5 sm:p-8 lg:p-12 shadow-sm space-y-5 sm:space-y-8">
           {/* Header on Document */}
-          <div className="flex justify-between items-start pb-6 border-b-2 border-slate-900">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-4 sm:pb-6 border-b-2 border-slate-900">
             <div>
-              <div className="text-xl font-bold font-display text-slate-900">
+              <div className="text-lg sm:text-xl font-bold font-display text-slate-900">
                 {hostelName}
               </div>
               <p className="text-xs text-slate-500">
@@ -120,7 +120,7 @@ export default function ReportsPage() {
               </div>
             </div>
 
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <span className="px-3 py-1 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold rounded-lg uppercase">
                 {selectedReportType} REPORT
               </span>
@@ -183,7 +183,7 @@ export default function ReportsPage() {
                 Bed Census & Floor Occupancy
               </h3>
 
-              <div className="grid grid-cols-4 gap-3 text-xs mb-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 text-xs mb-4">
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
                   <span className="text-slate-400 block text-[10px]">Total Beds</span>
                   <span className="font-bold text-slate-900 text-base">{kpis.totalBeds}</span>
@@ -202,46 +202,48 @@ export default function ReportsPage() {
                 </div>
               </div>
 
-              <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
-                <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
-                  <tr>
-                    <th className="py-2.5 px-4">Room & Bed</th>
-                    <th className="py-2.5 px-4">Block</th>
-                    <th className="py-2.5 px-4">Occupant Name</th>
-                    <th className="py-2.5 px-4">Student ID</th>
-                    <th className="py-2.5 px-4">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {beds.map((b: any) => (
-                    <tr key={b.id}>
-                      <td className="py-2.5 px-4 font-bold text-slate-900">
-                        {b.roomNumber} - {b.bedNumber}
-                      </td>
-                      <td className="py-2.5 px-4 text-slate-600">{b.blockName}</td>
-                      <td className="py-2.5 px-4 font-medium text-slate-800">
-                        {b.currentStudentName || '—'}
-                      </td>
-                      <td className="py-2.5 px-4 font-mono text-indigo-600 font-semibold">
-                        {b.currentStudentId || '—'}
-                      </td>
-                      <td className="py-2.5 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            b.status === 'Occupied'
-                              ? 'bg-indigo-50 text-indigo-700'
-                              : b.status === 'Maintenance'
-                              ? 'bg-amber-50 text-amber-700'
-                              : 'bg-emerald-50 text-emerald-700'
-                          }`}
-                        >
-                          {b.status}
-                        </span>
-                      </td>
+              <div className="overflow-x-auto w-full border border-slate-200 rounded-xl">
+                <table className="w-full text-left text-xs min-w-[520px]">
+                  <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
+                    <tr>
+                      <th className="py-2.5 px-4">Room & Bed</th>
+                      <th className="py-2.5 px-4">Block</th>
+                      <th className="py-2.5 px-4">Occupant Name</th>
+                      <th className="py-2.5 px-4">Student ID</th>
+                      <th className="py-2.5 px-4">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {beds.map((b: any) => (
+                      <tr key={b.id}>
+                        <td className="py-2.5 px-4 font-bold text-slate-900 whitespace-nowrap">
+                          {b.roomNumber} - {b.bedNumber}
+                        </td>
+                        <td className="py-2.5 px-4 text-slate-600 whitespace-nowrap">{b.blockName}</td>
+                        <td className="py-2.5 px-4 font-medium text-slate-800 whitespace-nowrap">
+                          {b.currentStudentName || '—'}
+                        </td>
+                        <td className="py-2.5 px-4 font-mono text-indigo-600 font-semibold whitespace-nowrap">
+                          {b.currentStudentId || '—'}
+                        </td>
+                        <td className="py-2.5 px-4 whitespace-nowrap">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              b.status === 'Occupied'
+                                ? 'bg-indigo-50 text-indigo-700'
+                                : b.status === 'Maintenance'
+                                ? 'bg-amber-50 text-amber-700'
+                                : 'bg-emerald-50 text-emerald-700'
+                            }`}
+                          >
+                            {b.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -252,32 +254,34 @@ export default function ReportsPage() {
                 All Recorded Payment Receipts
               </h3>
 
-              <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
-                <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
-                  <tr>
-                    <th className="py-2.5 px-4">Receipt #</th>
-                    <th className="py-2.5 px-4">Resident</th>
-                    <th className="py-2.5 px-4">Date</th>
-                    <th className="py-2.5 px-4">Method</th>
-                    <th className="py-2.5 px-4">Billing Period</th>
-                    <th className="py-2.5 px-4 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {payments.map((p: any) => (
-                    <tr key={p.id}>
-                      <td className="py-2.5 px-4 font-mono font-bold text-indigo-600">{p.receiptNumber}</td>
-                      <td className="py-2.5 px-4 font-medium text-slate-800">{p.studentName}</td>
-                      <td className="py-2.5 px-4 text-slate-600">{formatDateDMY(p.paymentDate)}</td>
-                      <td className="py-2.5 px-4 text-slate-600">{p.paymentMethod}</td>
-                      <td className="py-2.5 px-4 text-slate-500">{formatPeriodDMY(p.billingPeriod)}</td>
-                      <td className="py-2.5 px-4 text-right font-bold text-emerald-700">
-                        ₹{p.amount.toLocaleString('en-IN')}
-                      </td>
+              <div className="overflow-x-auto w-full border border-slate-200 rounded-xl">
+                <table className="w-full text-left text-xs min-w-[600px]">
+                  <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
+                    <tr>
+                      <th className="py-2.5 px-4">Receipt #</th>
+                      <th className="py-2.5 px-4">Resident</th>
+                      <th className="py-2.5 px-4">Date</th>
+                      <th className="py-2.5 px-4">Method</th>
+                      <th className="py-2.5 px-4">Billing Period</th>
+                      <th className="py-2.5 px-4 text-right">Amount</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {payments.map((p: any) => (
+                      <tr key={p.id}>
+                        <td className="py-2.5 px-4 font-mono font-bold text-indigo-600 whitespace-nowrap">{p.receiptNumber}</td>
+                        <td className="py-2.5 px-4 font-medium text-slate-800 whitespace-nowrap">{p.studentName}</td>
+                        <td className="py-2.5 px-4 text-slate-600 whitespace-nowrap">{formatDateDMY(p.paymentDate)}</td>
+                        <td className="py-2.5 px-4 text-slate-600 whitespace-nowrap">{p.paymentMethod}</td>
+                        <td className="py-2.5 px-4 text-slate-500 whitespace-nowrap">{formatPeriodDMY(p.billingPeriod)}</td>
+                        <td className="py-2.5 px-4 text-right font-bold text-emerald-700 whitespace-nowrap">
+                          ₹{p.amount.toLocaleString('en-IN')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -288,30 +292,32 @@ export default function ReportsPage() {
                 Operating Outflow Breakdown
               </h3>
 
-              <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
-                <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
-                  <tr>
-                    <th className="py-2.5 px-4">Date</th>
-                    <th className="py-2.5 px-4">Category</th>
-                    <th className="py-2.5 px-4">Description</th>
-                    <th className="py-2.5 px-4">Added By</th>
-                    <th className="py-2.5 px-4 text-right">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {expenses.map((e: any) => (
-                    <tr key={e.id}>
-                      <td className="py-2.5 px-4 text-slate-600">{formatDateDMY(e.expenseDate)}</td>
-                      <td className="py-2.5 px-4 font-semibold text-slate-800">{e.category}</td>
-                      <td className="py-2.5 px-4 text-slate-700">{e.description}</td>
-                      <td className="py-2.5 px-4 text-slate-500">{e.addedBy}</td>
-                      <td className="py-2.5 px-4 text-right font-bold text-rose-600">
-                        -₹{e.amount.toLocaleString('en-IN')}
-                      </td>
+              <div className="overflow-x-auto w-full border border-slate-200 rounded-xl">
+                <table className="w-full text-left text-xs min-w-[540px]">
+                  <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
+                    <tr>
+                      <th className="py-2.5 px-4">Date</th>
+                      <th className="py-2.5 px-4">Category</th>
+                      <th className="py-2.5 px-4">Description</th>
+                      <th className="py-2.5 px-4">Added By</th>
+                      <th className="py-2.5 px-4 text-right">Amount</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {expenses.map((e: any) => (
+                      <tr key={e.id}>
+                        <td className="py-2.5 px-4 text-slate-600 whitespace-nowrap">{formatDateDMY(e.expenseDate)}</td>
+                        <td className="py-2.5 px-4 font-semibold text-slate-800 whitespace-nowrap">{e.category}</td>
+                        <td className="py-2.5 px-4 text-slate-700">{e.description}</td>
+                        <td className="py-2.5 px-4 text-slate-500 whitespace-nowrap">{e.addedBy}</td>
+                        <td className="py-2.5 px-4 text-right font-bold text-rose-600 whitespace-nowrap">
+                          -₹{e.amount.toLocaleString('en-IN')}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
@@ -322,45 +328,47 @@ export default function ReportsPage() {
                 Preserved Student Checkout History (Rule 10 & 38)
               </h3>
 
-              <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
-                <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
-                  <tr>
-                    <th className="py-2.5 px-4">Student ID</th>
-                    <th className="py-2.5 px-4">Alumni Name</th>
-                    <th className="py-2.5 px-4">Stay Dates</th>
-                    <th className="py-2.5 px-4">Room / Bed</th>
-                    <th className="py-2.5 px-4">Checkout Reason</th>
-                    <th className="py-2.5 px-4 text-right">Final Balance</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {studentHistory.map((h: any) => (
-                    <tr key={h.id}>
-                      <td className="py-2.5 px-4 font-mono font-bold text-indigo-600">{h.studentId}</td>
-                      <td className="py-2.5 px-4 font-bold text-slate-900">{h.fullName}</td>
-                      <td className="py-2.5 px-4 text-slate-600">
-                        {formatDateDMY(h.joiningDate)} → {formatDateDMY(h.checkoutDate)}
-                      </td>
-                      <td className="py-2.5 px-4 text-slate-700">
-                        {h.roomNumber} ({h.bedNumber})
-                      </td>
-                      <td className="py-2.5 px-4 text-slate-600">{h.checkoutReason}</td>
-                      <td className="py-2.5 px-4 text-right font-bold text-emerald-600">
-                        ₹{h.finalOutstanding} (Settled)
-                      </td>
+              <div className="overflow-x-auto w-full border border-slate-200 rounded-xl">
+                <table className="w-full text-left text-xs min-w-[620px]">
+                  <thead className="bg-slate-100 text-slate-700 font-bold uppercase text-[10px]">
+                    <tr>
+                      <th className="py-2.5 px-4">Student ID</th>
+                      <th className="py-2.5 px-4">Alumni Name</th>
+                      <th className="py-2.5 px-4">Stay Dates</th>
+                      <th className="py-2.5 px-4">Room / Bed</th>
+                      <th className="py-2.5 px-4">Checkout Reason</th>
+                      <th className="py-2.5 px-4 text-right">Final Balance</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {studentHistory.map((h: any) => (
+                      <tr key={h.id}>
+                        <td className="py-2.5 px-4 font-mono font-bold text-indigo-600 whitespace-nowrap">{h.studentId}</td>
+                        <td className="py-2.5 px-4 font-bold text-slate-900 whitespace-nowrap">{h.fullName}</td>
+                        <td className="py-2.5 px-4 text-slate-600 whitespace-nowrap">
+                          {formatDateDMY(h.joiningDate)} → {formatDateDMY(h.checkoutDate)}
+                        </td>
+                        <td className="py-2.5 px-4 text-slate-700 whitespace-nowrap">
+                          {h.roomNumber} ({h.bedNumber})
+                        </td>
+                        <td className="py-2.5 px-4 text-slate-600">{h.checkoutReason}</td>
+                        <td className="py-2.5 px-4 text-right font-bold text-emerald-600 whitespace-nowrap">
+                          ₹{h.finalOutstanding} (Settled)
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 
           {/* Bottom Document Sign-Off */}
-          <div className="pt-8 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500">
+          <div className="pt-6 sm:pt-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-xs text-slate-500">
             <div>
               <span>System Verification: Pass • Confidential Administrative Record</span>
             </div>
-            <div className="text-right font-medium text-slate-700">
+            <div className="text-left sm:text-right font-medium text-slate-700">
               Hostel Owner Signature: _______________________
             </div>
           </div>

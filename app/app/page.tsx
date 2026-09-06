@@ -357,20 +357,21 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <style>
                 * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-                body { padding: 24px; color: #0f172a; background: #fff; font-size: 13px; line-height: 1.5; }
-                .pass-card { max-width: 420px; margin: 0 auto; border: 2px solid #4f46e5; border-radius: 20px; padding: 24px; background: #f8fafc; }
-                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 16px; }
-                .hostel-title { font-weight: 800; font-size: 16px; color: #312e81; }
-                .badge { background: #dcfce7; color: #15803d; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 9999px; }
-                .student-name { font-size: 20px; font-weight: 800; color: #0f172a; }
+                body { padding: 12px; color: #0f172a; background: #fff; font-size: 13px; line-height: 1.5; }
+                .pass-card { width: 100%; max-width: 400px; margin: 0 auto; border: 2px solid #4f46e5; border-radius: 16px; padding: 16px; background: #f8fafc; box-sizing: border-box; }
+                .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 12px; gap: 8px; }
+                .hostel-title { font-weight: 800; font-size: 15px; color: #312e81; }
+                .badge { background: #dcfce7; color: #15803d; font-weight: 700; font-size: 10px; padding: 3px 8px; border-radius: 9999px; white-space: nowrap; }
+                .student-name { font-size: 18px; font-weight: 800; color: #0f172a; word-break: break-word; }
                 .student-id { font-family: monospace; font-weight: 700; color: #4f46e5; margin-top: 2px; }
-                .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; padding: 12px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; }
-                .label { font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 600; }
-                .value { font-size: 13px; font-weight: 700; color: #1e293b; margin-top: 2px; }
-                .footer { text-align: center; margin-top: 16px; font-size: 10px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 10px; }
+                .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; padding: 10px; background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; }
+                .label { font-size: 9px; text-transform: uppercase; color: #64748b; font-weight: 600; }
+                .value { font-size: 12px; font-weight: 700; color: #1e293b; margin-top: 2px; word-break: break-word; }
+                .footer { text-align: center; margin-top: 12px; font-size: 9px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 8px; }
                 @media print {
                   body { padding: 0; }
-                  @page { margin: 10mm; size: auto; }
+                  .pass-card { width: 100%; max-width: 100%; border: 1.5px solid #4f46e5; padding: 16px; }
+                  @page { margin: 8mm; size: auto; }
                 }
               </style>
             </head>
@@ -546,52 +547,52 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
         )}
 
         {/* ================= MAIN SCROLLABLE APP BODY ================= */}
-        <main className="flex-1 p-5 space-y-5 overflow-y-auto">
+        <main className="flex-1 p-3.5 sm:p-5 space-y-4 sm:space-y-5 overflow-y-auto">
           {/* ================= TAB: HOME ================= */}
           {activeTab === 'HOME' && (
-            <div className="space-y-5">
+            <div className="space-y-4 sm:space-y-5">
               {/* Digital Resident ID Pass Card (Rule 9 & 25) */}
-              <div className="p-5 rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 border border-indigo-500/30 shadow-xl relative overflow-hidden space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-lg bg-indigo-500 flex items-center justify-center font-bold text-[10px] text-white">
+              <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-950 to-slate-900 border border-indigo-500/30 shadow-xl relative overflow-hidden space-y-3 sm:space-y-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-6 h-6 rounded-lg bg-indigo-500 flex items-center justify-center font-bold text-[10px] text-white shrink-0">
                       {hostelInitials}
                     </div>
-                    <span className="font-bold text-xs tracking-wider uppercase text-indigo-300 font-display truncate max-w-[200px]">
+                    <span className="font-bold text-xs tracking-wider uppercase text-indigo-300 font-display truncate max-w-[150px] sm:max-w-[220px]">
                       {hostelName} Resident Pass
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                     <button
                       type="button"
                       onClick={handlePrintPass}
-                      className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[10px] font-semibold flex items-center gap-1 transition no-print cursor-pointer"
+                      className="px-2 sm:px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[10px] font-semibold flex items-center gap-1 transition no-print cursor-pointer active:scale-95"
                       title="Print or Save PDF Pass"
                     >
                       <Printer className="w-3 h-3 text-indigo-300" />
                       <span>Print Pass</span>
                     </button>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold">
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] sm:text-[10px] font-bold">
                       ACTIVE PASS
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-2">
-                  <div>
-                    <h2 className="text-xl font-bold text-white font-display">
+                <div className="flex items-center justify-between pt-1 sm:pt-2">
+                  <div className="min-w-0">
+                    <h2 className="text-lg sm:text-xl font-bold text-white font-display truncate max-w-[200px] sm:max-w-none">
                       {studentData.fullName}
                     </h2>
                     <div className="font-mono text-xs font-bold text-indigo-300 mt-0.5">
                       Student ID: {studentData.studentId}
                     </div>
                   </div>
-                  <div className="p-2 bg-white rounded-xl text-slate-950 shrink-0">
-                    <QrCode className="w-9 h-9" />
+                  <div className="p-1.5 sm:p-2 bg-white rounded-xl text-slate-950 shrink-0">
+                    <QrCode className="w-7 h-7 sm:w-9 sm:h-9" />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs pt-3 border-t border-indigo-800/40 text-slate-300">
+                <div className="grid grid-cols-2 gap-2 text-xs pt-2.5 sm:pt-3 border-t border-indigo-800/40 text-slate-300">
                   <div>
                     <span className="text-[10px] text-indigo-400 block">Bed Allocation</span>
                     <span className="font-bold text-white">
@@ -611,19 +612,19 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
 
                   <div>
                     <span className="text-[10px] text-indigo-400 block">Hostel Wing</span>
-                    <span className="font-bold text-white">{studentData.blockName}</span>
+                    <span className="font-bold text-white truncate block">{studentData.blockName}</span>
                   </div>
                 </div>
               </div>
 
               {/* Dues Quick Status Banner (Rule 12: Anchored on joining date) */}
-              <div className="p-4 rounded-2xl bg-slate-800/90 border border-slate-700/80 space-y-3">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-800/90 border border-slate-700/80 space-y-2.5 sm:space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="text-[10px] uppercase font-bold text-slate-400 block">
                       Individual Due Cycle
                     </span>
-                    <div className="text-sm font-bold text-white">
+                    <div className="text-xs sm:text-sm font-bold text-white">
                       Joined: {formatDateDMY(studentData.joiningDate)}
                     </div>
                   </div>
@@ -644,76 +645,76 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                 {fin?.totalOutstanding > 0 ? (
                   <button
                     onClick={() => setActiveTab('DUES')}
-                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md"
+                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md cursor-pointer active:scale-98"
                   >
                     <CreditCard className="w-3.5 h-3.5" />
-                    Pay Dues Online via UPI
+                    <span>Pay Dues Online via UPI</span>
                   </button>
                 ) : (
                   <div className="flex items-center gap-2 text-xs text-emerald-400 font-semibold">
                     <CheckCircle2 className="w-4 h-4" />
-                    All rent and charges paid to date.
+                    <span>All rent and charges paid to date.</span>
                   </div>
                 )}
               </div>
 
               {/* Quick Actions Grid */}
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                 {currentUser?.role === 'OWNER' ? (
                   <>
                     <Link
                       href="/dashboard"
-                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
+                      className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
                     >
                       <User className="w-4 h-4 text-indigo-400" />
-                      <div className="font-bold text-[11px] text-white">Owner Hub</div>
-                      <div className="text-[9px] text-slate-400">Dashboard & stats</div>
+                      <div className="font-bold text-[10px] sm:text-[11px] text-white truncate">Owner Hub</div>
+                      <div className="text-[8px] sm:text-[9px] text-slate-400 truncate">Dashboard & stats</div>
                     </Link>
                     <Link
                       href="/dashboard/payments"
-                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
+                      className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
                     >
                       <CreditCard className="w-4 h-4 text-emerald-400" />
-                      <div className="font-bold text-[11px] text-white">Collect Rent</div>
-                      <div className="text-[9px] text-slate-400">Dues & payments</div>
+                      <div className="font-bold text-[10px] sm:text-[11px] text-white truncate">Collect Rent</div>
+                      <div className="text-[8px] sm:text-[9px] text-slate-400 truncate">Dues & payments</div>
                     </Link>
                     <Link
                       href="/dashboard/expenses"
-                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
+                      className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
                     >
                       <Receipt className="w-4 h-4 text-rose-400" />
-                      <div className="font-bold text-[11px] text-white">Add Expense</div>
-                      <div className="text-[9px] text-slate-400">Outflows & logs</div>
+                      <div className="font-bold text-[10px] sm:text-[11px] text-white truncate">Add Expense</div>
+                      <div className="text-[8px] sm:text-[9px] text-slate-400 truncate">Outflows & logs</div>
                     </Link>
                   </>
                 ) : (
                   <>
                     <button
                       onClick={() => setIsProfileModalOpen(true)}
-                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 cursor-pointer"
+                      className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 cursor-pointer active:scale-95"
                     >
                       <User className="w-4 h-4 text-cyan-400" />
-                      <div className="font-bold text-[11px] text-white">My Profile</div>
-                      <div className="text-[9px] text-slate-400">Personal & stay</div>
+                      <div className="font-bold text-[10px] sm:text-[11px] text-white truncate">My Profile</div>
+                      <div className="text-[8px] sm:text-[9px] text-slate-400 truncate">Personal & stay</div>
                     </button>
 
                     <button
                       onClick={() => setActiveTab('RECEIPTS')}
-                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 cursor-pointer"
+                      className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 cursor-pointer active:scale-95"
                     >
                       <Receipt className="w-4 h-4 text-indigo-400" />
-                      <div className="font-bold text-[11px] text-white">Invoices</div>
-                      <div className="text-[9px] text-slate-400">Bills & receipts</div>
+                      <div className="font-bold text-[10px] sm:text-[11px] text-white truncate">Invoices</div>
+                      <div className="text-[8px] sm:text-[9px] text-slate-400 truncate">Bills & receipts</div>
                     </button>
 
                     <a
                       href={`tel:${cleanOwnerPhone}`}
-                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
+                      className="p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block active:scale-95"
                       title="Call Warden / Desk Directly"
                     >
                       <Phone className="w-4 h-4 text-emerald-400" />
-                      <div className="font-bold text-[11px] text-white">Call Desk</div>
-                      <div className="text-[9px] text-slate-400 truncate">{cleanOwnerPhone}</div>
+                      <div className="font-bold text-[10px] sm:text-[11px] text-white truncate">Call Desk</div>
+                      <div className="text-[8px] sm:text-[9px] text-slate-400 truncate">{cleanOwnerPhone}</div>
                     </a>
                   </>
                 )}
@@ -749,13 +750,13 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
               </div>
 
               {/* Balance Card */}
-              <div className="p-5 rounded-3xl bg-slate-800 border border-slate-700 space-y-3">
+              <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-800 border border-slate-700 space-y-2.5 sm:space-y-3">
                 <span className="text-xs text-slate-400 block font-semibold">Total Outstanding Balance</span>
-                <div className="text-3xl font-black text-rose-400 font-display">
+                <div className="text-2xl sm:text-3xl font-black text-rose-400 font-display">
                   ₹{(fin?.totalOutstanding || 0).toLocaleString('en-IN')}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2 text-xs pt-3 border-t border-slate-700">
+                <div className="grid grid-cols-2 gap-2 text-xs pt-2.5 sm:pt-3 border-t border-slate-700">
                   <div>
                     <span className="text-slate-400 text-[10px] block">Total Billed</span>
                     <span className="font-bold text-white">₹{fin?.totalBilled.toLocaleString('en-IN')}</span>
@@ -769,7 +770,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
 
               {/* Real UPI Fast Pay Card */}
               {fin?.totalOutstanding > 0 ? (
-                <div className="p-5 rounded-3xl bg-gradient-to-br from-emerald-950/60 via-slate-900 to-indigo-950/40 border border-emerald-500/30 space-y-4 shadow-xl">
+                <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-emerald-950/60 via-slate-900 to-indigo-950/40 border border-emerald-500/30 space-y-3 sm:space-y-4 shadow-xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs">
                       <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
@@ -788,11 +789,11 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                   <button
                     type="button"
                     onClick={handleLaunchUpi}
-                    className="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black rounded-2xl text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 active:scale-[0.98]"
+                    className="w-full py-3 sm:py-3.5 px-3 sm:px-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black rounded-xl sm:rounded-2xl text-xs sm:text-sm transition-all shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer"
                   >
-                    <CreditCard className="w-4 h-4 text-slate-950" />
-                    <span>Pay Dues Online via UPI (₹{fin.totalOutstanding.toLocaleString('en-IN')})</span>
-                    <ExternalLink className="w-4 h-4 text-slate-950" />
+                    <CreditCard className="w-4 h-4 text-slate-950 shrink-0" />
+                    <span className="truncate">Pay via UPI (₹{fin.totalOutstanding.toLocaleString('en-IN')})</span>
+                    <ExternalLink className="w-4 h-4 text-slate-950 shrink-0" />
                   </button>
 
                   {/* Quick App Badges */}
@@ -895,7 +896,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
               {/* ========================================================================= */}
               {/* SUBMIT RECEIPT / REFERENCE FOR OWNER VERIFICATION                         */}
               {/* ========================================================================= */}
-              <div className="p-5 rounded-3xl bg-slate-800/80 border border-slate-700/80 space-y-4">
+              <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-slate-800/80 border border-slate-700/80 space-y-3 sm:space-y-4">
                 <div>
                   <div className="flex items-center justify-between">
                     <h4 className="text-sm font-bold text-white flex items-center gap-1.5">
@@ -1610,22 +1611,22 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 text-center">
-                    <div className="p-2 rounded-xl bg-slate-900 border border-slate-700/80">
-                      <span className="text-[10px] text-slate-400 block">Total Billed</span>
-                      <span className="font-bold text-white mt-0.5 block">
+                  <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center">
+                    <div className="p-1.5 sm:p-2 rounded-xl bg-slate-900 border border-slate-700/80">
+                      <span className="text-[9px] sm:text-[10px] text-slate-400 block truncate">Total Billed</span>
+                      <span className="font-bold text-white text-xs sm:text-sm mt-0.5 block truncate">
                         ₹{(fin?.totalBilled || 0).toLocaleString('en-IN')}
                       </span>
                     </div>
-                    <div className="p-2 rounded-xl bg-slate-900 border border-slate-700/80">
-                      <span className="text-[10px] text-slate-400 block">Total Paid</span>
-                      <span className="font-bold text-emerald-400 mt-0.5 block">
+                    <div className="p-1.5 sm:p-2 rounded-xl bg-slate-900 border border-slate-700/80">
+                      <span className="text-[9px] sm:text-[10px] text-slate-400 block truncate">Total Paid</span>
+                      <span className="font-bold text-emerald-400 text-xs sm:text-sm mt-0.5 block truncate">
                         ₹{(fin?.totalPaid || 0).toLocaleString('en-IN')}
                       </span>
                     </div>
-                    <div className="p-2 rounded-xl bg-slate-900 border border-slate-700/80">
-                      <span className="text-[10px] text-slate-400 block">Outstanding</span>
-                      <span className={`font-black mt-0.5 block ${
+                    <div className="p-1.5 sm:p-2 rounded-xl bg-slate-900 border border-slate-700/80">
+                      <span className="text-[9px] sm:text-[10px] text-slate-400 block truncate">Outstanding</span>
+                      <span className={`font-black text-xs sm:text-sm mt-0.5 block truncate ${
                         (fin?.totalOutstanding || 0) > 0 ? 'text-rose-400 font-display' : 'text-slate-400'
                       }`}>
                         ₹{(fin?.totalOutstanding || 0).toLocaleString('en-IN')}

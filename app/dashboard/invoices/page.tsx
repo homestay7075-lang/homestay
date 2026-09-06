@@ -134,19 +134,19 @@ function InvoicesContent() {
           {/* Right Column: Printable High-Fidelity Receipt Document */}
           <div className="lg:col-span-8">
             {selectedReceipt ? (
-              <div className="printable-document bg-white border border-slate-200 rounded-3xl p-8 sm:p-12 shadow-md relative overflow-hidden">
+              <div className="printable-document bg-white border border-slate-200 rounded-3xl p-3.5 sm:p-8 lg:p-12 shadow-md relative overflow-hidden">
                 {/* Top Watermark Accent */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/60 rounded-bl-[80px] pointer-events-none -z-0"></div>
 
-                <div className="relative z-10 space-y-8">
+                <div className="relative z-10 space-y-5 sm:space-y-8">
                   {/* Header: Hostel Information (Rule 6: Dynamically populated from Settings) */}
-                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-6 border-b-2 border-slate-900">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pb-4 sm:pb-6 border-b-2 border-slate-900">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-sm">
                           <Receipt className="w-4 h-4" />
                         </div>
-                        <span className="font-bold text-xl font-display text-slate-900 tracking-tight">
+                        <span className="font-bold text-lg sm:text-xl font-display text-slate-900 tracking-tight">
                           {settings.name}
                         </span>
                       </div>
@@ -170,7 +170,7 @@ function InvoicesContent() {
                   </div>
 
                   {/* Resident / Billed To Information */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 p-3.5 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
                     <div>
                       <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">
                         Resident Information:
@@ -213,18 +213,18 @@ function InvoicesContent() {
                   </div>
 
                   {/* Line Items Table */}
-                  <div className="overflow-hidden border border-slate-200 rounded-2xl">
-                    <table className="w-full text-left text-xs">
+                  <div className="overflow-x-auto w-full border border-slate-200 rounded-2xl">
+                    <table className="w-full text-left text-xs min-w-[320px]">
                       <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200 uppercase text-[10px] tracking-wider">
                         <tr>
-                          <th className="py-2.5 px-4">Description</th>
-                          <th className="py-2.5 px-4">Period / Cycle</th>
-                          <th className="py-2.5 px-4 text-right">Amount</th>
+                          <th className="py-2.5 px-3 sm:px-4">Description</th>
+                          <th className="py-2.5 px-3 sm:px-4">Period / Cycle</th>
+                          <th className="py-2.5 px-3 sm:px-4 text-right">Amount</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
                         <tr>
-                          <td className="py-3 px-4 font-medium text-slate-900">
+                          <td className="py-2.5 px-3 sm:py-3 sm:px-4 font-medium text-slate-900">
                             Hostel Accommodation, Utilities & Meal Services
                             {selectedReceipt.notes && (
                               <div className="text-[11px] text-slate-500 italic mt-0.5">
@@ -232,18 +232,18 @@ function InvoicesContent() {
                               </div>
                             )}
                           </td>
-                          <td className="py-3 px-4 text-slate-600">{selectedReceipt.billingPeriod}</td>
-                          <td className="py-3 px-4 text-right font-bold text-slate-900">
+                          <td className="py-2.5 px-3 sm:py-3 sm:px-4 text-slate-600">{selectedReceipt.billingPeriod}</td>
+                          <td className="py-2.5 px-3 sm:py-3 sm:px-4 text-right font-bold text-slate-900 whitespace-nowrap">
                             ₹{selectedReceipt.amount.toLocaleString('en-IN')}
                           </td>
                         </tr>
                       </tbody>
                       <tfoot className="bg-slate-50 border-t-2 border-slate-200 font-bold text-xs">
                         <tr>
-                          <td colSpan={2} className="py-3 px-4 text-right text-slate-700">
+                          <td colSpan={2} className="py-2.5 px-3 sm:py-3 sm:px-4 text-right text-slate-700">
                             Total Amount Paid:
                           </td>
-                          <td className="py-3 px-4 text-right text-emerald-700 text-sm font-black font-display">
+                          <td className="py-2.5 px-3 sm:py-3 sm:px-4 text-right text-emerald-700 text-sm font-black font-display whitespace-nowrap">
                             ₹{selectedReceipt.amount.toLocaleString('en-IN')}
                           </td>
                         </tr>
@@ -252,7 +252,7 @@ function InvoicesContent() {
                   </div>
 
                   {/* Seal & Signatures */}
-                  <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-end gap-6 text-xs">
+                  <div className="pt-4 sm:pt-6 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 sm:gap-6 text-xs">
                     <div className="space-y-1 text-slate-500 text-[11px]">
                       <p className="flex items-center gap-1 font-semibold text-slate-700">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
@@ -262,7 +262,7 @@ function InvoicesContent() {
                       <p className="text-indigo-600 font-semibold pt-0.5">Thank you for staying at {settings.name}!</p>
                     </div>
 
-                    <div className="text-center sm:text-right space-y-3">
+                    <div className="text-left sm:text-right space-y-2 sm:space-y-3">
                       <div className="font-signature text-xl text-slate-700 italic font-semibold">
                         {(settings as any)?.authorizedSignatory || `${settings.name} Authority`}
                       </div>

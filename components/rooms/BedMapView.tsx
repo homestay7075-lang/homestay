@@ -232,15 +232,15 @@ export default function BedMapView({
       </div>
 
       {/* ================= 2. LEGEND CARD (EXACTLY MATCHING SCREENSHOT) ================= */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-xs border border-slate-100">
-        <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-100">
-          <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+      <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 lg:p-6 shadow-xs border border-slate-100">
+        <div className="flex items-center justify-between gap-2 mb-2.5 pb-2 border-b border-slate-100">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-700 uppercase tracking-wider">
             Live Occupancy Legend
           </span>
           {selectedStatusFilter !== 'ALL' && (
             <button
               onClick={() => setSelectedStatusFilter('ALL')}
-              className="text-[11px] font-bold text-teal-700 hover:text-teal-900 bg-teal-50 px-2.5 py-0.5 rounded-full"
+              className="text-[10px] sm:text-[11px] font-bold text-teal-700 hover:text-teal-900 bg-teal-50 px-2 sm:px-2.5 py-0.5 rounded-full"
             >
               Reset Filter (Show All {counts.total})
             </button>
@@ -248,22 +248,22 @@ export default function BedMapView({
         </div>
 
         {/* 5 Status Dots: Available, Occupied, Reserved, Maintenance, Vacating */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs sm:text-sm">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-3 text-xs">
           {/* Cyan: Available */}
           <button
             type="button"
             onClick={() =>
               setSelectedStatusFilter(selectedStatusFilter === 'Available' ? 'ALL' : 'Available')
             }
-            className={`flex items-center gap-2.5 p-2 rounded-xl transition text-left cursor-pointer ${
+            className={`flex items-center gap-2 p-1.5 sm:p-2 rounded-xl transition text-left cursor-pointer ${
               selectedStatusFilter === 'Available'
                 ? 'bg-cyan-50 ring-2 ring-cyan-400 font-bold text-cyan-900'
                 : 'hover:bg-slate-50 text-slate-700'
             }`}
           >
-            <span className="w-3.5 h-3.5 rounded-full bg-[#06B6D4] shrink-0 shadow-xs"></span>
-            <span className="font-serif">Available</span>
-            <span className="text-[11px] font-mono text-slate-400 font-bold ml-auto">
+            <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-[#06B6D4] shrink-0 shadow-xs"></span>
+            <span className="font-serif text-xs">Available</span>
+            <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 font-bold ml-auto">
               ({counts.Available})
             </span>
           </button>
@@ -274,15 +274,15 @@ export default function BedMapView({
             onClick={() =>
               setSelectedStatusFilter(selectedStatusFilter === 'Occupied' ? 'ALL' : 'Occupied')
             }
-            className={`flex items-center gap-2.5 p-2 rounded-xl transition text-left cursor-pointer ${
+            className={`flex items-center gap-2 p-1.5 sm:p-2 rounded-xl transition text-left cursor-pointer ${
               selectedStatusFilter === 'Occupied'
                 ? 'bg-purple-50 ring-2 ring-purple-400 font-bold text-purple-900'
                 : 'hover:bg-slate-50 text-slate-700'
             }`}
           >
-            <span className="w-3.5 h-3.5 rounded-full bg-[#8B5CF6] shrink-0 shadow-xs"></span>
-            <span className="font-serif">Occupied</span>
-            <span className="text-[11px] font-mono text-slate-400 font-bold ml-auto">
+            <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-[#8B5CF6] shrink-0 shadow-xs"></span>
+            <span className="font-serif text-xs">Occupied</span>
+            <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 font-bold ml-auto">
               ({counts.Occupied})
             </span>
           </button>
@@ -293,15 +293,15 @@ export default function BedMapView({
             onClick={() =>
               setSelectedStatusFilter(selectedStatusFilter === 'Reserved' ? 'ALL' : 'Reserved')
             }
-            className={`flex items-center gap-2.5 p-2 rounded-xl transition text-left cursor-pointer ${
+            className={`flex items-center gap-2 p-1.5 sm:p-2 rounded-xl transition text-left cursor-pointer ${
               selectedStatusFilter === 'Reserved'
                 ? 'bg-amber-50 ring-2 ring-amber-400 font-bold text-amber-900'
                 : 'hover:bg-slate-50 text-slate-700'
             }`}
           >
-            <span className="w-3.5 h-3.5 rounded-full bg-[#F59E0B] shrink-0 shadow-xs"></span>
-            <span className="font-serif">Reserved</span>
-            <span className="text-[11px] font-mono text-slate-400 font-bold ml-auto">
+            <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-[#F59E0B] shrink-0 shadow-xs"></span>
+            <span className="font-serif text-xs">Reserved</span>
+            <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 font-bold ml-auto">
               ({counts.Reserved})
             </span>
           </button>
@@ -314,15 +314,15 @@ export default function BedMapView({
                 selectedStatusFilter === 'Maintenance' ? 'ALL' : 'Maintenance'
               )
             }
-            className={`flex items-center gap-2.5 p-2 rounded-xl transition text-left cursor-pointer ${
+            className={`flex items-center gap-2 p-1.5 sm:p-2 rounded-xl transition text-left cursor-pointer ${
               selectedStatusFilter === 'Maintenance'
                 ? 'bg-slate-100 ring-2 ring-slate-400 font-bold text-slate-900'
                 : 'hover:bg-slate-50 text-slate-700'
             }`}
           >
-            <span className="w-3.5 h-3.5 rounded-full bg-[#64748B] shrink-0 shadow-xs"></span>
-            <span className="font-serif">Maintenance</span>
-            <span className="text-[11px] font-mono text-slate-400 font-bold ml-auto">
+            <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-[#64748B] shrink-0 shadow-xs"></span>
+            <span className="font-serif text-xs">Maint.</span>
+            <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 font-bold ml-auto">
               ({counts.Maintenance})
             </span>
           </button>
@@ -333,15 +333,15 @@ export default function BedMapView({
             onClick={() =>
               setSelectedStatusFilter(selectedStatusFilter === 'Vacating' ? 'ALL' : 'Vacating')
             }
-            className={`flex items-center gap-2.5 p-2 rounded-xl transition text-left cursor-pointer ${
+            className={`flex items-center gap-2 p-1.5 sm:p-2 rounded-xl transition text-left cursor-pointer ${
               selectedStatusFilter === 'Vacating'
                 ? 'bg-orange-50 ring-2 ring-orange-500 font-bold text-orange-900'
                 : 'hover:bg-slate-50 text-slate-700'
             }`}
           >
-            <span className="w-3.5 h-3.5 rounded-full bg-[#EA580C] shrink-0 shadow-xs"></span>
-            <span className="font-serif">Vacating</span>
-            <span className="text-[11px] font-mono text-slate-400 font-bold ml-auto">
+            <span className="w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-[#EA580C] shrink-0 shadow-xs"></span>
+            <span className="font-serif text-xs">Vacating</span>
+            <span className="text-[10px] sm:text-[11px] font-mono text-slate-400 font-bold ml-auto">
               ({counts.Vacating})
             </span>
           </button>
@@ -479,7 +479,7 @@ export default function BedMapView({
                       return (
                         <div
                           key={rm.id}
-                          className="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between"
+                          className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-4 sm:p-6 shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between"
                         >
                           {/* Room Header: Left "Room 101", Right "₹4,500.00" */}
                           <div>
@@ -543,7 +543,7 @@ export default function BedMapView({
                             </div>
 
                             {/* Bed Pills Layout (Exact styling from screenshot) */}
-                            <div className="flex flex-wrap gap-2.5 sm:gap-3 pt-4">
+                            <div className="flex flex-wrap gap-2 sm:gap-3 pt-3 sm:pt-4">
                               {roomBeds.map((bed: any) => {
                                 const status = bed.status || 'Available';
                                 const isMatch =
@@ -577,7 +577,7 @@ export default function BedMapView({
                                     key={bed.id}
                                     type="button"
                                     onClick={() => handleOpenBedDetails(bed)}
-                                    className={`px-4 py-2 sm:px-5 sm:py-2.5 rounded-2xl border-2 font-mono font-bold text-xs sm:text-sm tracking-wider cursor-pointer transition-all duration-150 hover:scale-105 active:scale-95 shadow-xs flex items-center gap-1.5 ${pillClasses} ${
+                                    className={`px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-xl sm:rounded-2xl border-2 font-mono font-bold text-xs sm:text-sm tracking-wider cursor-pointer transition-all duration-150 hover:scale-105 active:scale-95 shadow-xs flex items-center gap-1.5 ${pillClasses} ${
                                       !isMatch ? 'opacity-20 scale-95' : 'opacity-100'
                                     }`}
                                     title={`${bed.bedNumber} - ${status} (${
