@@ -44,6 +44,7 @@ export const initialUsers: User[] = [
     id: 'usr-owner-1',
     role: 'OWNER',
     fullName: 'Rajesh Kumar Singhania',
+    username: 'admin',
     email: 'owner@serenityliving.com',
     phone: '9876543210',
     passwordHash: 'admin123', // In production hashed with bcrypt

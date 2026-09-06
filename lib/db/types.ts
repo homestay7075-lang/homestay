@@ -78,6 +78,7 @@ export interface User {
   id: string;
   role: UserRole;
   fullName: string;
+  username?: string; // Optional custom login username (e.g. "admin" or "rajesh")
   email?: string;
   phone: string; // Used for student login & owner/staff login
   passwordHash: string;

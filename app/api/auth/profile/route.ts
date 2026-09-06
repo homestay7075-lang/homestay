@@ -27,6 +27,7 @@ export async function GET(req: Request) {
       id: targetUser.id,
       role: targetUser.role,
       fullName: targetUser.fullName,
+      username: targetUser.username || '',
       email: targetUser.email,
       phone: targetUser.phone,
       staffTitle: targetUser.staffTitle || (targetUser.role === 'OWNER' ? 'Owner & Lead Administrator' : targetUser.role),
@@ -55,16 +56,43 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
     }
 
+    const currentUser = db.users[userIndex];
+
     if (data.phone !== undefined) {
       if (!isValidPhoneNumber(data.phone)) {
         return NextResponse.json({ success: false, error: PHONE_ERROR_MESSAGE }, { status: 400 });
       }
     }
 
-    const currentUser = db.users[userIndex];
+    // Handle username update & uniqueness
+    let resolvedUsername = currentUser.username;
+    if (data.username !== undefined) {
+      const cleanUsername = data.username.trim().toLowerCase().replace(/\s+/g, '');
+      if (cleanUsername) {
+        const usernameExists = db.users.some(
+          u => u.id !== currentUser.id && u.username?.toLowerCase() === cleanUsername
+        );
+        if (usernameExists) {
+          return NextResponse.json({ success: false, error: 'This username is already taken. Please choose another.' }, { status: 400 });
+        }
+      }
+      resolvedUsername = cleanUsername;
+    }
+
+    // Handle password change if provided
+    let resolvedPasswordHash = currentUser.passwordHash;
+    if (data.newPassword !== undefined && data.newPassword.trim()) {
+      if (data.newPassword.trim().length < 4) {
+        return NextResponse.json({ success: false, error: 'New password must be at least 4 characters long.' }, { status: 400 });
+      }
+      resolvedPasswordHash = data.newPassword.trim();
+    }
+
     const updatedUser = {
       ...currentUser,
-      fullName: data.fullName !== undefined ? data.fullName : currentUser.fullName,
+      fullName: data.fullName !== undefined ? data.fullName.trim() : currentUser.fullName,
+      username: resolvedUsername,
+      passwordHash: resolvedPasswordHash,
       email: data.email !== undefined ? data.email : currentUser.email,
       phone: data.phone !== undefined ? normalizePhoneNumber(data.phone) : currentUser.phone,
       staffTitle: data.staffTitle !== undefined ? data.staffTitle : currentUser.staffTitle,
@@ -83,7 +111,7 @@ export async function POST(req: Request) {
       userName: updatedUser.fullName,
       userRole: updatedUser.role,
       action: isOwner ? 'OWNER_PROFILE_UPDATED' : 'STAFF_PROFILE_UPDATED',
-      details: `Updated ${isOwner ? 'owner' : 'staff'} profile: name="${updatedUser.fullName}", title="${updatedUser.staffTitle}", email="${updatedUser.email}".`,
+      details: `Updated ${isOwner ? 'owner' : 'staff'} profile: name="${updatedUser.fullName}", username="${updatedUser.username || ''}", title="${updatedUser.staffTitle}", email="${updatedUser.email}".`,
     };
     db.auditLogs.unshift(audit);
 
@@ -95,6 +123,7 @@ export async function POST(req: Request) {
         id: updatedUser.id,
         role: updatedUser.role,
         fullName: updatedUser.fullName,
+        username: updatedUser.username || '',
         email: updatedUser.email,
         phone: updatedUser.phone,
         staffTitle: updatedUser.staffTitle,

@@ -669,6 +669,43 @@ export function updateStudentTransaction(params: {
   }
   if (updates.status !== undefined) student.status = updates.status;
 
+  // Handle student login password update by owner
+  const rawPassword = (updates as any).newPassword || (updates as any).password;
+  const newPass = typeof rawPassword === 'string' ? rawPassword.trim() : '';
+  let isPasswordReset = false;
+  if (newPass) {
+    if (newPass.length < 4) {
+      return { success: false, error: 'Password must be at least 4 characters long.' };
+    }
+    isPasswordReset = true;
+    const sNorm = normalizePhoneNumber(student.phone);
+    let studentUser = student.userId ? db.users.find(u => u.id === student.userId) : null;
+    if (!studentUser) {
+      studentUser = db.users.find(
+        u => u.role === 'STUDENT' && (u.phone === student.phone || normalizePhoneNumber(u.phone) === sNorm)
+      );
+    }
+    if (studentUser) {
+      studentUser.passwordHash = newPass;
+      studentUser.updatedAt = new Date().toISOString();
+      if (!student.userId) student.userId = studentUser.id;
+    } else {
+      const newUser: User = {
+        id: `usr-stu-${student.id}`,
+        role: 'STUDENT',
+        fullName: student.fullName,
+        phone: student.phone,
+        email: student.email || '',
+        passwordHash: newPass,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      db.users.push(newUser);
+      student.userId = newUser.id;
+    }
+  }
+
   student.updatedAt = new Date().toISOString();
 
   const audit: AuditLog = {
@@ -677,8 +714,10 @@ export function updateStudentTransaction(params: {
     userId: params.actorId || 'usr-owner-1',
     userName: params.actorName || 'Hostel Owner',
     userRole: params.actorRole || 'OWNER',
-    action: 'UPDATE_STUDENT',
-    details: `Owner updated details for resident ${student.fullName} (${student.studentId}). Mobile: ${student.phone}.`,
+    action: isPasswordReset ? 'STUDENT_PASSWORD_RESET' : 'UPDATE_STUDENT',
+    details: isPasswordReset
+      ? `Owner reset login password for student ${student.fullName} (${student.studentId}, Mobile: ${student.phone}).`
+      : `Owner updated details for resident ${student.fullName} (${student.studentId}). Mobile: ${student.phone}.`,
   };
 
   db.auditLogs.unshift(audit);

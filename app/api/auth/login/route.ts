@@ -29,15 +29,16 @@ export async function POST(req: Request) {
       matchedUser = db.users.find((u) => u.role === 'STUDENT' && u.isActive);
     }
 
-    // 2. Check direct match in db.users by email or normalized phone
+    // 2. Check direct match in db.users by username, email, or normalized phone
     if (!matchedUser) {
       matchedUser = db.users.find((u) => {
         if (!u.isActive) return false;
+        const matchUsername = u.username?.toLowerCase() === cleanId;
         const matchEmail = u.email?.toLowerCase() === cleanId;
         const matchExactPhone = u.phone?.toLowerCase() === cleanId;
         const uNormPhone = normalizePhoneNumber(u.phone);
         const matchNormPhone = normalizedPhone && uNormPhone === normalizedPhone;
-        return matchEmail || matchExactPhone || matchNormPhone;
+        return matchUsername || matchEmail || matchExactPhone || matchNormPhone;
       });
     }
 

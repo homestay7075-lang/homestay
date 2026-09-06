@@ -30,6 +30,7 @@
       "id": "usr-owner-1",
       "role": "OWNER",
       "fullName": "Sarah Jenkins",
+      "username": "admin",
       "email": "owner@serenityliving.com",
       "phone": "9876543210",
       "passwordHash": "admin123",
@@ -1026,26 +1027,7 @@
       "isRead": false
     }
   ],
-  "auditLogs": [
-    {
-      "id": "log-1788598086149",
-      "timestamp": "2026-09-05T08:48:06.149Z",
-      "userId": "usr-owner-1",
-      "userName": "Hostel Owner",
-      "userRole": "OWNER",
-      "action": "ROOM_CREATED",
-      "details": "Added Room TEST-105 split into 2 sub-rooms (TEST-105-A, TEST-105-B) with 3 total beds."
-    },
-    {
-      "id": "log-1788597593683",
-      "timestamp": "2026-09-05T08:39:53.683Z",
-      "userId": "usr-owner-1",
-      "userName": "Hostel Owner",
-      "userRole": "OWNER",
-      "action": "STUDENT_CHECKOUT",
-      "details": "Checked out student Priyanka Sen (STU26107). Released Bed (Bed 2, Room A-102). Outstanding balance: ₹0."
-    }
-  ],
+  "auditLogs": [],
   "customBills": [],
   "bills": [
     {
@@ -1279,5 +1261,6 @@
       "description": "Admission Month 1 Rent & Admission Charges",
       "createdAt": "2026-09-04"
     }
-  ]
+  ],
+  "paymentSubmissions": []
 }

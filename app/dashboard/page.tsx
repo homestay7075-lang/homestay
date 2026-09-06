@@ -22,6 +22,9 @@ import {
   UserPlus,
   PlusCircle,
   Zap,
+  BarChart3,
+  AlertCircle,
+  IndianRupee,
 } from 'lucide-react';
 import MultiStepStudentRegistrationModal from '@/components/students/MultiStepStudentRegistrationModal';
 import RecordPaymentModal from '@/components/payments/RecordPaymentModal';
@@ -104,7 +107,140 @@ export default function DashboardOverview() {
           </div>
         )}
 
-        {/* ================= QUICK OPERATIONS HUB (SINGLE ROW ON ALL SCREENS) ================= */}
+        {/* 10+ KPI Summary Cards (Rule 7) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+          {/* Card 1: Active Residents */}
+          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500">Active Students</span>
+              <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <Users className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-slate-900 font-display">
+              {kpis.activeStudents}
+            </div>
+            <div className="text-[10px] text-indigo-600 font-medium flex items-center gap-1">
+              <span>{kpis.totalBeds} total beds capacity</span>
+            </div>
+          </div>
+
+          {/* Card 2: Vacant Beds */}
+          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500">Vacant Beds</span>
+              <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <Bed className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-emerald-600 font-display">
+              {kpis.availableBeds}
+            </div>
+            <div className="text-[10px] text-emerald-600 font-medium">
+              Ready for immediate allocation
+            </div>
+          </div>
+
+          {/* Card 3: Occupancy Rate */}
+          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500">Occupancy</span>
+              <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                <BarChart3 className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-slate-900 font-display">
+              {kpis.occupancyRate}%
+            </div>
+            <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-blue-600 h-1.5 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min(100, kpis.occupancyRate)}%` }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Card 4: Monthly Dues Pending */}
+          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500">Total Dues Pending</span>
+              <div className="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
+                <AlertCircle className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-rose-600 font-display">
+              ₹{kpis.pendingDuesAmount.toLocaleString('en-IN')}
+            </div>
+            <div className="text-[10px] text-rose-600 font-medium">
+              Across uncollected monthly rent
+            </div>
+          </div>
+
+          {/* Card 5: Net Profit Surplus */}
+          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-500">Net Surplus</span>
+              <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl font-black text-slate-900 font-display">
+              ₹{kpis.netOperatingProfit.toLocaleString('en-IN')}
+            </div>
+            <div className="text-[10px] text-emerald-600 font-medium">
+              Revenue minus expenses
+            </div>
+          </div>
+        </div>
+
+        {/* Financial Balance Summary */}
+        <div className="p-6 rounded-3xl bg-slate-900 text-white shadow-xl border border-slate-800 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
+                <IndianRupee className="w-4 h-4" />
+              </div>
+              <h2 className="font-bold text-sm sm:text-base font-display">
+                Real-Time Financial Overview
+              </h2>
+            </div>
+            <span className="text-xs text-slate-400 font-mono">Live Ledger Sync</span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
+            <div className="space-y-1">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Gross Collected Revenue
+              </span>
+              <div className="text-3xl font-black font-display text-emerald-400">
+                ₹{kpis.totalPaymentsCollected.toLocaleString('en-IN')}
+              </div>
+              <p className="text-xs text-slate-400">Rent, deposits & one-time fees</p>
+            </div>
+
+            <div className="space-y-1 sm:border-l sm:border-slate-800 sm:pl-6">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Total Operating Expenses
+              </span>
+              <div className="text-3xl font-black font-display text-rose-400">
+                ₹{kpis.totalExpenses.toLocaleString('en-IN')}
+              </div>
+              <p className="text-xs text-slate-400">Mess, salaries, maintenance, utilities</p>
+            </div>
+
+            <div className="space-y-1 sm:border-l sm:border-slate-800 sm:pl-6">
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Net Operating Surplus
+              </span>
+              <div className="text-3xl font-black font-display text-white">
+                ₹{kpis.netOperatingProfit.toLocaleString('en-IN')}
+              </div>
+              <p className="text-xs text-emerald-400 font-semibold">Positive Cash Flow</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= QUICK OPERATIONS HUB (SINGLE ROW AT BOTTOM) ================= */}
         <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-lg border border-slate-800 space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -178,125 +314,6 @@ export default function DashboardOverview() {
                 <p className="text-[10px] text-slate-300 hidden sm:block mt-0.5">Log hostel expense</p>
               </div>
             </button>
-          </div>
-        </div>
-
-        {/* 10+ KPI Summary Cards (Rule 7) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
-          {/* Card 1: Active Residents */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500">Active Students</span>
-              <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                <Users className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl font-black text-slate-900 font-display">
-              {kpis.activeStudents}
-            </div>
-            <div className="text-[11px] text-slate-500">
-              Total Ever: {kpis.totalStudents} ({kpis.historicalCheckouts} checked out)
-            </div>
-          </div>
-
-          {/* Card 2: Occupancy Rate */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500">Bed Occupancy</span>
-              <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <Bed className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl font-black text-slate-900 font-display">
-              {kpis.occupancyRate}%
-            </div>
-            <div className="text-[11px] text-emerald-600 font-medium">
-              {kpis.occupiedBeds} occupied / {kpis.totalBeds} total
-            </div>
-          </div>
-
-          {/* Card 3: Available Beds */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500">Available Beds</span>
-              <div className="w-7 h-7 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center">
-                <Bed className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl font-black text-slate-900 font-display">
-              {kpis.availableBeds}
-            </div>
-            <div className="text-[11px] text-slate-500">
-              {kpis.maintenanceBeds} in maintenance
-            </div>
-          </div>
-
-          {/* Card 4: Monthly Collection */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500">Total Collections</span>
-              <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <DollarSign className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl font-black text-slate-900 font-display text-emerald-700">
-              ₹{kpis.totalPaymentsCollected.toLocaleString('en-IN')}
-            </div>
-            <div className="text-[11px] text-emerald-600 font-medium flex items-center gap-0.5">
-              <TrendingUp className="w-3 h-3" />
-              100% Reconciled
-            </div>
-          </div>
-
-          {/* Card 5: Outstanding Dues */}
-          <div className="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-500">Total Dues</span>
-              <div className="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="text-2xl font-black text-slate-900 font-display text-rose-600">
-              ₹{kpis.totalDuesOutstanding.toLocaleString('en-IN')}
-            </div>
-            <div className="text-[11px] text-slate-500">
-              Based on individual joining cycles
-            </div>
-          </div>
-        </div>
-
-        {/* Financial Balance Summary (Collections - Expenses = Net Profit) */}
-        <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-lg border border-slate-800">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
-            <div className="space-y-1">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                Gross Collected Revenue
-              </span>
-              <div className="text-3xl font-black font-display text-emerald-400">
-                ₹{kpis.totalPaymentsCollected.toLocaleString('en-IN')}
-              </div>
-              <p className="text-xs text-slate-400">Rent, deposits & one-time fees</p>
-            </div>
-
-            <div className="space-y-1 sm:border-l sm:border-slate-800 sm:pl-6">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                Total Operating Expenses
-              </span>
-              <div className="text-3xl font-black font-display text-rose-400">
-                ₹{kpis.totalExpenses.toLocaleString('en-IN')}
-              </div>
-              <p className="text-xs text-slate-400">Mess, salaries, maintenance, utilities</p>
-            </div>
-
-            <div className="space-y-1 sm:border-l sm:border-slate-800 sm:pl-6">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                Net Operating Surplus
-              </span>
-              <div className="text-3xl font-black font-display text-white">
-                ₹{kpis.netOperatingProfit.toLocaleString('en-IN')}
-              </div>
-              <p className="text-xs text-emerald-400 font-semibold">Positive Cash Flow</p>
-            </div>
           </div>
         </div>
       </div>

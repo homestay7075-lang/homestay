@@ -148,7 +148,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </div>
                 <div className="text-[10px] text-emerald-400 font-medium flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                  {isOwner ? 'Single Hostel Owner' : currentUser?.staffTitle || currentRole || 'Staff Member'}
+                  <span>{currentUser?.username ? `@${currentUser.username} • ` : ''}{isOwner ? 'Hostel Owner' : currentUser?.staffTitle || currentRole || 'Staff Member'}</span>
                 </div>
               </div>
             </div>

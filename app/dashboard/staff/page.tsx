@@ -24,6 +24,8 @@ import {
   Check,
   Sliders,
   Layers,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { User, UserRole, StaffPermissions, Building as BuildingType, Block as BlockType } from '@/lib/db/types';
 import { isValidPhoneNumber, PHONE_HTML_PATTERN, PHONE_ERROR_MESSAGE } from '@/lib/utils/phoneValidator';
@@ -39,6 +41,15 @@ export default function StaffAndPermissionsPage() {
   const [deleteLoadingId, setDeleteLoadingId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Password reset modal state
+  const [passwordModalStaff, setPasswordModalStaff] = useState<User | null>(null);
+  const [staffNewPassword, setStaffNewPassword] = useState('');
+  const [staffConfirmPassword, setStaffConfirmPassword] = useState('');
+  const [showStaffPassword, setShowStaffPassword] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordModalError, setPasswordModalError] = useState<string | null>(null);
+  const [editModalPassword, setEditModalPassword] = useState('');
 
   // Staff form state
   const [fullName, setFullName] = useState('');
@@ -122,6 +133,7 @@ export default function StaffAndPermissionsPage() {
   const handleOpenEditModal = (staff: User) => {
     setEditingStaffId(staff.id);
     setFormError(null);
+    setEditModalPassword('');
     setFullName(staff.fullName);
     setPhone(staff.phone);
     setEmail(staff.email || '');
@@ -209,6 +221,56 @@ export default function StaffAndPermissionsPage() {
     }
   };
 
+  // Open dedicated password change modal
+  const handleOpenPasswordModal = (staff: User) => {
+    setPasswordModalStaff(staff);
+    setStaffNewPassword('');
+    setStaffConfirmPassword('');
+    setShowStaffPassword(false);
+    setPasswordModalError(null);
+  };
+
+  // Save new password for staff
+  const handleSaveStaffPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!passwordModalStaff) return;
+    setPasswordModalError(null);
+
+    const trimmed = staffNewPassword.trim();
+    if (!trimmed || trimmed.length < 4) {
+      setPasswordModalError('Password must be at least 4 characters long.');
+      return;
+    }
+    if (trimmed !== staffConfirmPassword.trim()) {
+      setPasswordModalError('New passwords do not match.');
+      return;
+    }
+
+    setPasswordSaving(true);
+    try {
+      const res = await fetch('/api/staff', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: passwordModalStaff.id,
+          newPassword: trimmed,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Password changed successfully for ${passwordModalStaff.fullName}!`);
+        setPasswordModalStaff(null);
+        fetchData();
+      } else {
+        setPasswordModalError(data.error || 'Failed to update password.');
+      }
+    } catch (err: any) {
+      setPasswordModalError(err.message || 'Error occurred while updating password.');
+    } finally {
+      setPasswordSaving(false);
+    }
+  };
+
   // Handle Submit Staff (Add or Edit)
   const handleSubmitStaff = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -260,6 +322,7 @@ export default function StaffAndPermissionsPage() {
             email: email.trim(),
             role,
             staffTitle: staffTitle.trim(),
+            newPassword: editModalPassword.trim() || undefined,
             assignedBuildingIds: resolvedBuildingIds,
             assignedBlockIds: resolvedBlockIds,
             permissions: {
@@ -497,6 +560,17 @@ export default function StaffAndPermissionsPage() {
                       >
                         {staff.role}
                       </span>
+
+                      {/* Change Password Button */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenPasswordModal(staff)}
+                        className="px-2.5 py-1 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold flex items-center gap-1 transition shadow-2xs"
+                        title={`Change login password for ${staff.fullName}`}
+                      >
+                        <KeyRound className="w-3.5 h-3.5 text-amber-700" />
+                        <span>Password</span>
+                      </button>
 
                       {/* Edit Assignment Button */}
                       <button
@@ -784,17 +858,32 @@ export default function StaffAndPermissionsPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      Email Address (Optional)
-                    </label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="staff.member@serenityliving.com"
-                      className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        Email Address (Optional)
+                      </label>
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="staff.member@serenityliving.com"
+                        className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                        {editingStaffId ? 'Reset Login Password (Optional)' : 'Initial Password (Optional)'}
+                      </label>
+                      <input
+                        type="password"
+                        value={editModalPassword}
+                        onChange={(e) => setEditModalPassword(e.target.value)}
+                        placeholder={editingStaffId ? 'Leave blank to keep current' : 'Default: pass123'}
+                        className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -1071,6 +1160,126 @@ export default function StaffAndPermissionsPage() {
                       </>
                     ) : (
                       <span>{editingStaffId ? 'Save Changes' : 'Confirm & Assign Staff'}</span>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {/* Modal: Change Staff Password */}
+        {passwordModalStaff && (
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+                    <KeyRound className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm sm:text-base text-slate-900 font-display">
+                      Change Staff Password
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      Reset portal credentials for {passwordModalStaff.fullName}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPasswordModalStaff(null)}
+                  className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Staff details preview */}
+              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Staff Member:</span>
+                  <span className="font-bold text-slate-800">{passwordModalStaff.fullName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Role & Title:</span>
+                  <span className="font-semibold text-slate-700">{passwordModalStaff.staffTitle || passwordModalStaff.role}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Login Mobile:</span>
+                  <span className="font-mono font-bold text-indigo-600">{passwordModalStaff.phone}</span>
+                </div>
+              </div>
+
+              {passwordModalError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{passwordModalError}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveStaffPassword} className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    New Password <span className="text-rose-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showStaffPassword ? 'text' : 'password'}
+                      required
+                      minLength={4}
+                      value={staffNewPassword}
+                      onChange={(e) => setStaffNewPassword(e.target.value)}
+                      placeholder="Minimum 4 characters"
+                      className="w-full pl-3.5 pr-10 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none font-mono"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowStaffPassword(!showStaffPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      {showStaffPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Confirm New Password <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type={showStaffPassword ? 'text' : 'password'}
+                    required
+                    minLength={4}
+                    value={staffConfirmPassword}
+                    onChange={(e) => setStaffConfirmPassword(e.target.value)}
+                    placeholder="Re-enter new password"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none font-mono"
+                  />
+                </div>
+
+                <div className="pt-2 flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPasswordModalStaff(null)}
+                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={passwordSaving}
+                    className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm"
+                  >
+                    {passwordSaving ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <KeyRound className="w-3.5 h-3.5" />
+                        <span>Update Password</span>
+                      </>
                     )}
                   </button>
                 </div>

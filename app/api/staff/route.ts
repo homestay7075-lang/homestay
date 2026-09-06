@@ -125,7 +125,7 @@ export async function PATCH(request: Request) {
     const body = await request.json();
     const db = getDatabase();
 
-    const { id, fullName, email, phone, role, staffTitle, permissions, assignedBlockIds, assignedBuildingIds, isActive } = body;
+    const { id, fullName, email, phone, role, staffTitle, permissions, assignedBlockIds, assignedBuildingIds, isActive, newPassword, password } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -147,6 +147,17 @@ export async function PATCH(request: Request) {
         { success: false, error: 'Cannot modify the master Hostel Owner account via staff API' },
         { status: 403 }
       );
+    }
+
+    const updatedPassword = newPassword || password;
+    if (updatedPassword !== undefined && updatedPassword.trim()) {
+      if (updatedPassword.trim().length < 4) {
+        return NextResponse.json(
+          { success: false, error: 'Password must be at least 4 characters long' },
+          { status: 400 }
+        );
+      }
+      targetUser.passwordHash = updatedPassword.trim();
     }
 
     if (fullName !== undefined) targetUser.fullName = fullName.trim();
@@ -212,14 +223,17 @@ export async function PATCH(request: Request) {
 
     targetUser.updatedAt = new Date().toISOString();
 
+    const isPasswordChanged = Boolean(updatedPassword && updatedPassword.trim());
     db.auditLogs.unshift({
       id: `audit-${Date.now()}`,
       timestamp: new Date().toISOString(),
       userId: 'usr-owner-1',
       userName: 'Hostel Owner',
       userRole: 'OWNER',
-      action: 'STAFF_UPDATED',
-      details: `Updated staff member ${targetUser.fullName} (${targetUser.role} - ${targetUser.staffTitle || ''}) building & block assignments`,
+      action: isPasswordChanged ? 'STAFF_PASSWORD_RESET' : 'STAFF_UPDATED',
+      details: isPasswordChanged
+        ? `Owner updated password for staff member ${targetUser.fullName} (${targetUser.role} - ${targetUser.phone})`
+        : `Updated staff member ${targetUser.fullName} (${targetUser.role} - ${targetUser.staffTitle || ''}) building & block assignments`,
     });
 
     saveDatabase(db);

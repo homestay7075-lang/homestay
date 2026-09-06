@@ -68,6 +68,7 @@ function OwnerProfileContent() {
 
   // Tab 1: Profile state
   const [ownerName, setOwnerName] = useState(currentUser?.fullName || '');
+  const [ownerUsername, setOwnerUsername] = useState(currentUser?.username || '');
   const [ownerTitle, setOwnerTitle] = useState(currentUser?.staffTitle || '');
   const [ownerEmail, setOwnerEmail] = useState(currentUser?.email || '');
   const [ownerPhone, setOwnerPhone] = useState(currentUser?.phone || '');
@@ -80,6 +81,7 @@ function OwnerProfileContent() {
   useEffect(() => {
     if (currentUser) {
       setOwnerName(currentUser.fullName || '');
+      setOwnerUsername(currentUser.username || '');
       setOwnerTitle(currentUser.staffTitle || (currentUser.role === 'OWNER' ? 'Hostel Owner & Lead Administrator' : currentUser.role));
       setOwnerEmail(currentUser.email || '');
       setOwnerPhone(currentUser.phone || '');
@@ -252,6 +254,7 @@ function OwnerProfileContent() {
           userId: currentUser?.id,
           role: currentUser?.role,
           fullName: ownerName.trim(),
+          username: ownerUsername.trim().toLowerCase(),
           staffTitle: ownerTitle.trim(),
           phone: ownerPhone.trim(),
           email: ownerEmail.trim(),
@@ -264,6 +267,7 @@ function OwnerProfileContent() {
           loginAsUser({
             ...currentUser,
             fullName: data.user.fullName,
+            username: data.user.username,
             staffTitle: data.user.staffTitle,
             phone: data.user.phone,
             email: data.user.email,
@@ -363,17 +367,36 @@ function OwnerProfileContent() {
 
     setLoading(true);
     try {
+      if (newPassword) {
+        const passRes = await fetch('/api/auth/profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUser?.id,
+            role: currentUser?.role,
+            newPassword: newPassword.trim(),
+          }),
+        });
+        const passData = await passRes.json();
+        if (!passData.success) {
+          alert(passData.error || 'Failed to update password.');
+          setLoading(false);
+          return;
+        }
+      }
+
       const result = await saveToGlobalSettings({
         twoFactorEnabled,
         pinLockEnabled,
       });
       if (result.success) {
-        showToast('Security preferences updated!');
         if (newPassword) {
-          showToast('Password and security preferences updated!');
+          showToast('Password updated and security preferences saved!');
           setCurrentPassword('');
           setNewPassword('');
           setConfirmPassword('');
+        } else {
+          showToast('Security preferences updated!');
         }
       } else {
         alert(result.error || 'Failed to save security settings.');
@@ -651,7 +674,7 @@ function OwnerProfileContent() {
             </div>
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     {isOwner ? 'Owner Full Name' : 'Full Name'} <span className="text-rose-500">*</span>
@@ -664,6 +687,22 @@ function OwnerProfileContent() {
                     placeholder={isOwner ? "e.g. Rajesh Kumar" : "Your full name"}
                     className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    {isOwner ? 'Owner Username' : 'Username'}
+                  </label>
+                  <input
+                    type="text"
+                    value={ownerUsername}
+                    onChange={(e) => setOwnerUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))}
+                    placeholder="e.g. admin"
+                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-mono"
+                  />
+                  <span className="text-[10px] text-slate-400 block mt-0.5">
+                    Login username (e.g. admin)
+                  </span>
                 </div>
 
                 <div>

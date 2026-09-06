@@ -136,6 +136,12 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ success: false, error: 'Student full name is mandatory.' }, { status: 400 });
     }
 
+    if (updates.newPassword !== undefined && updates.newPassword.trim()) {
+      if (updates.newPassword.trim().length < 4) {
+        return NextResponse.json({ success: false, error: 'Password must be at least 4 characters long.' }, { status: 400 });
+      }
+    }
+
     const result = updateStudentTransaction({
       studentId: targetId,
       updates,
