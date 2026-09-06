@@ -69,7 +69,7 @@ export async function POST(req: Request) {
             fullName: studentMatch.fullName,
             phone: studentMatch.phone,
             email: studentMatch.email,
-            passwordHash: 'student123',
+            passwordHash: studentMatch.portalPassword || 'student123',
             isActive: true,
             createdAt: studentMatch.createdAt || new Date().toISOString(),
             updatedAt: studentMatch.updatedAt || new Date().toISOString(),
@@ -162,9 +162,22 @@ export async function POST(req: Request) {
     }
 
     // Check password
-    if (password && matchedUser.passwordHash !== password) {
+    let isPasswordValid = Boolean(password && matchedUser.passwordHash === password);
+    if (!isPasswordValid && matchedUser.role === 'STUDENT') {
+      const userNorm = normalizePhoneNumber(matchedUser.phone);
+      const studentRec = db.students.find(
+        (s) => (s.phone === matchedUser.phone || (userNorm && normalizePhoneNumber(s.phone) === userNorm))
+      );
+      if (studentRec?.portalPassword && studentRec.portalPassword === password) {
+        isPasswordValid = true;
+        matchedUser.passwordHash = studentRec.portalPassword;
+        try { saveDatabase(db); } catch (e) {}
+      }
+    }
+
+    if (!isPasswordValid) {
       return NextResponse.json(
-        { success: false, error: 'Incorrect password entered. (Default Owner: admin123, Student: student123)' },
+        { success: false, error: 'Incorrect password entered. Please check your credentials.' },
         { status: 401 }
       );
     }

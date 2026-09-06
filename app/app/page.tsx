@@ -36,6 +36,10 @@ import {
   Image as ImageIcon,
   Info,
   Share2,
+  KeyRound,
+  Lock,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
@@ -109,6 +113,15 @@ export default function StudentMobileApp() {
   // Quick UPI simulation
   const [upiPaying, setUpiPaying] = useState(false);
   const [upiSuccess, setUpiSuccess] = useState(false);
+
+  // Student Change Password State
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [newStudentPassword, setNewStudentPassword] = useState('');
+  const [confirmStudentPassword, setConfirmStudentPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
 
   // Student phone: use logged in student phone or default to Devika Nair (9123456783)
   const studentPhone = currentUser?.role === 'STUDENT' ? currentUser.phone : '9123456783';
@@ -327,6 +340,56 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
       console.error('Failed to delete message:', e);
     } finally {
       setDeletingMsgId(null);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!studentData) return;
+    setPasswordError(null);
+    setPasswordSuccess(null);
+
+    const trimmed = newStudentPassword.trim();
+    if (!trimmed || trimmed.length < 4) {
+      setPasswordError('New password must be at least 4 characters long.');
+      return;
+    }
+
+    if (trimmed !== confirmStudentPassword.trim()) {
+      setPasswordError('Passwords do not match. Please re-enter.');
+      return;
+    }
+
+    setPasswordSaving(true);
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: studentData.phone,
+          studentId: studentData.studentId,
+          userId: studentData.userId,
+          newPassword: trimmed,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        confetti({ particleCount: 70, spread: 60 });
+        setPasswordSuccess('Password updated successfully! Next time sign in using your registered number and this new password.');
+        setStudentData((prev: any) => ({ ...prev, portalPassword: trimmed }));
+        setNewStudentPassword('');
+        setConfirmStudentPassword('');
+        setTimeout(() => {
+          setIsChangingPassword(false);
+          setPasswordSuccess(null);
+        }, 3000);
+      } else {
+        setPasswordError(data.error || 'Failed to update password.');
+      }
+    } catch (err: any) {
+      setPasswordError(err.message || 'Error occurred while saving password.');
+    } finally {
+      setPasswordSaving(false);
     }
   };
 
@@ -1598,7 +1661,135 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                   </div>
                 </div>
 
-                {/* 3. Account Dues & Financial Summary */}
+                {/* 3. Security & Resident Login Password (Student Can Change Password) */}
+                <div className="p-4 rounded-2xl bg-slate-800/70 border border-slate-700 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
+                    <span className="font-bold text-white text-xs flex items-center gap-1.5">
+                      <KeyRound className="w-4 h-4 text-purple-400" />
+                      Login Password & Security
+                    </span>
+                    <span className="text-[10px] text-purple-300 font-mono bg-purple-950/60 border border-purple-500/30 px-2 py-0.5 rounded-full">
+                      Student Login
+                    </span>
+                  </div>
+
+                  <div className="p-3 bg-slate-900/90 rounded-xl border border-slate-700/70 text-xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Registered Number (Login ID):</span>
+                      <span className="font-mono font-bold text-emerald-400">{studentData.phone}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400">Current Password:</span>
+                      <span className="font-mono text-slate-300">
+                        {studentData.portalPassword ? '•••••••• (Custom)' : 'student123 (Default)'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {passwordSuccess && (
+                    <div className="p-3 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-emerald-200 text-xs flex items-center gap-2 animate-in fade-in">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span>{passwordSuccess}</span>
+                    </div>
+                  )}
+
+                  {passwordError && (
+                    <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-500/50 text-rose-200 text-xs flex items-center gap-2 animate-in fade-in">
+                      <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                      <span>{passwordError}</span>
+                    </div>
+                  )}
+
+                  {!isChangingPassword ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsChangingPassword(true);
+                        setPasswordError(null);
+                        setPasswordSuccess(null);
+                      }}
+                      className="w-full py-2.5 px-4 rounded-xl bg-purple-600/30 hover:bg-purple-600/40 text-purple-200 hover:text-white border border-purple-500/40 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                    >
+                      <Lock className="w-3.5 h-3.5 text-purple-400" />
+                      <span>Change Login Password</span>
+                    </button>
+                  ) : (
+                    <form onSubmit={handleChangePassword} className="space-y-3 pt-1 animate-in fade-in">
+                      <div className="space-y-1">
+                        <label className="block text-[11px] text-slate-300 font-medium">
+                          New Password <span className="text-purple-400">*</span> (min 4 characters)
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showNewPassword ? 'text' : 'password'}
+                            required
+                            minLength={4}
+                            value={newStudentPassword}
+                            onChange={(e) => setNewStudentPassword(e.target.value)}
+                            placeholder="Enter new password"
+                            className="w-full pl-3 pr-10 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono placeholder:text-slate-600 focus:ring-2 focus:ring-purple-500 outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                          >
+                            {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="block text-[11px] text-slate-300 font-medium">
+                          Confirm New Password <span className="text-purple-400">*</span>
+                        </label>
+                        <input
+                          type={showNewPassword ? 'text' : 'password'}
+                          required
+                          minLength={4}
+                          value={confirmStudentPassword}
+                          onChange={(e) => setConfirmStudentPassword(e.target.value)}
+                          placeholder="Re-enter new password"
+                          className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono placeholder:text-slate-600 focus:ring-2 focus:ring-purple-500 outline-none"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsChangingPassword(false);
+                            setNewStudentPassword('');
+                            setConfirmStudentPassword('');
+                            setPasswordError(null);
+                          }}
+                          className="px-3 py-1.5 text-xs text-slate-400 hover:text-white rounded-lg transition cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={passwordSaving}
+                          className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shadow-md disabled:opacity-60 cursor-pointer"
+                        >
+                          {passwordSaving ? (
+                            <>
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                              <span>Saving...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Update Password</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+
+                {/* 4. Account Dues & Financial Summary */}
                 <div className="p-4 rounded-2xl bg-slate-800/70 border border-slate-700 space-y-3">
                   <div className="flex items-center justify-between border-b border-slate-700/60 pb-2">
                     <span className="font-bold text-white text-xs flex items-center gap-1.5">

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDatabase, registerStudentTransaction, updateStudentTransaction } from '@/lib/db/store';
 import { reconcileStudentBills } from '@/lib/services/billingService';
-import { isValidPhoneNumber, PHONE_ERROR_MESSAGE } from '@/lib/utils/phoneValidator';
+import { isValidPhoneNumber, normalizePhoneNumber, PHONE_ERROR_MESSAGE } from '@/lib/utils/phoneValidator';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
@@ -37,8 +37,15 @@ export async function GET(req: Request) {
     const payments = db.payments.filter(p => p.studentId === student.studentId || p.studentDbId === student.id);
     const finances = reconcileStudentBills(studentBills, payments);
 
+    const userNorm = normalizePhoneNumber(student.phone);
+    const studentUser = student.userId
+      ? db.users.find(u => u.id === student.userId)
+      : db.users.find(u => u.role === 'STUDENT' && (u.phone === student.phone || (userNorm && normalizePhoneNumber(u.phone) === userNorm)));
+    const portalPassword = student.portalPassword || studentUser?.passwordHash || (student as any).password || 'student123';
+
     return {
       ...student,
+      portalPassword,
       finances,
       payments,
       bills: finances.reconciledBills,

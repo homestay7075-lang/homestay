@@ -338,6 +338,10 @@ export function registerStudentTransaction(data: {
   const room = db.rooms.find(r => r.id === data.roomId);
   const block = db.blocks.find(b => b.id === data.blockId);
 
+  const initialPassword = (data.password && data.password.trim().length >= 4)
+    ? data.password.trim()
+    : 'student123';
+
   const newStudent: Student = {
     id: studentDbId,
     studentId: newStudentId,
@@ -357,6 +361,7 @@ export function registerStudentTransaction(data: {
     idProofType: data.idProofType || 'Aadhaar',
     idProofNumber: (data.idProofNumber || '').trim(),
     idProofDocumentUrl: data.idProofDocumentUrl || '',
+    portalPassword: initialPassword,
     buildingId: data.buildingId,
     blockId: data.blockId,
     roomId: data.roomId,
@@ -377,10 +382,6 @@ export function registerStudentTransaction(data: {
   targetBed.status = 'Occupied';
   targetBed.currentStudentId = newStudentId;
   targetBed.currentStudentName = data.fullName.trim();
-
-  const initialPassword = (data.password && data.password.trim().length >= 4)
-    ? data.password.trim()
-    : 'student123';
 
   // 5. Create auth user for student so they can log in via phone
   const studentUser: User = {
@@ -712,6 +713,11 @@ export function updateStudentTransaction(params: {
       db.users.push(newUser);
       student.userId = newUser.id;
     }
+    student.portalPassword = newPass;
+  }
+
+  if (updates.portalPassword !== undefined) {
+    student.portalPassword = updates.portalPassword;
   }
 
   student.updatedAt = new Date().toISOString();
@@ -732,4 +738,78 @@ export function updateStudentTransaction(params: {
 
   saveDatabase(db);
   return { success: true, student };
+}
+
+export function changeStudentPassword(params: {
+  phone?: string;
+  studentId?: string;
+  userId?: string;
+  newPassword: string;
+}): { success: boolean; error?: string; updatedPassword?: string } {
+  const db = getDatabase();
+  const newPass = (params.newPassword || '').trim();
+  if (!newPass || newPass.length < 4) {
+    return { success: false, error: 'Password must be at least 4 characters long.' };
+  }
+
+  const sNorm = params.phone ? normalizePhoneNumber(params.phone) : '';
+
+  // Find student record
+  const student = db.students.find(s =>
+    (params.studentId && (s.id === params.studentId || s.studentId === params.studentId)) ||
+    (params.userId && s.userId === params.userId) ||
+    (sNorm && (s.phone === params.phone || normalizePhoneNumber(s.phone) === sNorm))
+  );
+
+  // Find user record
+  let user = student?.userId ? db.users.find(u => u.id === student.userId) : null;
+  if (!user && (sNorm || params.phone)) {
+    user = db.users.find(
+      u => u.role === 'STUDENT' && (u.phone === params.phone || (sNorm && normalizePhoneNumber(u.phone) === sNorm))
+    );
+  }
+  if (!user && params.userId) {
+    user = db.users.find(u => u.id === params.userId);
+  }
+
+  if (user) {
+    user.passwordHash = newPass;
+    user.updatedAt = new Date().toISOString();
+  } else if (student) {
+    const newUser: User = {
+      id: `usr-stu-${student.id}`,
+      role: 'STUDENT',
+      fullName: student.fullName,
+      phone: student.phone,
+      email: student.email || '',
+      passwordHash: newPass,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    db.users.push(newUser);
+    student.userId = newUser.id;
+  } else {
+    return { success: false, error: 'Resident account not found.' };
+  }
+
+  if (student) {
+    student.portalPassword = newPass;
+    student.updatedAt = new Date().toISOString();
+  }
+
+  // Record audit log
+  const audit: AuditLog = {
+    id: `log-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    userId: user?.id || student?.userId || 'student',
+    userName: student?.fullName || user?.fullName || 'Resident',
+    userRole: 'STUDENT',
+    action: 'STUDENT_PASSWORD_RESET',
+    details: `Resident ${student?.fullName || user?.fullName || ''} (Phone: ${student?.phone || user?.phone || ''}) updated their portal password.`,
+  };
+  db.auditLogs.unshift(audit);
+
+  saveDatabase(db);
+  return { success: true, updatedPassword: newPass };
 }

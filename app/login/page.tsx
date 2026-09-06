@@ -152,9 +152,12 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className="space-y-4">
             {/* Phone Number Input */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-mono text-slate-400 tracking-wide">
-                Phone Number
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-mono text-slate-400 tracking-wide">
+                  Registered Mobile Number (Student ID)
+                </label>
+                <span className="text-[10px] text-purple-400 font-mono">10 Digits</span>
+              </div>
               <div className="relative flex items-center">
                 <Phone className="w-4 h-4 text-slate-500 absolute left-4 pointer-events-none" />
                 <input
@@ -162,10 +165,13 @@ export default function LoginPage() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="9876543210"
+                  placeholder="Enter 10-digit registered number"
                   className="w-full pl-11 pr-4 py-3.5 bg-[#050713]/90 border border-slate-800/90 focus:border-purple-500/80 rounded-2xl text-white text-sm font-mono placeholder:text-slate-600 focus:ring-2 focus:ring-purple-500/20 outline-none transition"
                 />
               </div>
+              <span className="text-[10px] text-slate-500 font-mono block">
+                Residents log in using only their registered mobile number & password.
+              </span>
             </div>
 
             {/* Password Input with Eye reveal */}

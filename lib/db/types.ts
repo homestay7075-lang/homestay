@@ -163,6 +163,7 @@ export interface Student {
   idProofType: 'Aadhaar' | 'Passport' | 'Driving License' | 'Voter ID' | 'College ID';
   idProofNumber: string;
   idProofDocumentUrl?: string;
+  portalPassword?: string;
   
   // Allocation Details
   buildingId: string;

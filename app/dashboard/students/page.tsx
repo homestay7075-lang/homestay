@@ -32,6 +32,8 @@ import {
   EyeOff,
   Loader2,
   Download,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
 import VoucherModal from '@/components/payments/VoucherModal';
@@ -45,12 +47,13 @@ export default function StudentsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('Active');
   const [blockFilter, setBlockFilter] = useState('All');
-
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [bookingPrefill, setBookingPrefill] = useState<any>(null);
   const [checkoutTargetStudent, setCheckoutTargetStudent] = useState<any>(null);
   const [editingStudent, setEditingStudent] = useState<any>(null);
   const [selectedStudentForDrawer, setSelectedStudentForDrawer] = useState<any>(null);
+  const [showDrawerPassword, setShowDrawerPassword] = useState(false);
+  const [copiedDrawerPassword, setCopiedDrawerPassword] = useState(false);
   const [viewingIdPhotoUrl, setViewingIdPhotoUrl] = useState<string | null>(null);
   const [studentDataTab, setStudentDataTab] = useState<'INVOICES' | 'RECEIPTS'>('INVOICES');
   const [voucherModalState, setVoucherModalState] = useState<{
@@ -64,14 +67,6 @@ export default function StudentsPage() {
     data: null,
     student: null,
   });
-
-  // Password reset modal state for students
-  const [passwordModalStudent, setPasswordModalStudent] = useState<any | null>(null);
-  const [studentNewPassword, setStudentNewPassword] = useState('');
-  const [showStudentPassword, setShowStudentPassword] = useState(false);
-  const [studentPasswordSaving, setStudentPasswordSaving] = useState(false);
-  const [studentPasswordError, setStudentPasswordError] = useState<string | null>(null);
-  const [studentToastMessage, setStudentToastMessage] = useState<string | null>(null);
 
   const fetchStudents = async () => {
     try {
@@ -110,50 +105,6 @@ export default function StudentsPage() {
       }
     }
   }, []);
-
-  const handleOpenPasswordModal = (stu: any) => {
-    setPasswordModalStudent(stu);
-    setStudentNewPassword('');
-    setShowStudentPassword(false);
-    setStudentPasswordError(null);
-  };
-
-  const handleSaveStudentPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!passwordModalStudent) return;
-    setStudentPasswordError(null);
-
-    const trimmed = studentNewPassword.trim();
-    if (!trimmed || trimmed.length < 4) {
-      setStudentPasswordError('Password must be at least 4 characters long.');
-      return;
-    }
-
-    setStudentPasswordSaving(true);
-    try {
-      const res = await fetch('/api/students', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: passwordModalStudent.id,
-          newPassword: trimmed,
-        }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setStudentToastMessage(`Password changed successfully for resident ${passwordModalStudent.fullName}!`);
-        setTimeout(() => setStudentToastMessage(null), 3500);
-        setPasswordModalStudent(null);
-        fetchStudents();
-      } else {
-        setStudentPasswordError(data.error || 'Failed to update student password.');
-      }
-    } catch (err: any) {
-      setStudentPasswordError(err.message || 'Error occurred while updating password.');
-    } finally {
-      setStudentPasswordSaving(false);
-    }
-  };
 
   // Helper to determine if a student's rent due date has arrived / is overdue
   const getStudentDueStatus = (stu: any) => {
@@ -451,14 +402,6 @@ export default function StudentsPage() {
                           </button>
 
                           <button
-                            onClick={() => handleOpenPasswordModal(stu)}
-                            className="p-1.5 rounded-lg hover:bg-amber-50 text-slate-500 hover:text-amber-700 transition"
-                            title={`Change Password for ${stu.fullName}`}
-                          >
-                            <KeyRound className="w-4 h-4 text-amber-600" />
-                          </button>
-
-                          <button
                             onClick={() => setEditingStudent(stu)}
                             className="p-1.5 rounded-lg hover:bg-indigo-50 text-slate-600 hover:text-indigo-600 transition"
                             title="Edit Student Data"
@@ -604,15 +547,6 @@ export default function StudentsPage() {
                         <Phone className="w-3 h-3 text-emerald-600" />
                         <span>Call</span>
                       </a>
-
-                      <button
-                        onClick={() => handleOpenPasswordModal(stu)}
-                        className="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-semibold transition flex items-center gap-1 border border-amber-200"
-                        title={`Change password for ${stu.fullName}`}
-                      >
-                        <KeyRound className="w-3 h-3 text-amber-600" />
-                        <span>Pass</span>
-                      </button>
 
                       <button
                         onClick={() => setEditingStudent(stu)}
@@ -863,6 +797,74 @@ export default function StudentsPage() {
                 </div>
               </div>
 
+              {/* Resident App Login Credentials Card (Updated Password shown for Owner) */}
+              <div className="p-3.5 bg-gradient-to-br from-indigo-50/90 via-purple-50/70 to-slate-50 rounded-2xl border border-indigo-200/80 shadow-xs space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-bold shadow-2xs">
+                      <KeyRound className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <span className="font-bold text-slate-900 text-xs block font-display">Resident App Login Credentials</span>
+                      <span className="text-[10px] text-slate-500">Student signs in using phone & password</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100/80 px-2 py-0.5 rounded-full border border-indigo-200">
+                    Active Credentials
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="p-2.5 bg-white rounded-xl border border-indigo-100 shadow-2xs">
+                    <span className="text-[10px] text-slate-400 font-medium block">Login ID (Registered Phone)</span>
+                    <span className="font-mono font-bold text-slate-900 text-xs block mt-0.5">
+                      {selectedStudentForDrawer.phone}
+                    </span>
+                  </div>
+
+                  <div className="p-2.5 bg-white rounded-xl border border-indigo-100 shadow-2xs flex items-center justify-between">
+                    <div className="min-w-0 flex-1">
+                      <span className="text-[10px] text-slate-400 font-medium block">Updated Password</span>
+                      <span className="font-mono font-extrabold text-indigo-700 text-xs block mt-0.5 truncate">
+                        {showDrawerPassword
+                          ? (selectedStudentForDrawer.portalPassword || 'student123')
+                          : '••••••••'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0 ml-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowDrawerPassword(!showDrawerPassword)}
+                        className="p-1 text-slate-400 hover:text-indigo-600 rounded-md hover:bg-slate-50 transition cursor-pointer"
+                        title={showDrawerPassword ? 'Hide Password' : 'Show Password'}
+                      >
+                        {showDrawerPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const pass = selectedStudentForDrawer.portalPassword || 'student123';
+                          navigator.clipboard.writeText(pass);
+                          setCopiedDrawerPassword(true);
+                          setTimeout(() => setCopiedDrawerPassword(false), 2000);
+                        }}
+                        className="p-1 text-slate-400 hover:text-indigo-600 rounded-md hover:bg-slate-50 transition cursor-pointer"
+                        title="Copy Password"
+                      >
+                        {copiedDrawerPassword ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between text-[10px] text-slate-500 pt-0.5">
+                  <span>Student can change this password directly in the student app.</span>
+                  {copiedDrawerPassword && (
+                    <span className="text-emerald-600 font-bold animate-in fade-in">Password copied!</span>
+                  )}
+                </div>
+              </div>
+
               <div>
                 <span className="text-slate-400 block text-xs mb-1">Permanent Home Address</span>
                 <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
@@ -1029,15 +1031,6 @@ export default function StudentsPage() {
                     <Printer className="w-3.5 h-3.5" />
                     Print Admission Slip
                   </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleOpenPasswordModal(selectedStudentForDrawer)}
-                    className="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-semibold text-xs rounded-xl flex items-center gap-1.5 transition"
-                  >
-                    <KeyRound className="w-3.5 h-3.5 text-amber-700" />
-                    Reset Password
-                  </button>
                 </div>
                 <button
                   type="button"
@@ -1133,143 +1126,6 @@ export default function StudentsPage() {
           </div>
         </div>
       )}
-      {/* Toast Notification */}
-      {studentToastMessage && (
-        <div className="no-print fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl shadow-xl flex items-center gap-2 text-xs font-bold animate-in slide-in-from-top duration-300">
-          <CheckCircle2 className="w-4 h-4" />
-          <span>{studentToastMessage}</span>
-        </div>
-      )}
-
-      {/* Modal: Change Student Password */}
-      {passwordModalStudent && (
-        <div className="no-print fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
-                  <KeyRound className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm sm:text-base text-slate-900 font-display">
-                    Change Student Password
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    Reset resident app login credentials
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setPasswordModalStudent(null)}
-                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Student Info preview */}
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs space-y-1">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Student:</span>
-                <span className="font-bold text-slate-800">{passwordModalStudent.fullName}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Student ID:</span>
-                <span className="font-mono font-bold text-indigo-600">{passwordModalStudent.studentId}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Room / Bed:</span>
-                <span className="font-semibold text-slate-700">Room {passwordModalStudent.roomNumber} ({passwordModalStudent.bedNumber})</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Login Mobile:</span>
-                <span className="font-mono font-bold text-emerald-700">{passwordModalStudent.phone}</span>
-              </div>
-            </div>
-
-            {studentPasswordError && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
-                <span>{studentPasswordError}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleSaveStudentPassword} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  New Password <span className="text-rose-500">*</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showStudentPassword ? 'text' : 'password'}
-                    required
-                    minLength={4}
-                    value={studentNewPassword}
-                    onChange={(e) => setStudentNewPassword(e.target.value)}
-                    placeholder="Enter new password (min 4 chars)"
-                    className="w-full pl-3.5 pr-10 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 outline-none font-mono"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowStudentPassword(!showStudentPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    {showStudentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Quick Presets */}
-              <div className="flex items-center gap-2 pt-1">
-                <span className="text-[11px] text-slate-400">Quick set:</span>
-                <button
-                  type="button"
-                  onClick={() => setStudentNewPassword('student123')}
-                  className="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-mono transition"
-                >
-                  student123
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStudentNewPassword(passwordModalStudent.phone)}
-                  className="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-mono transition"
-                >
-                  Mobile Number
-                </button>
-              </div>
-
-              <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setPasswordModalStudent(null)}
-                  className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={studentPasswordSaving}
-                  className="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm"
-                >
-                  {studentPasswordSaving ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Saving...</span>
-                    </>
-                  ) : (
-                    <>
-                      <KeyRound className="w-3.5 h-3.5" />
-                      <span>Update Password</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
       {/* Resident ID Document Photo Lightbox Viewer */}
       {viewingIdPhotoUrl && (
         <div
