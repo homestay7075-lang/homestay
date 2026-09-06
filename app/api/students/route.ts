@@ -89,6 +89,7 @@ export async function POST(req: Request) {
       guardianRelation: body.guardianRelation || 'Parent',
       idProofType: body.idProofType || 'Aadhaar',
       idProofNumber: body.idProofNumber || '',
+      idProofDocumentUrl: body.idProofDocumentUrl || '',
       buildingId: body.buildingId,
       blockId: body.blockId,
       roomId: body.roomId,

@@ -95,6 +95,14 @@ export default function MultiStepStudentRegistrationModal({
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
 
+  // ID Document Photo (Optional - Live Image or File)
+  const [idProofDocumentUrl, setIdProofDocumentUrl] = useState('');
+  const idFileInputRef = useRef<HTMLInputElement>(null);
+  const idCameraInputRef = useRef<HTMLInputElement>(null);
+  const idVideoRef = useRef<HTMLVideoElement>(null);
+  const [isIdCameraActive, setIsIdCameraActive] = useState(false);
+  const [idCameraStream, setIdCameraStream] = useState<MediaStream | null>(null);
+
   // Step 2: Allocation & Joining-Date Billing
   const [roomsData, setRoomsData] = useState<{
     buildings: any[];
@@ -125,6 +133,12 @@ export default function MultiStepStudentRegistrationModal({
       setRegisteredStudent(null);
       setCopiedMessage(false);
       setCustomPassword('');
+      setIdProofDocumentUrl('');
+      if (idCameraStream) {
+        idCameraStream.getTracks().forEach((t) => t.stop());
+        setIdCameraStream(null);
+      }
+      setIsIdCameraActive(false);
       setDepositAmount(settings?.defaultDeposit !== undefined ? settings.defaultDeposit : 0);
 
       // Handle prefill data from booking approval
@@ -294,8 +308,71 @@ export default function MultiStepStudentRegistrationModal({
     }, 'image/jpeg', 0.9);
   };
 
+  // Live Camera Capture for ID Document Photo
+  const startIdCamera = async () => {
+    try {
+      setErrorMsg('');
+      if (typeof navigator !== 'undefined' && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        });
+        setIdCameraStream(stream);
+        setIsIdCameraActive(true);
+      } else {
+        idCameraInputRef.current?.click();
+      }
+    } catch (err: any) {
+      console.warn('Direct webcam access failed, falling back to camera input', err);
+      idCameraInputRef.current?.click();
+    }
+  };
+
+  const stopIdCamera = () => {
+    if (idCameraStream) {
+      idCameraStream.getTracks().forEach((t) => t.stop());
+      setIdCameraStream(null);
+    }
+    setIsIdCameraActive(false);
+  };
+
+  const captureIdPhoto = () => {
+    if (!idVideoRef.current) return;
+    const video = idVideoRef.current;
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    stopIdCamera();
+
+    canvas.toBlob(async (blob) => {
+      if (!blob) return;
+      const file = new File([blob], `id_document_${Date.now()}.jpg`, { type: 'image/jpeg' });
+      try {
+        const result: OptimizedImageResult = await optimizeImageFile(file, 60, 1024);
+        setIdProofDocumentUrl(result.dataUrl);
+      } catch (err: any) {
+        console.error('ID document optimization failed', err);
+      }
+    }, 'image/jpeg', 0.9);
+  };
+
+  const handleIdFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    const file = e.target.files[0];
+    try {
+      const result: OptimizedImageResult = await optimizeImageFile(file, 60, 1024);
+      setIdProofDocumentUrl(result.dataUrl);
+    } catch (err: any) {
+      alert(`ID document optimization notice: ${err.message}`);
+    }
+  };
+
   const handleClose = () => {
     stopCamera();
+    stopIdCamera();
     setRegisteredStudent(null);
     setCopiedMessage(false);
     onClose();
@@ -303,6 +380,7 @@ export default function MultiStepStudentRegistrationModal({
 
   const handleDoneGotoDashboard = () => {
     stopCamera();
+    stopIdCamera();
     setRegisteredStudent(null);
     setCopiedMessage(false);
     onClose();
@@ -311,6 +389,7 @@ export default function MultiStepStudentRegistrationModal({
 
   const handleStayOnDirectory = () => {
     stopCamera();
+    stopIdCamera();
     setRegisteredStudent(null);
     setCopiedMessage(false);
     onClose();
@@ -388,6 +467,7 @@ export default function MultiStepStudentRegistrationModal({
           guardianRelation,
           idProofType,
           idProofNumber,
+          idProofDocumentUrl: idProofDocumentUrl || '',
           buildingId: roomsData?.blocks.find(b => b.id === selectedBlockId)?.buildingId || 'bld-1',
           blockId: selectedBlockId,
           roomId: selectedRoomId,
@@ -410,6 +490,7 @@ export default function MultiStepStudentRegistrationModal({
           }).catch(console.error);
         }
         stopCamera();
+        stopIdCamera();
         onSuccess();
         const studentInfo = {
           ...(data.student || {
@@ -427,6 +508,7 @@ export default function MultiStepStudentRegistrationModal({
             depositAmount,
             otherCharges,
             photoUrl: photoPreview,
+            idProofDocumentUrl: idProofDocumentUrl || '',
           }),
           initialPassword: data.initialPassword || customPassword.trim() || 'student123',
         };
@@ -1240,6 +1322,145 @@ ${hostelName}, ${settings.city || 'Campus'}`;
                   />
                 </div>
               </div>
+
+              {/* ID Document Photo / Scan (Optional - Live Image or File Upload) */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5 font-display">
+                    <FileCheck className="w-4 h-4 text-indigo-600" />
+                    {idProofType} Document Photo / Scan <span className="text-slate-400 font-normal">(Optional)</span>
+                  </span>
+                  {idProofDocumentUrl && (
+                    <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Check className="w-3 h-3 text-emerald-600" />
+                      Attached
+                    </span>
+                  )}
+                </div>
+
+                {/* Hidden File Inputs */}
+                <input
+                  ref={idFileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleIdFileUpload}
+                  className="hidden"
+                />
+                <input
+                  ref={idCameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleIdFileUpload}
+                  className="hidden"
+                />
+
+                {/* Camera Live Preview */}
+                {isIdCameraActive ? (
+                  <div className="space-y-3 animate-in fade-in">
+                    <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-black border-2 border-indigo-500 shadow-md">
+                      <video
+                        ref={idVideoRef}
+                        autoPlay
+                        playsInline
+                        muted
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 border-2 border-dashed border-white/50 m-4 rounded-xl pointer-events-none flex items-center justify-center">
+                        <span className="bg-black/60 text-white text-[10px] px-2 py-1 rounded-md">
+                          Align {idProofType} inside frame
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <button
+                        type="button"
+                        onClick={captureIdPhoto}
+                        className="py-2 px-5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1.5 transition cursor-pointer"
+                      >
+                        <Camera className="w-4 h-4" />
+                        <span>Snap ID Photo</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={stopIdCamera}
+                        className="py-2 px-4 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : idProofDocumentUrl ? (
+                  /* Uploaded / Captured ID Photo Preview */
+                  <div className="flex items-center gap-3 p-3 bg-white rounded-2xl border border-slate-200">
+                    <img
+                      src={idProofDocumentUrl}
+                      alt="ID Document Preview"
+                      className="w-20 h-14 object-cover rounded-xl border border-slate-200 shadow-2xs shrink-0 cursor-pointer hover:opacity-90"
+                      onClick={() => window.open(idProofDocumentUrl, '_blank')}
+                      title="Click to view full size"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-bold text-xs text-slate-800 truncate">
+                        {idProofType} Document Photo
+                      </div>
+                      <div className="text-[11px] text-slate-500 font-mono truncate">
+                        {idProofNumber || 'Document scan attached'}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <button
+                          type="button"
+                          onClick={() => idFileInputRef.current?.click()}
+                          className="text-[10px] text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer"
+                        >
+                          Change File
+                        </button>
+                        <span className="text-slate-300">•</span>
+                        <button
+                          type="button"
+                          onClick={startIdCamera}
+                          className="text-[10px] text-indigo-600 hover:text-indigo-800 font-semibold cursor-pointer"
+                        >
+                          Retake Live
+                        </button>
+                        <span className="text-slate-300">•</span>
+                        <button
+                          type="button"
+                          onClick={() => setIdProofDocumentUrl('')}
+                          className="text-[10px] text-rose-600 hover:text-rose-800 font-semibold cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Action Buttons: Live Camera or File Upload */
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={startIdCamera}
+                        className="py-2.5 px-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-98"
+                      >
+                        <Camera className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>Live Camera</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => idFileInputRef.current?.click()}
+                        className="py-2.5 px-3 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-98"
+                      >
+                        <Upload className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Upload File</span>
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-slate-500 text-center leading-relaxed">
+                      Snap live document photo with camera or choose file from device gallery / scanner (JPG, PNG, WebP).
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -1457,6 +1678,29 @@ ${hostelName}, ${settings.city || 'Campus'}`;
                       ₹{((monthlyRent || 0) + (depositAmount || 0) + (otherCharges || 0)).toLocaleString('en-IN')}
                     </span>
                   </div>
+
+                  {(idProofNumber || idProofDocumentUrl) && (
+                    <div className="col-span-2 pt-2 border-t border-slate-100 flex items-center justify-between">
+                      <div>
+                        <span className="text-slate-400 block">ID Verification:</span>
+                        <span className="font-semibold text-slate-800">
+                          {idProofType} {idProofNumber ? `(${idProofNumber})` : ''}
+                        </span>
+                      </div>
+                      {idProofDocumentUrl && (
+                        <div className="flex items-center gap-1.5">
+                          <img
+                            src={idProofDocumentUrl}
+                            alt="ID Preview"
+                            className="w-10 h-7 object-cover rounded-md border border-slate-200"
+                          />
+                          <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <Check className="w-2.5 h-2.5" /> Photo Attached
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

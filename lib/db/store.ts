@@ -277,6 +277,7 @@ export function registerStudentTransaction(data: {
   guardianRelation?: string;
   idProofType?: any;
   idProofNumber?: string;
+  idProofDocumentUrl?: string;
   buildingId: string;
   blockId: string;
   roomId: string;
@@ -355,6 +356,7 @@ export function registerStudentTransaction(data: {
     guardianRelation: data.guardianRelation || 'Parent',
     idProofType: data.idProofType || 'Aadhaar',
     idProofNumber: (data.idProofNumber || '').trim(),
+    idProofDocumentUrl: data.idProofDocumentUrl || '',
     buildingId: data.buildingId,
     blockId: data.blockId,
     roomId: data.roomId,
@@ -669,6 +671,7 @@ export function updateStudentTransaction(params: {
   if (updates.idProofType !== undefined) student.idProofType = updates.idProofType;
   if (updates.idProofNumber !== undefined) student.idProofNumber = (updates.idProofNumber || '').trim();
   if (updates.photoUrl !== undefined) student.photoUrl = updates.photoUrl;
+  if (updates.idProofDocumentUrl !== undefined) student.idProofDocumentUrl = updates.idProofDocumentUrl;
   if (updates.monthlyRent !== undefined && !isNaN(Number(updates.monthlyRent)) && Number(updates.monthlyRent) >= 0) {
     student.monthlyRent = Number(updates.monthlyRent);
   }

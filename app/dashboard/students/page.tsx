@@ -31,6 +31,7 @@ import {
   Eye,
   EyeOff,
   Loader2,
+  Download,
 } from 'lucide-react';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
 import VoucherModal from '@/components/payments/VoucherModal';
@@ -50,6 +51,7 @@ export default function StudentsPage() {
   const [checkoutTargetStudent, setCheckoutTargetStudent] = useState<any>(null);
   const [editingStudent, setEditingStudent] = useState<any>(null);
   const [selectedStudentForDrawer, setSelectedStudentForDrawer] = useState<any>(null);
+  const [viewingIdPhotoUrl, setViewingIdPhotoUrl] = useState<string | null>(null);
   const [studentDataTab, setStudentDataTab] = useState<'INVOICES' | 'RECEIPTS'>('INVOICES');
   const [voucherModalState, setVoucherModalState] = useState<{
     isOpen: boolean;
@@ -808,11 +810,56 @@ export default function StudentsPage() {
                     </a>
                   )}
                 </div>
-                <div>
-                  <span className="text-slate-400 block text-[11px]">ID Proof</span>
-                  <span className="font-semibold text-slate-800">
-                    {selectedStudentForDrawer.idProofType} - {selectedStudentForDrawer.idProofNumber}
-                  </span>
+                <div className="col-span-2 sm:col-span-1">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-slate-400 block text-[11px]">ID Proof</span>
+                      <span className="font-semibold text-slate-800">
+                        {selectedStudentForDrawer.idProofType} - {selectedStudentForDrawer.idProofNumber}
+                      </span>
+                    </div>
+                    {selectedStudentForDrawer.idProofDocumentUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setViewingIdPhotoUrl(selectedStudentForDrawer.idProofDocumentUrl)}
+                        className="px-2 py-0.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg text-[11px] font-bold inline-flex items-center gap-1 transition border border-indigo-200"
+                        title="View Full ID Photo"
+                      >
+                        <Eye className="w-3 h-3" />
+                        <span>View Photo</span>
+                      </button>
+                    )}
+                  </div>
+                  {selectedStudentForDrawer.idProofDocumentUrl && (
+                    <div className="mt-2 p-2 bg-white rounded-xl border border-indigo-100 flex items-center gap-2.5 shadow-xs">
+                      <button
+                        type="button"
+                        onClick={() => setViewingIdPhotoUrl(selectedStudentForDrawer.idProofDocumentUrl)}
+                        className="relative w-12 h-9 rounded-lg overflow-hidden border border-slate-200 bg-slate-100 shrink-0 group cursor-pointer"
+                        title="Click to zoom ID photo"
+                      >
+                        <img
+                          src={selectedStudentForDrawer.idProofDocumentUrl}
+                          alt="Resident ID Photo"
+                          className="w-full h-full object-cover group-hover:scale-105 transition"
+                        />
+                        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                          <Eye className="w-3 h-3 text-white" />
+                        </div>
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[11px] font-bold text-slate-700 block truncate">ID Photo Attached</span>
+                        <button
+                          type="button"
+                          onClick={() => setViewingIdPhotoUrl(selectedStudentForDrawer.idProofDocumentUrl)}
+                          className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 inline-flex items-center gap-1 hover:underline"
+                        >
+                          <Eye className="w-2.5 h-2.5" />
+                          <span>Expand full photo</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1219,6 +1266,67 @@ export default function StudentsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Resident ID Document Photo Lightbox Viewer */}
+      {viewingIdPhotoUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in"
+          onClick={() => setViewingIdPhotoUrl(null)}
+        >
+          <div
+            className="relative max-w-2xl w-full bg-white rounded-3xl p-5 shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-slate-900 text-sm font-display">Resident ID Document Photo</h3>
+                  <p className="text-[11px] text-slate-500">Live captured or uploaded identity proof document</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setViewingIdPhotoUrl(null)}
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="rounded-2xl overflow-hidden bg-slate-950 flex items-center justify-center flex-1 max-h-[70vh] border border-slate-800 p-2">
+              <img
+                src={viewingIdPhotoUrl}
+                alt="Resident ID Full Preview"
+                className="max-h-[65vh] w-auto max-w-full object-contain rounded-lg"
+              />
+            </div>
+
+            <div className="mt-4 flex items-center justify-between pt-2">
+              <span className="text-xs text-slate-500">Official resident identity proof document</span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={viewingIdPhotoUrl}
+                  download="resident-id-document.jpg"
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition inline-flex items-center gap-1.5 shadow-sm"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Photo</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setViewingIdPhotoUrl(null)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
