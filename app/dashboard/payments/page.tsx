@@ -635,7 +635,7 @@ export default function PaymentsAndDuesPage() {
                               <td className="py-3.5 px-4">
                                 <div className="font-bold text-slate-900">{bill.studentName}</div>
                                 <div className="text-xs text-indigo-600 font-mono font-medium">
-                                  {bill.studentId} • Bed {bill.bedNumber}
+                                  {bill.studentId}
                                 </div>
                                 {bill.phone && (
                                   <a
@@ -780,7 +780,7 @@ export default function PaymentsAndDuesPage() {
                           <td className="py-3.5 px-4">
                             <div className="font-bold text-slate-900">{stu.fullName}</div>
                             <div className="text-xs text-indigo-600 font-mono font-semibold">
-                              {stu.studentId} • Bed {stu.bedNumber}
+                              {stu.studentId}
                             </div>
                             {stu.phone && (
                               <a
@@ -1051,7 +1051,6 @@ export default function PaymentsAndDuesPage() {
                     <thead>
                       <tr className="border-b border-slate-200/80 bg-slate-50/50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                         <th className="py-3 px-4">Resident / ID</th>
-                        <th className="py-3 px-4">Bed</th>
                         <th className="py-3 px-4">Amount Paid</th>
                         <th className="py-3 px-4">App & UTR Ref</th>
                         <th className="py-3 px-4">Receipt Screenshot</th>
@@ -1072,11 +1071,6 @@ export default function PaymentsAndDuesPage() {
                                 {sub.studentId}
                               </div>
                               <div className="text-[10px] text-slate-400">{sub.studentPhone}</div>
-                            </td>
-
-                            {/* Bed */}
-                            <td className="py-3.5 px-4 text-slate-600">
-                              <span className="font-bold text-slate-800">Bed {sub.bedNumber || 'N/A'}</span>
                             </td>
 
                             {/* Amount */}
@@ -1270,7 +1264,7 @@ export default function PaymentsAndDuesPage() {
                 >
                   {students.map((stu) => (
                     <option key={stu.id} value={stu.id}>
-                      {stu.fullName} ({stu.studentId}) • Bed {stu.bedNumber}
+                      {stu.fullName} ({stu.studentId})
                     </option>
                   ))}
                 </select>

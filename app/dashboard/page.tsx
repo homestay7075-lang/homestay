@@ -104,6 +104,83 @@ export default function DashboardOverview() {
           </div>
         )}
 
+        {/* ================= QUICK OPERATIONS HUB (SINGLE ROW ON ALL SCREENS) ================= */}
+        <div className="p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-lg border border-slate-800 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </div>
+              <h2 className="font-bold text-xs sm:text-sm font-display text-white">
+                Quick Actions
+              </h2>
+            </div>
+            <span className="text-[10px] text-slate-400 hidden sm:inline font-mono">1-Tap Shortcuts</span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            {/* Quick Action 1: Register Student */}
+            <button
+              type="button"
+              onClick={() => setIsRegisterModalOpen(true)}
+              className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 hover:border-indigo-400/40 text-left transition space-y-1.5 sm:space-y-2 group cursor-pointer active:scale-95"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-indigo-500/30 text-indigo-300 flex items-center justify-center group-hover:scale-110 transition">
+                  <UserPlus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-indigo-400/20 text-indigo-300">
+                  Admission
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-xs sm:text-sm text-white truncate">Register Student</h3>
+                <p className="text-[10px] text-slate-300 hidden sm:block mt-0.5">New admission & ID</p>
+              </div>
+            </button>
+
+            {/* Quick Action 2: Collect Rent */}
+            <button
+              type="button"
+              onClick={() => setIsCollectRentModalOpen(true)}
+              className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 hover:border-emerald-400/40 text-left transition space-y-1.5 sm:space-y-2 group cursor-pointer active:scale-95"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-emerald-500/30 text-emerald-300 flex items-center justify-center group-hover:scale-110 transition">
+                  <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-300">
+                  Payment
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-xs sm:text-sm text-white truncate">Collect Rent</h3>
+                <p className="text-[10px] text-slate-300 hidden sm:block mt-0.5">Record dues receipt</p>
+              </div>
+            </button>
+
+            {/* Quick Action 3: Add Expense */}
+            <button
+              type="button"
+              onClick={() => setIsAddExpenseModalOpen(true)}
+              className="p-2.5 sm:p-4 rounded-xl sm:rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 hover:border-rose-400/40 text-left transition space-y-1.5 sm:space-y-2 group cursor-pointer active:scale-95"
+            >
+              <div className="flex items-center justify-between">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-rose-500/30 text-rose-300 flex items-center justify-center group-hover:scale-110 transition">
+                  <DollarSign className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </div>
+                <span className="text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-rose-400/20 text-rose-300">
+                  Outflow
+                </span>
+              </div>
+              <div>
+                <h3 className="font-bold text-xs sm:text-sm text-white truncate">Add Expense</h3>
+                <p className="text-[10px] text-slate-300 hidden sm:block mt-0.5">Log hostel expense</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
         {/* 10+ KPI Summary Cards (Rule 7) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
           {/* Card 1: Active Residents */}
@@ -222,116 +299,6 @@ export default function DashboardOverview() {
             </div>
           </div>
         </div>
-
-
-        {/* ================= QUICK OPERATIONS HUB ================= */}
-        <div className="p-6 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-lg border border-slate-800 space-y-4">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
-                <Zap className="w-4 h-4" />
-              </div>
-              <div>
-                <h2 className="font-bold text-sm sm:text-base font-display text-white">
-                  Quick Operations
-                </h2>
-                <p className="text-[11px] text-slate-400">Short actions & direct field shortcuts</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Quick Op 1: Register Student */}
-            <div className="p-4 rounded-2xl bg-white/10 border border-white/10 flex flex-col justify-between space-y-3">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-500/30 text-indigo-300 flex items-center justify-center">
-                    <UserPlus className="w-4 h-4" />
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-400/20 text-indigo-300">
-                    Admission
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-white">Register Student</h3>
-                  <div className="text-[11px] text-slate-300 mt-1 space-y-0.5">
-                    <div><span className="text-slate-400">Field:</span> <span className="font-mono text-white">fullName</span></div>
-                    <div><span className="text-slate-400">Field:</span> <span className="font-mono text-white">phone</span> (10-digit)</div>
-                    <div><span className="text-slate-400">Field:</span> <span className="font-mono text-white">roomNumber / bed</span></div>
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsRegisterModalOpen(true)}
-                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-1 transition"
-              >
-                <span>Open Registration</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Quick Op 2: Collect Rent */}
-            <div className="p-4 rounded-2xl bg-white/10 border border-white/10 flex flex-col justify-between space-y-3">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/30 text-emerald-300 flex items-center justify-center">
-                    <CreditCard className="w-4 h-4" />
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-400/20 text-emerald-300">
-                    Payment
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-white">Collect Rent / Dues</h3>
-                  <div className="text-[11px] text-slate-300 mt-1 space-y-0.5">
-                    <div><span className="text-slate-400">Field:</span> <span className="font-mono text-white">studentId</span></div>
-                    <div><span className="text-slate-400">Field:</span> <span className="font-mono text-white">amount</span> (₹)</div>
-                    <div><span className="text-slate-400">Field:</span> <span className="font-mono text-white">paymentMethod</span></div>
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsCollectRentModalOpen(true)}
-                className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-1 transition"
-              >
-                <span>Record Payment</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            {/* Quick Op 3: Add Expense */}
-            <div className="p-4 rounded-2xl bg-white/10 border border-white/10 flex flex-col justify-between space-y-3">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="w-8 h-8 rounded-lg bg-rose-500/30 text-rose-300 flex items-center justify-center">
-                    <DollarSign className="w-4 h-4" />
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-400/20 text-rose-300">
-                    Outflow
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-white">Add Expense</h3>
-                  <div className="text-[11px] text-slate-300 mt-1 space-y-0.5">
-                    <div><span className="text-slate-400">Field:</span> <span className="font-mono text-white">category</span></div>
-                    <div><span className="text-slate-400">Field:</span> <span className="font-mono text-white">amount</span> (₹)</div>
-                    <div><span className="text-slate-400">Field:</span> <span className="font-mono text-white">expenseDate</span></div>
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsAddExpenseModalOpen(true)}
-                className="w-full py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-1 transition"
-              >
-                <span>Log Expense</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Quick Operation: Multi-Step Student Admission Modal */}
@@ -341,7 +308,7 @@ export default function DashboardOverview() {
         onSuccess={() => {
           setIsRegisterModalOpen(false);
           fetchDashboardData();
-          setQuickFeedback('New student registered successfully! Generated Student ID & allocated bed.');
+          setQuickFeedback('New student registered successfully! Generated Student ID.');
           setTimeout(() => setQuickFeedback(null), 4000);
         }}
       />

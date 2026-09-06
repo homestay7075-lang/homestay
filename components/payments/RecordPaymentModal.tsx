@@ -162,7 +162,6 @@ export default function RecordPaymentModal({
 
 👤 *Resident Details:*
 • Name: *${currentStudent?.fullName || receiptResult.studentName}* (${currentStudent?.studentId || ''})
-• Bed Allocation: ${currentStudent?.bedNumber || 'N/A'}
 • Wing / Block: ${currentStudent?.blockName || 'Campus Residence'}
 
 💰 *Payment Particulars:*
@@ -191,7 +190,6 @@ Payment of *₹${receiptResult.amount?.toLocaleString('en-IN')}* for resident *$
 🧾 *Receipt:* ${receiptResult.receiptNumber}
 📅 *Date:* ${formatDateDMY(receiptResult.paymentDate)}
 💳 *Mode:* ${receiptResult.paymentMethod}
-🛏️ *Bed:* ${currentStudent?.bedNumber || 'N/A'}
 
 Hostel Administration Contact: ${settings.phone || '9876543210'}
 ${hostelName}`
@@ -266,12 +264,6 @@ ${hostelName}`
                 <span>Resident Student:</span>
                 <span className="font-semibold text-slate-900">
                   {currentStudent?.fullName} ({currentStudent?.studentId})
-                </span>
-              </div>
-              <div className="flex justify-between items-center text-slate-600">
-                <span>Bed:</span>
-                <span className="font-semibold text-slate-800">
-                  {currentStudent?.bedNumber}
                 </span>
               </div>
               <div className="flex justify-between items-center text-slate-600">
@@ -415,7 +407,7 @@ ${hostelName}`
               >
                 {students.map((stu) => (
                   <option key={stu.id} value={stu.id}>
-                    {stu.fullName} ({stu.studentId} • Bed {stu.bedNumber}) — Due: ₹{stu.finances?.totalOutstanding || 0}
+                    {stu.fullName} ({stu.studentId}) — Due: ₹{stu.finances?.totalOutstanding || 0}
                   </option>
                 ))}
               </select>
@@ -429,7 +421,7 @@ ${hostelName}`
                     Exact Ledger Dues Breakdown
                   </span>
                   <span className="text-[11px] text-slate-500 font-mono">
-                    Bed {currentStudent.bedNumber}
+                    ID: {currentStudent.studentId}
                   </span>
                 </div>
 

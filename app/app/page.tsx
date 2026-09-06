@@ -51,6 +51,8 @@ export default function StudentMobileApp() {
   useEffect(() => {
     if (!isLoading && !currentUser) {
       router.replace('/login');
+    } else if (!isLoading && currentUser?.role === 'OWNER') {
+      router.replace('/dashboard');
     }
   }, [isLoading, currentUser, router]);
 
@@ -200,7 +202,7 @@ export default function StudentMobileApp() {
 --------------------------------
 *Hostel:* ${hostelName}
 *Student:* ${studentData?.fullName} (${studentData?.studentId})
-*Bed Allocation:* ${studentData?.bedNumber || 'N/A'} (${studentData?.blockName || 'Campus'})
+*Wing / Campus:* ${studentData?.blockName || 'Campus'}
 *Amount Paid:* ₹${Number(amt).toLocaleString('en-IN')}
 *Payment App:* ${app}
 *UTR / Reference ID:* ${utr}
@@ -657,33 +659,64 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
 
               {/* Quick Actions Grid */}
               <div className="grid grid-cols-3 gap-2">
-                <button
-                  onClick={() => setIsProfileModalOpen(true)}
-                  className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 cursor-pointer"
-                >
-                  <User className="w-4 h-4 text-cyan-400" />
-                  <div className="font-bold text-[11px] text-white">My Profile</div>
-                  <div className="text-[9px] text-slate-400">Personal & stay</div>
-                </button>
+                {currentUser?.role === 'OWNER' ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
+                    >
+                      <User className="w-4 h-4 text-indigo-400" />
+                      <div className="font-bold text-[11px] text-white">Owner Hub</div>
+                      <div className="text-[9px] text-slate-400">Dashboard & stats</div>
+                    </Link>
+                    <Link
+                      href="/dashboard/payments"
+                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
+                    >
+                      <CreditCard className="w-4 h-4 text-emerald-400" />
+                      <div className="font-bold text-[11px] text-white">Collect Rent</div>
+                      <div className="text-[9px] text-slate-400">Dues & payments</div>
+                    </Link>
+                    <Link
+                      href="/dashboard/expenses"
+                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
+                    >
+                      <Receipt className="w-4 h-4 text-rose-400" />
+                      <div className="font-bold text-[11px] text-white">Add Expense</div>
+                      <div className="text-[9px] text-slate-400">Outflows & logs</div>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setIsProfileModalOpen(true)}
+                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 cursor-pointer"
+                    >
+                      <User className="w-4 h-4 text-cyan-400" />
+                      <div className="font-bold text-[11px] text-white">My Profile</div>
+                      <div className="text-[9px] text-slate-400">Personal & stay</div>
+                    </button>
 
-                <button
-                  onClick={() => setActiveTab('RECEIPTS')}
-                  className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 cursor-pointer"
-                >
-                  <Receipt className="w-4 h-4 text-indigo-400" />
-                  <div className="font-bold text-[11px] text-white">Invoices</div>
-                  <div className="text-[9px] text-slate-400">Bills & receipts</div>
-                </button>
+                    <button
+                      onClick={() => setActiveTab('RECEIPTS')}
+                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 cursor-pointer"
+                    >
+                      <Receipt className="w-4 h-4 text-indigo-400" />
+                      <div className="font-bold text-[11px] text-white">Invoices</div>
+                      <div className="text-[9px] text-slate-400">Bills & receipts</div>
+                    </button>
 
-                <a
-                  href={`tel:${cleanOwnerPhone}`}
-                  className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
-                  title="Call Warden / Desk Directly"
-                >
-                  <Phone className="w-4 h-4 text-emerald-400" />
-                  <div className="font-bold text-[11px] text-white">Call Desk</div>
-                  <div className="text-[9px] text-slate-400 truncate">{cleanOwnerPhone}</div>
-                </a>
+                    <a
+                      href={`tel:${cleanOwnerPhone}`}
+                      className="p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700 text-left transition space-y-1 block"
+                      title="Call Warden / Desk Directly"
+                    >
+                      <Phone className="w-4 h-4 text-emerald-400" />
+                      <div className="font-bold text-[11px] text-white">Call Desk</div>
+                      <div className="text-[9px] text-slate-400 truncate">{cleanOwnerPhone}</div>
+                    </a>
+                  </>
+                )}
               </div>
 
               {/* Recent Official Notice */}

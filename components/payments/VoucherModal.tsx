@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import {
   X,
   Printer,
-  Bed,
+  Receipt,
   CheckCircle2,
   AlertTriangle,
   ShieldCheck,
@@ -62,7 +62,7 @@ export default function VoucherModal({
 📅 *Date:* ${formatDateDMY(docDate)}
 
 👤 *Resident:* ${student.fullName} (${student.studentId})
-🛏️ *Bed:* ${student.bedNumber || 'N/A'} (${student.blockName || 'Campus'})
+• Wing / Block: ${student.blockName || 'Campus'}
 
 💰 *Financial Details:*
 • Amount: *₹${amount.toLocaleString('en-IN')}*
@@ -217,7 +217,7 @@ ${hostelName}`;
             <div>
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">
-                  <Bed className="w-4 h-4" />
+                  <Receipt className="w-4 h-4" />
                 </div>
                 <h2 className="text-xl font-black font-display text-slate-900 tracking-tight">
                   {hostelName}
@@ -262,7 +262,7 @@ ${hostelName}`;
                 Student ID: {student.studentId}
               </div>
               <div className="text-slate-600 mt-1">
-                Bed: <span className="font-semibold">{student.bedNumber}</span> ({student.blockName || 'Residence Block'})
+                Wing / Block: <span className="font-semibold">{student.blockName || 'Residence Block'}</span>
               </div>
               <div className="text-slate-500 mt-0.5">Contact: {student.phone}</div>
             </div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
-import { Printer, Download, Receipt, ArrowLeft, Shield, Bed, CheckCircle2, Sparkles } from 'lucide-react';
+import { Printer, Download, Receipt, ArrowLeft, Shield, CheckCircle2, Sparkles } from 'lucide-react';
 import { HostelSettings, Payment, Student } from '@/lib/db/types';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
 import { formatDateDMY } from '@/lib/utils/dateFormatter';
@@ -141,7 +141,7 @@ function InvoicesContent() {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-sm">
-                          <Bed className="w-4 h-4" />
+                          <Receipt className="w-4 h-4" />
                         </div>
                         <span className="font-bold text-xl font-display text-slate-900 tracking-tight">
                           {settings.name}
@@ -178,7 +178,7 @@ function InvoicesContent() {
                       </div>
                       {studentDetail && (
                         <div className="text-slate-600 mt-1">
-                          Bed: <span className="font-semibold">{studentDetail.bedNumber}</span> ({studentDetail.blockName})
+                          Wing / Block: <span className="font-semibold">{studentDetail.blockName}</span>
                         </div>
                       )}
                       {studentDetail && (
