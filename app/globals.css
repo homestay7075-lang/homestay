@@ -80,39 +80,102 @@ h1, h2, h3, h4, h5, h6, .font-display {
 
 /* Professional Print Stylesheet */
 @media print {
-  body {
+  html, body {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
     background: #ffffff !important;
-    color: #000000 !important;
-    font-size: 12pt;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
-  
-  .no-print, nav, aside, footer, .role-switcher-banner, button:not(.print-include) {
+
+  /* Unclog layout overflow clipping in Chromium/Edge/WebKit */
+  div, main, section, article,
+  .overflow-x-hidden,
+  .overflow-y-auto,
+  .overflow-hidden {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  /* Hide all non-printable chrome, sidebars, headers, mobile navs, banners */
+  .no-print, 
+  nav, 
+  aside, 
+  header, 
+  footer, 
+  .role-switcher-banner, 
+  button:not(.print-include),
+  [aria-modal="true"].no-print {
     display: none !important;
   }
 
+  /* Force display of print-only content */
   .print-only {
     display: block !important;
+    visibility: visible !important;
   }
 
-  .printable-document, .printable-voucher {
+  /* Printable Document Layouts */
+  .printable-document, 
+  .printable-voucher, 
+  .printable-admission-slip {
     width: 100% !important;
     max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
+    min-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 16px !important;
+    border: 1px solid #cbd5e1 !important;
     box-shadow: none !important;
     page-break-inside: avoid;
+    break-inside: avoid;
+    background: #ffffff !important;
   }
 
+  /* Expand grid columns when sibling columns are hidden in print */
+  .lg\:col-span-8,
+  .lg\:col-span-12 {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Voucher Modal Print Normalization */
   .voucher-modal-overlay {
     position: static !important;
     background: transparent !important;
+    backdrop-filter: none !important;
     padding: 0 !important;
     display: block !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  .voucher-modal-overlay > div {
+    max-width: 100% !important;
+    max-height: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
   }
 
   @page {
-    margin: 1.5cm;
+    margin: 10mm 12mm;
     size: A4 portrait;
   }
 }
+

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
 import { formatDateDMY, formatPeriodDMY } from '@/lib/utils/dateFormatter';
+import { printElement } from '@/lib/utils/printManager';
 
 export default function ReportsPage() {
   const { settings, hostelName } = useHostelSettings();
@@ -33,7 +34,9 @@ export default function ReportsPage() {
   }, []);
 
   const handlePrint = () => {
-    window.print();
+    printElement('.printable-document', {
+      title: `${selectedReportType}_Report_${(hostelName || 'Homestay').replace(/\s+/g, '_')}`,
+    });
   };
 
   if (loading || !data) {

@@ -35,6 +35,7 @@ import {
 import { useHostelSettings } from '@/lib/context/SettingsContext';
 import VoucherModal from '@/components/payments/VoucherModal';
 import { formatDateDMY } from '@/lib/utils/dateFormatter';
+import { printElement } from '@/lib/utils/printManager';
 
 export default function StudentsPage() {
   const { settings, hostelName } = useHostelSettings();
@@ -677,7 +678,7 @@ export default function StudentsPage() {
 
       {/* Student Profile Drawer / Modal */}
       {selectedStudentForDrawer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="no-print fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/80">
               <div className="font-bold text-slate-900 text-base font-display">Student Record Profile</div>
@@ -971,8 +972,12 @@ export default function StudentsPage() {
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
-                    onClick={() => window.print()}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition"
+                    onClick={() =>
+                      printElement('.printable-admission-slip', {
+                        title: `Admission_Slip_${selectedStudentForDrawer.studentId}`,
+                      })
+                    }
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     Print Admission Slip
@@ -1012,7 +1017,7 @@ export default function StudentsPage() {
 
       {/* Print-Only Official Resident Admission Slip */}
       {selectedStudentForDrawer && (
-        <div className="print-only hidden p-8 bg-white border-2 border-slate-900 rounded-3xl max-w-2xl mx-auto space-y-6">
+        <div className="printable-admission-slip print-only hidden p-8 bg-white border-2 border-slate-900 rounded-3xl max-w-2xl mx-auto space-y-6">
           <div className="flex justify-between items-start pb-6 border-b-2 border-slate-900">
               <div>
                 <h2 className="text-2xl font-bold font-display text-slate-900">{hostelName}</h2>
@@ -1083,7 +1088,7 @@ export default function StudentsPage() {
         )}
       {/* Toast Notification */}
       {studentToastMessage && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl shadow-xl flex items-center gap-2 text-xs font-bold animate-in slide-in-from-top duration-300">
+        <div className="no-print fixed top-16 left-1/2 -translate-x-1/2 z-50 px-5 py-2.5 bg-emerald-600 text-white rounded-2xl shadow-xl flex items-center gap-2 text-xs font-bold animate-in slide-in-from-top duration-300">
           <CheckCircle2 className="w-4 h-4" />
           <span>{studentToastMessage}</span>
         </div>
@@ -1091,7 +1096,7 @@ export default function StudentsPage() {
 
       {/* Modal: Change Student Password */}
       {passwordModalStudent && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="no-print fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">

@@ -15,6 +15,7 @@ import {
   Check,
 } from 'lucide-react';
 import { formatDateDMY } from '@/lib/utils/dateFormatter';
+import { printElement } from '@/lib/utils/printManager';
 
 interface VoucherModalProps {
   isOpen: boolean;
@@ -74,78 +75,9 @@ Hostel Administration: ${hostelPhone}
 ${hostelName}`;
 
   const handlePrint = () => {
-    // 1. If running inside Android WebView native APK shell
-    if (typeof window !== 'undefined' && (window as any).AndroidApp?.printPage) {
-      try {
-        (window as any).AndroidApp.printPage();
-        return;
-      } catch (e) {
-        console.warn('Native AndroidApp.printPage call error:', e);
-      }
-    }
-
-    // 2. Cross-browser printing using isolated printable iframe
-    try {
-      const voucherEl = document.querySelector('.printable-voucher');
-      if (voucherEl) {
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = 'none';
-        document.body.appendChild(iframe);
-
-        const doc = iframe.contentWindow?.document;
-        if (doc) {
-          doc.open();
-          doc.write(`
-            <!DOCTYPE html>
-            <html>
-              <head>
-                <title>${isInvoice ? 'Invoice' : 'Receipt'}_${docNumber}</title>
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <style>
-                  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-                  body { padding: 24px; color: #0f172a; background: #fff; font-size: 13px; line-height: 1.5; }
-                  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
-                  th, td { padding: 10px 14px; text-align: left; }
-                  th { background: #f8fafc; font-size: 11px; text-transform: uppercase; color: #64748b; border-bottom: 1px solid #e2e8f0; }
-                  td { border-bottom: 1px solid #f1f5f9; }
-                  .text-right { text-align: right; }
-                  .font-bold { font-weight: 700; }
-                  .font-mono { font-family: monospace; }
-                  @media print {
-                    body { padding: 0; }
-                    @page { margin: 10mm; size: auto; }
-                  }
-                </style>
-              </head>
-              <body>
-                ${voucherEl.innerHTML}
-              </body>
-            </html>
-          `);
-          doc.close();
-          setTimeout(() => {
-            iframe.contentWindow?.focus();
-            iframe.contentWindow?.print();
-            setTimeout(() => {
-              try {
-                document.body.removeChild(iframe);
-              } catch (e) {}
-            }, 1000);
-          }, 300);
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn('Iframe print fallback to window.print():', e);
-    }
-
-    // 3. Fallback
-    window.print();
+    printElement('.printable-voucher', {
+      title: `${isInvoice ? 'Invoice' : 'Receipt'}_${docNumber}`,
+    });
   };
 
   const handleShareWhatsApp = () => {

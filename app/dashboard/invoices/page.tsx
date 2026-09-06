@@ -7,6 +7,7 @@ import { Printer, Download, Receipt, ArrowLeft, Shield, CheckCircle2, Sparkles }
 import { HostelSettings, Payment, Student } from '@/lib/db/types';
 import { useHostelSettings } from '@/lib/context/SettingsContext';
 import { formatDateDMY } from '@/lib/utils/dateFormatter';
+import { printElement } from '@/lib/utils/printManager';
 
 function InvoicesContent() {
   const searchParams = useSearchParams();
@@ -40,7 +41,9 @@ function InvoicesContent() {
   }, [receiptIdParam]);
 
   const handlePrint = () => {
-    window.print();
+    printElement('.printable-document', {
+      title: `Receipt_${selectedReceipt?.receiptNumber || 'Official'}`,
+    });
   };
 
   if (loading || !settings) {
