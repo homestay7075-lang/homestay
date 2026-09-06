@@ -9,7 +9,6 @@ import { useEffect } from 'react';
 import {
   LayoutDashboard,
   Users,
-  Building2,
   History,
   Bed,
   CalendarCheck,
@@ -279,12 +278,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           {children}
         </main>
 
-        {/* ================= MOBILE BOTTOM NAVIGATION (MATCHING SCREENSHOT) ================= */}
-        <nav aria-label="Mobile navigation" className="no-print lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-2 py-1.5 flex items-center justify-around shadow-lg">
+        {/* ================= MOBILE BOTTOM NAVIGATION ================= */}
+        <nav aria-label="Mobile navigation" className="no-print lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-3 py-1.5 flex items-center justify-around shadow-lg">
           <Link
             href="/dashboard"
-            className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition ${
-              pathname === '/dashboard' ? 'text-[#0B4A54] font-bold' : 'text-slate-500 hover:text-slate-800'
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
+              pathname === '/dashboard' ? 'text-blue-700 font-bold' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
             <LayoutDashboard className="w-5 h-5 mb-0.5" />
@@ -293,42 +292,48 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           <Link
             href="/dashboard/students"
-            className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition ${
-              pathname === '/dashboard/students' ? 'text-[#0B4A54] font-bold' : 'text-slate-500 hover:text-slate-800'
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
+              pathname === '/dashboard/students' ? 'text-blue-700 font-bold' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
             <Users className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">Tenants</span>
-          </Link>
-
-          <Link
-            href="/dashboard/rooms"
-            className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition ${
-              pathname === '/dashboard/rooms' ? 'text-[#0B4A54] font-bold' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Building2 className={`w-5 h-5 mb-0.5 ${pathname === '/dashboard/rooms' ? 'text-[#0B4A54]' : ''}`} />
-            <span className="text-[10px]">Properties</span>
-          </Link>
-
-          <Link
-            href="/dashboard/invoices"
-            className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition ${
-              pathname === '/dashboard/invoices' ? 'text-[#0B4A54] font-bold' : 'text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            <Receipt className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">Invoices</span>
+            <span className="text-[10px]">Students</span>
           </Link>
 
           <Link
             href="/dashboard/expenses"
-            className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition ${
-              pathname === '/dashboard/expenses' ? 'text-[#0B4A54] font-bold' : 'text-slate-500 hover:text-slate-800'
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
+              pathname === '/dashboard/expenses' ? 'text-blue-700 font-bold' : 'text-slate-500 hover:text-slate-800'
             }`}
           >
             <Wallet className="w-5 h-5 mb-0.5" />
-            <span className="text-[10px]">Finance</span>
+            <span className="text-[10px]">Expenses</span>
+          </Link>
+
+          <Link
+            href="/dashboard/payments"
+            className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
+              pathname === '/dashboard/payments' ? 'text-blue-700 font-bold' : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            <CreditCard className="w-5 h-5 mb-0.5" />
+            <span className="text-[10px]">Payments</span>
+          </Link>
+
+          <Link
+            href="/dashboard/profile"
+            className="flex flex-col items-center justify-center py-0.5 px-2 transition group"
+          >
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition ${
+              pathname === '/dashboard/profile' || pathname === '/dashboard/more'
+                ? 'bg-blue-100 text-blue-700 font-bold ring-2 ring-blue-600/30 shadow-xs'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}>
+              <MoreHorizontal className="w-4 h-4" />
+            </div>
+            <span className={`text-[10px] mt-0.5 ${
+              pathname === '/dashboard/profile' || pathname === '/dashboard/more' ? 'text-blue-700 font-bold' : 'text-slate-500'
+            }`}>More</span>
           </Link>
         </nav>
       </div>
