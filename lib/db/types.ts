@@ -286,7 +286,7 @@ export interface Expense {
   category: ExpenseCategory;
   amount: number;
   expenseDate: string;
-  description: string;
+  description?: string;
   paymentMethod: PaymentMethod;
   buildingId?: string;
   buildingName?: string;

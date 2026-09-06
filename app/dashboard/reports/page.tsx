@@ -308,7 +308,13 @@ export default function ReportsPage() {
                       <tr key={e.id}>
                         <td className="py-2.5 px-4 text-slate-600 whitespace-nowrap">{formatDateDMY(e.expenseDate)}</td>
                         <td className="py-2.5 px-4 font-semibold text-slate-800 whitespace-nowrap">{e.category}</td>
-                        <td className="py-2.5 px-4 text-slate-700">{e.description}</td>
+                        <td className="py-2.5 px-4 text-slate-700">
+                          {e.description && e.description.trim() ? (
+                            <span>{e.description.trim()}</span>
+                          ) : (
+                            <span className="text-slate-300 text-xs italic">—</span>
+                          )}
+                        </td>
                         <td className="py-2.5 px-4 text-slate-500 whitespace-nowrap">{e.addedBy}</td>
                         <td className="py-2.5 px-4 text-right font-bold text-rose-600 whitespace-nowrap">
                           -₹{e.amount.toLocaleString('en-IN')}

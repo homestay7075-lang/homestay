@@ -25,19 +25,21 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { category, amount, expenseDate, description, paymentMethod, buildingId, addedBy, actorId, actorRole } = body;
 
-    if (!category || !amount || !description) {
-      return NextResponse.json({ success: false, error: 'Category, amount, and description are required.' }, { status: 400 });
+    if (!category || !amount) {
+      return NextResponse.json({ success: false, error: 'Category and amount are required.' }, { status: 400 });
     }
 
     const db = getDatabase();
     const building = buildingId ? db.buildings.find(b => b.id === buildingId) : null;
+
+    const trimmedDesc = typeof description === 'string' && description.trim() ? description.trim() : undefined;
 
     const newExpense: Expense = {
       id: `exp-${Date.now()}`,
       category,
       amount: Number(amount),
       expenseDate: expenseDate || new Date().toISOString().split('T')[0],
-      description: description.trim(),
+      description: trimmedDesc,
       paymentMethod: paymentMethod || 'UPI',
       buildingId: buildingId || undefined,
       buildingName: building ? building.name : undefined,
@@ -46,6 +48,7 @@ export async function POST(req: Request) {
     };
 
     const buildingDetail = building ? ` [Building: ${building.name}]` : '';
+    const descDetail = trimmedDesc ? `: "${trimmedDesc}"` : '';
     const audit: AuditLog = {
       id: `log-${Date.now()}`,
       timestamp: new Date().toISOString(),
@@ -53,7 +56,7 @@ export async function POST(req: Request) {
       userName: addedBy || 'Hostel Owner',
       userRole: actorRole || 'OWNER',
       action: 'EXPENSE_RECORDED',
-      details: `Recorded ${category} expense of ₹${Number(amount).toLocaleString('en-IN')}${buildingDetail}: "${description}".`,
+      details: `Recorded ${category} expense of ₹${Number(amount).toLocaleString('en-IN')}${buildingDetail}${descDetail}.`,
     };
 
     db.expenses.unshift(newExpense);

@@ -223,13 +223,12 @@ export default function AddExpenseModal({ isOpen, onClose, onSuccess }: AddExpen
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
-              Description / Vendor Details <span className="text-rose-500">*</span>
+            <label className="block font-semibold text-slate-700 mb-1 text-xs">
+              Description / Vendor Details <span className="text-slate-400 font-normal">(Optional)</span>
             </label>
             <textarea
               rows={2}
-              required
-              placeholder="e.g. Rice bags, fresh dairy, electrical supplies, Wi-Fi bill payment..."
+              placeholder="e.g. Specific breakdown or notes (optional, leave empty if none)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 rounded-xl outline-none text-sm"
