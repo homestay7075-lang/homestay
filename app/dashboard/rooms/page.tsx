@@ -27,6 +27,7 @@ import {
   Info,
 } from 'lucide-react';
 import { BedStatus } from '@/lib/db/types';
+import BedMapView from '@/components/rooms/BedMapView';
 
 export default function RoomsAndBedsPage() {
   const [data, setData] = useState<any>(null);
@@ -34,7 +35,7 @@ export default function RoomsAndBedsPage() {
   const [selectedBlockId, setSelectedBlockId] = useState<string>('All');
   const [selectedFloorId, setSelectedFloorId] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'FLOOR_GROUPED' | 'GRID' | 'STRUCTURE'>('FLOOR_GROUPED');
+  const [viewMode, setViewMode] = useState<'BED_MAP' | 'FLOOR_GROUPED' | 'GRID' | 'STRUCTURE'>('BED_MAP');
 
   // Modals state
   const [buildingModal, setBuildingModal] = useState<{ isOpen: boolean; mode: 'ADD' | 'EDIT'; buildingData?: any }>({
@@ -323,8 +324,104 @@ export default function RoomsAndBedsPage() {
           </div>
         )}
 
-        {/* ================= STATS OVERVIEW CARDS ================= */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        {/* ================= PRIMARY VIEW SWITCHER TABS ================= */}
+        <div className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-xs overflow-x-auto">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+            <button
+              onClick={() => setViewMode('BED_MAP')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'BED_MAP'
+                  ? 'bg-[#0B4A54] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <BedIcon className="w-3.5 h-3.5" />
+              <span>🗺️ Visual Bed Map</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('FLOOR_GROUPED')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'FLOOR_GROUPED'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              <span>Floor-by-Floor Cards</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('GRID')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'GRID'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>All Rooms Grid</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('STRUCTURE')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                viewMode === 'STRUCTURE'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Settings2 className="w-3.5 h-3.5" />
+              <span>Manage Buildings & Floors</span>
+            </button>
+          </div>
+        </div>
+
+        {/* ================= VIEW 0: BED MAP VIEW (EXACT MATCH TO SCREENSHOT) ================= */}
+        {viewMode === 'BED_MAP' && (
+          <BedMapView
+            buildings={buildings}
+            blocks={blocks}
+            floors={floors}
+            rooms={rooms}
+            beds={beds}
+            onRefresh={fetchRooms}
+            onOpenAddRoom={(floorId, blockId) =>
+              setRoomModal({
+                isOpen: true,
+                mode: 'ADD',
+                defaultFloorId: floorId,
+                defaultBlockId: blockId,
+              })
+            }
+            onOpenEditRoom={(room) =>
+              setRoomModal({ isOpen: true, mode: 'EDIT', roomData: room })
+            }
+            onDeleteRoom={handleDeleteRoom}
+            onOpenAddBed={(roomId) => setBedModal({ isOpen: true, mode: 'ADD', roomId })}
+            onOpenEditBed={(bed) =>
+              setBedModal({ isOpen: true, mode: 'EDIT', bedData: bed })
+            }
+            onDeleteBed={handleDeleteBed}
+            onOpenAddFloor={(blockId) =>
+              setFloorModal({
+                isOpen: true,
+                mode: 'ADD',
+                defaultBlockId: blockId || blocks[0]?.id,
+              })
+            }
+            onOpenEditFloor={(floor) =>
+              setFloorModal({ isOpen: true, mode: 'EDIT', floorData: floor })
+            }
+            onDeleteFloor={handleDeleteFloor}
+            showFeedback={showFeedback}
+          />
+        )}
+
+        {viewMode !== 'BED_MAP' && (
+          <>
+            {/* ================= STATS OVERVIEW CARDS ================= */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
           <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-1">
             <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
               <span>Buildings & Wings</span>
@@ -716,6 +813,8 @@ export default function RoomsAndBedsPage() {
               </div>
             </div>
           </div>
+        )}
+          </>
         )}
       </div>
 

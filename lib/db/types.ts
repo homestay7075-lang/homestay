@@ -1,6 +1,6 @@
 export type UserRole = 'OWNER' | 'WARDEN' | 'MANAGER' | 'STAFF' | 'STUDENT';
 
-export type BedStatus = 'Available' | 'Occupied' | 'Reserved' | 'Maintenance' | 'Blocked';
+export type BedStatus = 'Available' | 'Occupied' | 'Reserved' | 'Maintenance' | 'Blocked' | 'Vacating';
 
 export type PaymentMethod = 'Cash' | 'UPI' | 'UPI/Online' | 'Bank Transfer' | 'Card';
 

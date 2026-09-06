@@ -342,10 +342,10 @@ export async function PATCH(req: Request) {
       const bed = db.beds.find(b => b.id === body.bedId);
       if (!bed) return NextResponse.json({ success: false, error: 'Bed not found' }, { status: 404 });
 
-      if (bed.status === 'Occupied' && body.status !== 'Occupied') {
+      if (bed.status === 'Occupied' && body.status !== 'Occupied' && body.status !== 'Vacating') {
         return NextResponse.json({
           success: false,
-          error: `Bed ${bed.bedNumber} is currently occupied by ${bed.currentStudentName}. Please check out the resident before changing bed status.`,
+          error: `Bed ${bed.bedNumber} is currently occupied by ${bed.currentStudentName}. Please check out the resident before changing bed status to ${body.status}.`,
         }, { status: 400 });
       }
 
@@ -422,10 +422,10 @@ export async function PATCH(req: Request) {
       const bed = db.beds.find(b => b.id === id);
       if (!bed) return NextResponse.json({ success: false, error: 'Bed not found' }, { status: 404 });
 
-      if (bed.status === 'Occupied' && status && status !== 'Occupied') {
+      if (bed.status === 'Occupied' && status && status !== 'Occupied' && status !== 'Vacating') {
         return NextResponse.json({
           success: false,
-          error: `Bed ${bed.bedNumber} is currently occupied by ${bed.currentStudentName}. Check out the student first.`,
+          error: `Bed ${bed.bedNumber} is currently occupied by ${bed.currentStudentName}. Check out the student before changing bed status to ${status}.`,
         }, { status: 400 });
       }
 
