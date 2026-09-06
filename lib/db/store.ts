@@ -321,7 +321,14 @@ export function registerStudentTransaction(data: {
     ...db.students.map(s => s.studentId),
     ...db.studentHistory.map(h => h.studentId),
   ];
-  const newStudentId = generateNextStudentId(data.joiningDate, allUsedIds);
+  const newStudentId = generateNextStudentId(data.joiningDate, allUsedIds, {
+    blockId: data.blockId,
+    bedId: data.bedId,
+    blocks: db.blocks,
+    floors: db.floors,
+    rooms: db.rooms,
+    beds: db.beds,
+  });
 
   const studentDbId = `stu-db-${Date.now()}`;
   const userId = `usr-stu-${Date.now()}`;

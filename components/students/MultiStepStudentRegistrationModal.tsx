@@ -147,7 +147,14 @@ export default function MultiStepStudentRegistrationModal({
         .then(res => res.json())
         .then(data => {
           const ids = (data.students || []).map((s: any) => s.studentId);
-          const nextId = generateNextStudentId(joiningDate, ids);
+          const nextId = generateNextStudentId(joiningDate, ids, {
+            blockId: selectedBlockId,
+            bedId: selectedBedId,
+            blocks: roomsData?.blocks,
+            floors: roomsData?.floors,
+            rooms: roomsData?.rooms,
+            beds: roomsData?.beds,
+          });
           setGeneratedIdPreview(nextId);
           if (data.studentHistory && data.studentHistory.length > 0) {
             setHistoricalRecords(data.studentHistory);
@@ -165,7 +172,7 @@ export default function MultiStepStudentRegistrationModal({
         })
         .catch(console.error);
     }
-  }, [isOpen, joiningDate]);
+  }, [isOpen, joiningDate, selectedBlockId, selectedBedId, roomsData]);
 
   // Synchronize video stream when camera is active
   useEffect(() => {

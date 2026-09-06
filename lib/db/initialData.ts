@@ -315,7 +315,7 @@ export const initialBeds: Bed[] = [
     buildingName: 'Main Campus Tower',
     bedNumber: 'Bed 1',
     status: 'Occupied',
-    currentStudentId: 'STU26103',
+    currentStudentId: 'STU26201',
     currentStudentName: 'Ananya Iyer',
     monthlyRate: 9500,
   },
@@ -341,7 +341,7 @@ export const initialBeds: Bed[] = [
     buildingName: 'Main Campus Tower',
     bedNumber: 'Bed 1',
     status: 'Occupied',
-    currentStudentId: 'STU26104',
+    currentStudentId: 'STU26203',
     currentStudentName: 'Devika Nair',
     monthlyRate: 9000,
   },
@@ -427,7 +427,7 @@ export const initialStudents: Student[] = [
   },
   {
     id: 'stu-db-103',
-    studentId: 'STU26103',
+    studentId: 'STU26201',
     userId: 'usr-stu-103',
     fullName: 'Ananya Iyer',
     photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=250&h=250&fit=crop&crop=faces',
@@ -460,7 +460,7 @@ export const initialStudents: Student[] = [
   },
   {
     id: 'stu-db-104',
-    studentId: 'STU26104',
+    studentId: 'STU26203',
     userId: 'usr-stu-104',
     fullName: 'Devika Nair',
     photoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=250&h=250&fit=crop&crop=faces',
@@ -594,7 +594,7 @@ export const initialPayments: Payment[] = [
     id: 'pay-6',
     receiptNumber: 'REC-26-006',
     studentDbId: 'stu-db-103',
-    studentId: 'STU26103',
+    studentId: 'STU26201',
     studentName: 'Ananya Iyer',
     amount: 20000,
     paymentDate: '2026-08-01',
@@ -789,7 +789,7 @@ export const initialMessages: MessageThreadItem[] = [
   {
     id: 'msg-3',
     studentDbId: 'stu-db-104',
-    studentId: 'STU26104',
+    studentId: 'STU26203',
     studentName: 'Devika Nair',
     senderRole: 'STUDENT',
     senderName: 'Devika Nair',
@@ -826,7 +826,7 @@ export const initialAuditLogs: AuditLog[] = [
     userName: 'Rajesh Kumar (Owner)',
     userRole: 'OWNER',
     action: 'STUDENT_REGISTERED',
-    details: 'Registered Ananya Iyer with allocated Bed 1 (Room B-101). Generated ID: STU26103.',
+    details: 'Registered Ananya Iyer with allocated Bed 1 (Room B-101). Generated ID: STU26201.',
   },
   {
     id: 'log-4',
@@ -835,7 +835,7 @@ export const initialAuditLogs: AuditLog[] = [
     userName: 'Rajesh Kumar (Owner)',
     userRole: 'OWNER',
     action: 'STUDENT_REGISTERED',
-    details: 'Registered Devika Nair with allocated Bed 1 (Room B-201). Generated ID: STU26104. Joining Date: 2026-09-09.',
+    details: 'Registered Devika Nair with allocated Bed 1 (Room B-201). Generated ID: STU26203. Joining Date: 2026-09-09.',
   },
   {
     id: 'log-5',
@@ -959,9 +959,9 @@ export const initialBills: Bill[] = [
   // Ananya Iyer
   {
     id: 'bill-stu-103-1',
-    billNumber: 'BILL-STU26103-M1',
+    billNumber: 'BILL-STU26201-M1',
     studentDbId: 'stu-db-103',
-    studentId: 'STU26103',
+    studentId: 'STU26201',
     studentName: 'Ananya Iyer',
     phone: '9123456782',
     roomNumber: 'B-101',
@@ -980,9 +980,9 @@ export const initialBills: Bill[] = [
   },
   {
     id: 'bill-stu-103-2',
-    billNumber: 'BILL-STU26103-M2',
+    billNumber: 'BILL-STU26201-M2',
     studentDbId: 'stu-db-103',
-    studentId: 'STU26103',
+    studentId: 'STU26201',
     studentName: 'Ananya Iyer',
     phone: '9123456782',
     roomNumber: 'B-101',
@@ -1002,9 +1002,9 @@ export const initialBills: Bill[] = [
   // Devika Nair
   {
     id: 'bill-stu-104-1',
-    billNumber: 'BILL-STU26104-M1',
+    billNumber: 'BILL-STU26203-M1',
     studentDbId: 'stu-db-104',
-    studentId: 'STU26104',
+    studentId: 'STU26203',
     studentName: 'Devika Nair',
     phone: '9123456783',
     roomNumber: 'B-201',
