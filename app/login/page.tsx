@@ -7,6 +7,7 @@ import { useHostelSettings } from '@/lib/context/SettingsContext';
 import {
   Key,
   Phone,
+  Mail,
   Lock,
   Eye,
   EyeOff,
@@ -190,19 +191,23 @@ function LoginContent() {
 
           {/* Login Form */}
           <form onSubmit={handleLogin} className="space-y-4">
-            {/* Phone Number Input */}
+            {/* Registered Phone Number or Email Input */}
             <div className="space-y-1.5">
               <label className="block text-xs font-mono text-slate-400 tracking-wide">
-                Registered Mobile Number
+                Registered Mobile Number or Email
               </label>
               <div className="relative flex items-center">
-                <Phone className="w-4 h-4 text-slate-500 absolute left-4 pointer-events-none" />
+                {identifier.includes('@') ? (
+                  <Mail className="w-4 h-4 text-purple-400 absolute left-4 pointer-events-none transition-colors" />
+                ) : (
+                  <Phone className="w-4 h-4 text-slate-500 absolute left-4 pointer-events-none transition-colors" />
+                )}
                 <input
                   type="text"
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="Enter registered mobile number"
+                  placeholder="Enter registered mobile number or email"
                   className="w-full pl-11 pr-4 py-3.5 bg-[#050713]/90 border border-slate-800/90 focus:border-purple-500/80 rounded-2xl text-white text-sm font-mono placeholder:text-slate-600 focus:ring-2 focus:ring-purple-500/20 outline-none transition"
                 />
               </div>
