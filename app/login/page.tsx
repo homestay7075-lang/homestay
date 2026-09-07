@@ -119,34 +119,14 @@ function LoginContent() {
 
           {/* Logo & Hostel Name Header */}
           <div className="text-center space-y-2.5">
-            {/* Cyan HS House Logo Icon matching screenshot */}
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-[#131b38] to-[#090d1f] border border-cyan-500/40 mx-auto flex items-center justify-center shadow-lg shadow-cyan-500/20 relative group">
+            {/* App Logo matching branding */}
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-[#131b38] to-[#090d1f] border border-cyan-500/40 mx-auto flex items-center justify-center shadow-lg shadow-cyan-500/20 relative group overflow-hidden">
               <div className="absolute inset-0 rounded-2xl bg-cyan-400/10 blur-sm pointer-events-none" />
-              <svg
-                className="w-9 h-9 text-cyan-400 relative z-10 drop-shadow-[0_0_8px_rgba(34,211,238,0.7)]"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 10L12 3l9 7" />
-                <path d="M5 9.5v10.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5" />
-                <text
-                  x="12"
-                  y="17.5"
-                  textAnchor="middle"
-                  fontSize="7"
-                  fontWeight="900"
-                  fill="#22d3ee"
-                  stroke="none"
-                  fontFamily="system-ui, -apple-system, sans-serif"
-                  letterSpacing="-0.5px"
-                >
-                  HS
-                </text>
-              </svg>
+              <img
+                src="/logo.png"
+                alt={hostelName || 'Home Stay Logo'}
+                className="w-full h-full object-cover rounded-2xl relative z-10"
+              />
             </div>
 
             <div>

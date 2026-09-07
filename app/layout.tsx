@@ -3,6 +3,7 @@ import './globals.css';
 import { AuthProvider } from '@/lib/context/AuthContext';
 import { SettingsProvider } from '@/lib/context/SettingsContext';
 import { getDatabase } from '@/lib/db/store';
+import AppSplashScreen from '@/components/common/AppSplashScreen';
 
 export const metadata: Metadata = {
   title: 'Home Stay - Hostel & Resident Portal Management System',
@@ -53,6 +54,7 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
         <SettingsProvider initialSettings={initialSettings}>
           <AuthProvider>
+            <AppSplashScreen />
             <div className="flex-1 flex flex-col">
               {children}
             </div>

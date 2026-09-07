@@ -534,11 +534,19 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
 
   if (isLoading || !currentUser || loading || !studentData) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        <div className="text-center space-y-3">
-          <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-xs text-slate-400">Loading Resident Mobile App...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#070a18] text-white p-4">
+        <div className="relative mb-5">
+          <div className="absolute -inset-3 rounded-3xl bg-gradient-to-tr from-indigo-500/40 via-cyan-400/30 to-purple-500/40 blur-xl animate-pulse" />
+          <div className="w-16 h-16 rounded-2xl p-0.5 bg-gradient-to-b from-cyan-400/50 via-indigo-500/30 to-purple-500/50 border border-white/20 shadow-2xl relative z-10 overflow-hidden flex items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="Home Stay Logo"
+              className="w-full h-full object-cover rounded-[14px]"
+            />
+          </div>
         </div>
+        <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+        <p className="text-xs text-slate-400 font-medium font-mono">Loading Resident Mobile App...</p>
       </div>
     );
   }

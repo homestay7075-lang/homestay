@@ -50,8 +50,8 @@ export default function PublicNavbar() {
           <div className="flex items-center justify-between h-16 sm:h-20 gap-2">
             {/* Brand Logo */}
             <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-700 to-indigo-800 flex items-center justify-center text-white font-black text-base sm:text-lg shadow-md shadow-indigo-500/20 group-hover:scale-105 transition shrink-0">
-                <Bed className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-100" />
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden border border-indigo-500/30 shadow-md shadow-indigo-500/20 group-hover:scale-105 transition shrink-0 bg-slate-900 flex items-center justify-center">
+                <img src="/logo.png" alt="Home Stay Logo" className="w-full h-full object-cover" />
               </div>
               <div className="hidden xs:block min-w-0">
                 <span

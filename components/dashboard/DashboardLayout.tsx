@@ -53,9 +53,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   if (isLoading || !currentUser) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4">
-        <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-xs text-slate-400 font-medium">Verifying authorization...</p>
+      <div className="min-h-screen bg-[#070a18] text-white flex flex-col items-center justify-center p-4">
+        <div className="relative mb-5">
+          <div className="absolute -inset-3 rounded-3xl bg-gradient-to-tr from-indigo-500/40 via-cyan-400/30 to-purple-500/40 blur-xl animate-pulse" />
+          <div className="w-16 h-16 rounded-2xl p-0.5 bg-gradient-to-b from-cyan-400/50 via-indigo-500/30 to-purple-500/50 border border-white/20 shadow-2xl relative z-10 overflow-hidden flex items-center justify-center">
+            <img
+              src="/logo.png"
+              alt="Home Stay Logo"
+              className="w-full h-full object-cover rounded-[14px]"
+            />
+          </div>
+        </div>
+        <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+        <p className="text-xs text-slate-400 font-medium font-mono">Verifying authorization...</p>
       </div>
     );
   }
@@ -118,8 +128,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <aside className="no-print hidden lg:flex flex-col w-64 bg-slate-900 text-slate-300 border-r border-slate-800 shrink-0 sticky top-0 h-screen overflow-y-auto">
         {/* Brand */}
         <div className="p-5 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-indigo-500/25">
-            <Bed className="w-5 h-5 text-indigo-100" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden border border-indigo-500/40 shadow-md shadow-indigo-500/25 shrink-0 bg-slate-800 flex items-center justify-center">
+            <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
           </div>
           <div>
             <h1 className="font-bold text-white text-base font-display leading-tight tracking-tight truncate max-w-[160px]" title={hostelName}>
@@ -203,14 +213,17 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden">
         {/* Mobile Header Bar */}
         <header className="no-print lg:hidden bg-slate-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-30 border-b border-slate-800 shadow-sm">
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
             <button
               onClick={() => setMobileSidebarOpen(true)}
-              className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white"
+              className="p-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white shrink-0"
             >
               <Menu className="w-5 h-5" />
             </button>
-            <span className="font-bold text-sm font-display truncate max-w-[160px]" title={hostelName}>{hostelName}</span>
+            <div className="w-7 h-7 rounded-lg overflow-hidden border border-indigo-500/40 shrink-0 bg-slate-800">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+            </div>
+            <span className="font-bold text-sm font-display truncate max-w-[150px]" title={hostelName}>{hostelName}</span>
           </div>
           <div className="flex items-center gap-2">
 
@@ -229,7 +242,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             />
             <div className="relative w-64 max-w-[80vw] bg-slate-900 text-slate-300 flex flex-col h-full z-10 shadow-2xl">
               <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                <div className="font-bold text-white text-sm font-display truncate max-w-[180px]" title={hostelName}>{hostelName}</div>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-7 h-7 rounded-lg overflow-hidden border border-indigo-500/40 shrink-0 bg-slate-800">
+                    <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="font-bold text-white text-sm font-display truncate max-w-[150px]" title={hostelName}>{hostelName}</div>
+                </div>
                 <button
                   onClick={() => setMobileSidebarOpen(false)}
                   className="p-1 rounded-lg hover:bg-slate-800 text-slate-400"
