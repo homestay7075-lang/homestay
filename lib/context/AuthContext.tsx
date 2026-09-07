@@ -168,22 +168,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Refresh last active timestamp
         recordActivity(true);
-
-        // Check if biometric is enabled for this user or if app was added to home screen
-        const bioKey = `homestay_bio_enabled_${user.id}`;
-        const bioDisabledKey = `homestay_bio_disabled_${user.id}`;
-        const isBio = localStorage.getItem(bioKey) === 'true';
-        const isExplicitlyDisabled = localStorage.getItem(bioDisabledKey) === 'true';
-        const isStandalone = isRunningStandalone();
-
-        // When added to home screen / standalone PWA / APK OR if biometric was enabled:
-        const shouldEnableLock = (isBio || isStandalone) && !isExplicitlyDisabled;
-        if (shouldEnableLock) {
-          setIsBiometricEnabled(true);
-          biometricEnabledRef.current = true;
-          // When opening app when added / enabled, immediately secure with lockscreen
-          setIsAppLocked(true);
-        }
       } catch (e) {
         console.error('Failed to parse saved user session', e);
       }
@@ -218,18 +202,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return;
           }
           recordActivity(true);
-
-          // If phone lock & fingerprint is active or running in added/standalone mode,
-          // immediately lock app upon returning from background (phone locked, app switch, etc.)
-          const isStandalone = isRunningStandalone();
-          const bioDisabledKey = `homestay_bio_disabled_${user.id}`;
-          const isExplicitlyDisabled = localStorage.getItem(bioDisabledKey) === 'true';
-
-          if ((biometricEnabledRef.current || isStandalone) && !isExplicitlyDisabled) {
-            if (hiddenStartTime > 0 && Date.now() - hiddenStartTime > 800) {
-              setIsAppLocked(true);
-            }
-          }
         }
       }
     };
@@ -554,15 +526,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 function GlobalLockScreenWrapper() {
-  const pathname = usePathname();
-  const { isAppLocked, currentUser } = useAuth();
-
-  // Don't show lock overlay on public marketing pages or login screen
-  if (!isAppLocked || !currentUser || pathname === '/login' || pathname === '/') {
-    return null;
-  }
-
-  return <PhoneLockOverlay />;
+  return null;
 }
 
 export function useAuth() {
