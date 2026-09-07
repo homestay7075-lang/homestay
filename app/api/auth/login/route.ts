@@ -8,7 +8,7 @@ export async function POST(req: Request) {
     const { identifier, password } = await req.json();
     if (!identifier) {
       return NextResponse.json(
-        { success: false, error: 'Phone number or email is required' },
+        { success: false, error: 'Invalid username' },
         { status: 400 }
       );
     }
@@ -209,12 +209,10 @@ export async function POST(req: Request) {
     }
 
     if (!matchedUser) {
-      const ownerHintPhone = ownerUser?.phone || '9876543210';
-      const ownerHintEmail = ownerUser?.email || 'owner@serenityliving.com';
       return NextResponse.json(
         {
           success: false,
-          error: `User account not found for "${cleanId}". Log in with Owner Phone (${ownerHintPhone}), Owner Email (${ownerHintEmail}), or Student Phone.`,
+          error: 'Invalid username',
         },
         { status: 404 }
       );
@@ -239,7 +237,7 @@ export async function POST(req: Request) {
 
     if (!isPasswordValid) {
       return NextResponse.json(
-        { success: false, error: 'Incorrect password entered. Please check your credentials.' },
+        { success: false, error: 'Invalid password' },
         { status: 401 }
       );
     }

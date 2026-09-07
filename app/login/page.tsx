@@ -78,7 +78,7 @@ function LoginContent() {
         router.push('/dashboard');
       }
     } else {
-      setErrorMsg(result.error || 'Invalid credentials. Please verify phone/password.');
+      setErrorMsg(result.error || 'Invalid credentials');
     }
   };
 

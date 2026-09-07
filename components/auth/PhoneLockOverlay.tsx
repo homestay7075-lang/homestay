@@ -65,7 +65,7 @@ export default function PhoneLockOverlay() {
     const success = await unlockWithPassword(passwordInput.trim());
     setVerifyingPassword(false);
     if (!success) {
-      setPasswordError('Incorrect password. Please try again.');
+      setPasswordError('Invalid password');
     } else {
       setPasswordInput('');
       setShowPasswordUnlock(false);
