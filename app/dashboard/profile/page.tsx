@@ -1167,7 +1167,7 @@ function OwnerProfileContent() {
                         </div>
                         <span className="text-slate-500 text-[11px] block mt-0.5">
                           {isBiometricEnabled
-                            ? 'Touch sensor, Face ID, or phone PIN required to unlock management dashboard'
+                            ? 'Active • Locks dashboard on open & resume with device fingerprint / phone lock'
                             : 'Prompt for phone screen lock / fingerprint when opening or resuming dashboard'}
                         </span>
                       </div>

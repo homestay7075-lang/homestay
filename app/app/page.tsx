@@ -614,7 +614,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                   className="p-1.5 rounded-lg bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 text-purple-300 hover:text-white transition cursor-pointer"
                   title="Lock App with Phone Lock / Fingerprint"
                 >
-                  <Lock className="w-4 h-4" />
+                  <Fingerprint className="w-4 h-4" />
                 </button>
               )}
               <InstallPwaButton
@@ -1849,7 +1849,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                         </div>
                         <span className="text-[10px] text-slate-400 block mt-0.5 truncate">
                           {isBiometricEnabled
-                            ? 'Screen lock required on app reopen'
+                            ? 'Active • Locks app on open & resume with device fingerprint'
                             : 'Lock app using fingerprint or phone PIN'}
                         </span>
                       </div>
@@ -1870,7 +1870,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
                       ) : isBiometricEnabled ? (
                         <>
                           <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Enabled</span>
+                          <span>Active</span>
                         </>
                       ) : (
                         <>

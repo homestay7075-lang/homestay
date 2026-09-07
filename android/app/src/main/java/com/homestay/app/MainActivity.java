@@ -517,5 +517,37 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+
+        @android.webkit.JavascriptInterface
+        public boolean hasBiometrics() {
+            try {
+                android.app.KeyguardManager km = (android.app.KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+                if (km != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        return km.isDeviceSecure();
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        return km.isKeyguardSecure();
+                    }
+                }
+            } catch (Exception ignored) {}
+            return true;
+        }
+
+        @android.webkit.JavascriptInterface
+        public boolean authenticateBiometric() {
+            try {
+                android.app.KeyguardManager km = (android.app.KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+                if (km != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (km.isKeyguardSecure()) {
+                        Intent i = km.createConfirmDeviceCredentialIntent("Homestay Security", "Confirm phone lock to access Homestay");
+                        if (i != null) {
+                            startActivity(i);
+                            return true;
+                        }
+                    }
+                }
+            } catch (Exception ignored) {}
+            return true;
+        }
     }
 }

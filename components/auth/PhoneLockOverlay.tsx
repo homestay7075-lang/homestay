@@ -32,13 +32,13 @@ export default function PhoneLockOverlay() {
 
   // Auto-attempt biometric verification once when locked overlay mounts
   useEffect(() => {
-    if (isAppLocked && isBiometricEnabled) {
-      let timer = setTimeout(() => {
+    if (isAppLocked) {
+      const timer = setTimeout(() => {
         handleTriggerBiometrics();
-      }, 500);
+      }, 400);
       return () => clearTimeout(timer);
     }
-  }, [isAppLocked, isBiometricEnabled]);
+  }, [isAppLocked]);
 
   const handleTriggerBiometrics = async () => {
     if (verifyingBio) return;
@@ -47,10 +47,10 @@ export default function PhoneLockOverlay() {
     try {
       const success = await verifyBiometrics();
       if (!success) {
-        setBioError('Biometric verification not completed. Tap to retry or use password.');
+        setBioError('Touch sensor or tap fingerprint icon to retry. Or unlock with password below.');
       }
     } catch (err: any) {
-      setBioError(err?.message || 'Biometric authentication failed.');
+      setBioError(err?.message || 'Biometric verification failed. Tap icon to retry or use password.');
     } finally {
       setVerifyingBio(false);
     }

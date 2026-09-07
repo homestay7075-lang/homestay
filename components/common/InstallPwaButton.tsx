@@ -61,6 +61,18 @@ export default function InstallPwaButton({
     const handleAppInstalled = () => {
       setIsStandalone(true);
       setDeferredPrompt(null);
+      try {
+        localStorage.setItem('homestay_app_installed', 'true');
+        localStorage.setItem('homestay_added_to_homescreen', 'true');
+        const activeUserStr = localStorage.getItem('homestay_active_user');
+        if (activeUserStr) {
+          const u = JSON.parse(activeUserStr);
+          if (u?.id) {
+            localStorage.setItem(`homestay_bio_enabled_${u.id}`, 'true');
+            localStorage.removeItem(`homestay_bio_disabled_${u.id}`);
+          }
+        }
+      } catch (e) {}
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
@@ -90,6 +102,18 @@ export default function InstallPwaButton({
       if (outcome === 'accepted') {
         setDeferredPrompt(null);
         setIsStandalone(true);
+        try {
+          localStorage.setItem('homestay_app_installed', 'true');
+          localStorage.setItem('homestay_added_to_homescreen', 'true');
+          const activeUserStr = localStorage.getItem('homestay_active_user');
+          if (activeUserStr) {
+            const u = JSON.parse(activeUserStr);
+            if (u?.id) {
+              localStorage.setItem(`homestay_bio_enabled_${u.id}`, 'true');
+              localStorage.removeItem(`homestay_bio_disabled_${u.id}`);
+            }
+          }
+        } catch (e) {}
       }
     } else if (isIOS) {
       setShowIOSModal(true);
