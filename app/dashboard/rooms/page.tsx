@@ -325,8 +325,8 @@ export default function RoomsAndBedsPage() {
         )}
 
         {/* ================= PRIMARY VIEW SWITCHER TABS ================= */}
-        <div className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-xs overflow-x-auto">
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+        <div className="flex items-center justify-between gap-3 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-xs overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl min-w-max">
             <button
               onClick={() => setViewMode('BED_MAP')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${

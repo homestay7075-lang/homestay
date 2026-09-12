@@ -220,11 +220,11 @@ export default function StudentsPage() {
             />
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full sm:w-auto">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white outline-none"
+              className="w-full min-w-0 px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white outline-none"
             >
               <option value="Active">Active Residents</option>
               <option value="DueNow">⚠️ Due Date Arrived / Overdue</option>
@@ -235,7 +235,7 @@ export default function StudentsPage() {
             <select
               value={blockFilter}
               onChange={(e) => setBlockFilter(e.target.value)}
-              className="px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white outline-none"
+              className="w-full min-w-0 px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white outline-none"
             >
               <option value="All">All Blocks</option>
               <option value="blk-a">Block A (Men Wing)</option>
@@ -529,19 +529,19 @@ export default function StudentsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-slate-100">
                     <button
                       onClick={() => setSelectedStudentForDrawer(stu)}
-                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                      className="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                     >
                       <span>View Details</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <a
                         href={`tel:${stu.phone}`}
-                        className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition flex items-center gap-1 border border-emerald-200"
+                        className="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold transition flex items-center gap-1 border border-emerald-200"
                         title={`Call ${stu.fullName}`}
                       >
                         <Phone className="w-3 h-3 text-emerald-600" />
@@ -550,7 +550,7 @@ export default function StudentsPage() {
 
                       <button
                         onClick={() => setEditingStudent(stu)}
-                        className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition flex items-center gap-1"
+                        className="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition flex items-center gap-1"
                       >
                         <Edit2 className="w-3 h-3" />
                         <span>Edit</span>
@@ -559,9 +559,10 @@ export default function StudentsPage() {
                       {stu.status === 'Active' && (
                         <button
                           onClick={() => setCheckoutTargetStudent(stu)}
-                          className="px-3 py-1 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100 transition"
+                          className="px-2.5 py-1.5 rounded-xl bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100 transition flex items-center gap-1"
                         >
-                          Checkout
+                          <LogOut className="w-3 h-3" />
+                          <span>Checkout</span>
                         </button>
                       )}
                     </div>
@@ -919,8 +920,8 @@ export default function StudentsPage() {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3">
-                            <div className="text-right">
+                          <div className="flex items-center justify-between sm:justify-end gap-3 flex-wrap">
+                            <div className="text-left sm:text-right">
                               <div className="font-bold text-slate-900 font-display">
                                 ₹{(c?.amount || 0).toLocaleString('en-IN')}
                               </div>
@@ -948,7 +949,7 @@ export default function StudentsPage() {
                                   student: selectedStudentForDrawer,
                                 });
                               }}
-                              className="px-2.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-lg text-xs flex items-center gap-1 transition"
+                              className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold rounded-xl text-xs flex items-center gap-1 transition"
                             >
                               <Printer className="w-3 h-3" />
                               <span>View / Print</span>
@@ -971,7 +972,7 @@ export default function StudentsPage() {
                       selectedStudentForDrawer.payments.map((p: any) => (
                         <div
                           key={p.id}
-                          className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between text-xs"
+                          className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
                         >
                           <div>
                             <div className="font-mono font-bold text-emerald-700">{p.receiptNumber}</div>
@@ -980,8 +981,8 @@ export default function StudentsPage() {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-3">
-                            <div className="text-right">
+                          <div className="flex items-center justify-between sm:justify-end gap-3 flex-wrap">
+                            <div className="text-left sm:text-right">
                               <div className="font-bold text-emerald-600 font-display text-sm">
                                 ₹{(p?.amount || 0).toLocaleString('en-IN')}
                               </div>
@@ -1000,7 +1001,7 @@ export default function StudentsPage() {
                                   student: selectedStudentForDrawer,
                                 });
                               }}
-                              className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-lg text-xs flex items-center gap-1 transition"
+                              className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold rounded-xl text-xs flex items-center gap-1 transition"
                             >
                               <Printer className="w-3 h-3" />
                               <span>View / Print</span>
@@ -1017,25 +1018,23 @@ export default function StudentsPage() {
                 )}
               </div>
 
-              <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      printElement('.printable-admission-slip', {
-                        title: `Admission_Slip_${selectedStudentForDrawer.studentId}`,
-                      })
-                    }
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition cursor-pointer"
-                  >
-                    <Printer className="w-3.5 h-3.5" />
-                    Print Admission Slip
-                  </button>
-                </div>
+              <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2.5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() =>
+                    printElement('.printable-admission-slip', {
+                      title: `Admission_Slip_${selectedStudentForDrawer.studentId}`,
+                    })
+                  }
+                  className="flex-1 sm:flex-none px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print Admission Slip</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setSelectedStudentForDrawer(null)}
-                  className="px-5 py-2 bg-slate-900 text-white font-semibold text-xs rounded-xl hover:bg-slate-800 transition"
+                  className="flex-1 sm:flex-none px-5 py-2.5 bg-slate-900 text-white font-semibold text-xs rounded-xl hover:bg-slate-800 transition text-center"
                 >
                   Close Profile
                 </button>

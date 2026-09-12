@@ -560,49 +560,6 @@ export default function StaffAndPermissionsPage() {
                       >
                         {staff.role}
                       </span>
-
-                      {/* Change Password Button */}
-                      <button
-                        type="button"
-                        onClick={() => handleOpenPasswordModal(staff)}
-                        className="px-2.5 py-1 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold flex items-center gap-1 transition shadow-2xs"
-                        title={`Change login password for ${staff.fullName}`}
-                      >
-                        <KeyRound className="w-3.5 h-3.5 text-amber-700" />
-                        <span>Password</span>
-                      </button>
-
-                      {/* Edit Assignment Button */}
-                      <button
-                        type="button"
-                        onClick={() => handleOpenEditModal(staff)}
-                        className="px-2.5 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold flex items-center gap-1 transition shadow-2xs"
-                        title={`Edit ${staff.fullName}'s assigned buildings & jurisdiction`}
-                      >
-                        <Edit3 className="w-3.5 h-3.5 text-indigo-600" />
-                        <span>Edit</span>
-                      </button>
-
-                      {/* Delete Staff Button */}
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteStaff(staff)}
-                        disabled={isDeleting}
-                        className="px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center gap-1 transition shadow-2xs"
-                        title={`Delete assigned staff member ${staff.fullName}`}
-                      >
-                        {isDeleting ? (
-                          <>
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            <span>Deleting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Trash2 className="w-3.5 h-3.5 text-rose-600" />
-                            <span>Delete</span>
-                          </>
-                        )}
-                      </button>
                     </div>
                   </div>
 
@@ -714,6 +671,49 @@ export default function StaffAndPermissionsPage() {
                       </span>
                     </div>
                   </div>
+                </div>
+
+                {/* Action Buttons Bar: Password, Edit, Delete */}
+                <div className="pt-3 border-t border-slate-100 grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenPasswordModal(staff)}
+                    className="py-2 px-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-2xs"
+                    title={`Change login password for ${staff.fullName}`}
+                  >
+                    <KeyRound className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Password</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditModal(staff)}
+                    className="py-2 px-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-2xs"
+                    title={`Edit ${staff.fullName}'s assigned buildings & jurisdiction`}
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Edit</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteStaff(staff)}
+                    disabled={isDeleting}
+                    className="py-2 px-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-2xs disabled:opacity-50"
+                    title={`Delete assigned staff member ${staff.fullName}`}
+                  >
+                    {isDeleting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Deleting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Trash2 className="w-3.5 h-3.5 text-rose-600" />
+                        <span>Delete</span>
+                      </>
+                    )}
+                  </button>
                 </div>
 
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">

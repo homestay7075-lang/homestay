@@ -589,7 +589,8 @@ export default function PaymentsAndDuesPage() {
             {/* VIEW A: ITEM-BY-ITEM GENERATED BILLS LEDGER */}
             {billFilter !== 'RESIDENTS' && (
               <div className="rounded-2xl bg-white border border-slate-200/80 shadow-xs overflow-hidden">
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left text-xs sm:text-sm">
                     <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[11px] tracking-wider">
                       <tr>
@@ -747,6 +748,144 @@ export default function PaymentsAndDuesPage() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Mobile Bills Card View */}
+                <div className="md:hidden p-3 space-y-3">
+                  {filteredBills.length === 0 ? (
+                    <div className="p-8 text-center text-slate-400 bg-slate-50 rounded-2xl border border-slate-200">
+                      No generated bills found.
+                    </div>
+                  ) : (
+                    filteredBills.map((bill: any) => {
+                      const isPaid = bill.balanceAmount === 0;
+                      const isOverdue = bill.status === 'Overdue';
+
+                      return (
+                        <div
+                          key={bill.id}
+                          className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-3"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="font-mono font-bold text-sm text-indigo-700">
+                                {bill.billNumber}
+                              </div>
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-600 inline-block mt-0.5">
+                                Month {bill.cycleNumber}
+                              </span>
+                            </div>
+                            <span
+                              className={`px-2.5 py-0.5 rounded-full text-xs font-bold inline-flex items-center gap-1 ${
+                                isPaid
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : isOverdue
+                                  ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+                              }`}
+                            >
+                              {isPaid ? (
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              ) : isOverdue ? (
+                                <AlertTriangle className="w-3 h-3 text-rose-600" />
+                              ) : (
+                                <Clock className="w-3 h-3 text-amber-600" />
+                              )}
+                              <span>{isPaid ? 'Paid' : isOverdue ? 'Overdue' : 'Pending'}</span>
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs pt-1">
+                            <div>
+                              <span className="font-bold text-slate-900">{bill.studentName}</span>
+                              <span className="text-slate-400 font-mono ml-1.5">({bill.studentId})</span>
+                            </div>
+                            {bill.phone && (
+                              <a
+                                href={`tel:${bill.phone}`}
+                                className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 hover:text-emerald-700 px-2 py-1 rounded-lg bg-emerald-50 border border-emerald-200"
+                              >
+                                <Phone className="w-3 h-3" />
+                                <span>Call</span>
+                              </a>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            <div>
+                              <span className="text-slate-400 block text-[10px]">Bill Amount</span>
+                              <span className="font-bold text-slate-900">₹{bill.amount.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block text-[10px]">Due Date</span>
+                              <span className="font-medium text-slate-700">{formatDateDMY(bill.dueDate)}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block text-[10px]">Paid Amount</span>
+                              <span className="font-semibold text-emerald-600">₹{bill.paidAmount.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block text-[10px]">Balance Due</span>
+                              <span className={`font-black ${bill.balanceAmount > 0 ? 'text-rose-600 font-display' : 'text-slate-400'}`}>
+                                ₹{bill.balanceAmount.toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Mobile Action Buttons Bar */}
+                          <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 flex-wrap">
+                            {bill.balanceAmount > 0 ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setPreselectedStudent({
+                                    id: bill.studentDbId,
+                                    monthlyRent: bill.amount,
+                                    finances: {
+                                      oldBalance: bill.studentOldBalance || 0,
+                                      newBalance: bill.studentNewBalance || 0,
+                                      totalOutstanding: bill.studentTotalOutstanding || bill.balanceAmount,
+                                    },
+                                  });
+                                  setIsRecordModalOpen(true);
+                                }}
+                                className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center justify-center gap-1.5"
+                              >
+                                <CreditCard className="w-3.5 h-3.5" />
+                                <span>Collect Payment</span>
+                              </button>
+                            ) : (
+                              <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                                <CheckCircle2 className="w-3.5 h-3.5" /> Settled
+                              </span>
+                            )}
+
+                            <div className="flex items-center gap-1.5">
+                              <Link
+                                href={`/dashboard/invoices`}
+                                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center gap-1"
+                                title="View printable voucher"
+                              >
+                                <Printer className="w-3.5 h-3.5 text-slate-500" />
+                                <span>Voucher</span>
+                              </Link>
+
+                              {bill.paidAmount === 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteBill(bill.id, bill.billNumber)}
+                                  className="p-2 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition border border-rose-200"
+                                  title="Delete unpaid bill"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
             )}
 
@@ -758,7 +897,8 @@ export default function PaymentsAndDuesPage() {
                     Displaying active residents with system-generated bills only ({filteredResidentDues.length}). Residents with 0 generated bills have 0 dues and are not listed here.
                   </span>
                 </div>
-                <div className="overflow-x-auto">
+                {/* Desktop Resident Table */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left text-xs sm:text-sm">
                     <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[11px] tracking-wider">
                       <tr>
@@ -900,6 +1040,109 @@ export default function PaymentsAndDuesPage() {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Mobile Resident Summary Cards */}
+                <div className="md:hidden p-3 space-y-3">
+                  {filteredResidentDues.length === 0 ? (
+                    <div className="p-8 text-center text-slate-400 bg-slate-50 rounded-2xl border border-slate-200">
+                      No resident dues found.
+                    </div>
+                  ) : (
+                    filteredResidentDues.map((stu: any) => (
+                      <div
+                        key={stu.studentId}
+                        className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-3"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="font-bold text-sm text-slate-900">{stu.fullName}</div>
+                            <div className="text-xs text-indigo-600 font-mono font-semibold">{stu.studentId}</div>
+                          </div>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+                              stu.overallStatus === 'Paid'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                : stu.overallStatus === 'Overdue'
+                                ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                                : 'bg-amber-50 text-amber-700 border border-amber-200'
+                            }`}
+                          >
+                            {stu.overallStatus}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                          <div>
+                            <span className="text-slate-400 block text-[10px]">Joining Date</span>
+                            <span className="font-medium text-slate-800">{formatDateDMY(stu.joiningDate)}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[10px]">Generated Bills</span>
+                            <span className="font-bold text-indigo-700">{stu.cycles?.length || 0} bill(s)</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[10px]">Total Billed</span>
+                            <span className="font-semibold text-slate-900">₹{(stu.totalBilled || 0).toLocaleString('en-IN')}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400 block text-[10px]">Total Paid</span>
+                            <span className="font-semibold text-emerald-600">₹{(stu.totalPaid || 0).toLocaleString('en-IN')}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-900 text-white text-xs">
+                          <div>
+                            <span className="text-[10px] text-slate-400 block">Exact Total Due</span>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              Old ₹{stu.oldBalance || 0} + New ₹{stu.newBalance || 0}
+                            </span>
+                          </div>
+                          <div className={`text-base font-black font-display ${(stu.totalOutstanding || 0) > 0 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                            ₹{(stu.totalOutstanding || 0).toLocaleString('en-IN')}
+                          </div>
+                        </div>
+
+                        {/* Mobile Action Bar */}
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                          {stu.phone && (
+                            <a
+                              href={`tel:${stu.phone}`}
+                              className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
+                            >
+                              <Phone className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Call</span>
+                            </a>
+                          )}
+
+                          {stu.totalOutstanding > 0 ? (
+                            <button
+                              onClick={() => {
+                                setPreselectedStudent({
+                                  id: stu.studentDbId,
+                                  monthlyRent: stu.monthlyRent,
+                                  finances: {
+                                    oldBalance: stu.oldBalance || 0,
+                                    newBalance: stu.newBalance || 0,
+                                    totalOutstanding: stu.totalOutstanding,
+                                  },
+                                });
+                                setIsRecordModalOpen(true);
+                              }}
+                              className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center justify-center gap-1.5"
+                            >
+                              <CreditCard className="w-3.5 h-3.5" />
+                              <span>Collect Payment</span>
+                            </button>
+                          ) : (
+                            <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1 ml-auto">
+                              <CheckCircle2 className="w-3.5 h-3.5" /> Cleared
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
               </div>
             )}
           </div>
@@ -908,7 +1151,8 @@ export default function PaymentsAndDuesPage() {
         {/* ================= TAB 2: PAYMENTS & RECEIPTS ================= */}
         {activeTab === 'PAYMENTS' && (
           <div className="rounded-2xl bg-white border border-slate-200/80 shadow-xs overflow-hidden">
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left text-xs sm:text-sm">
                 <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase text-[11px] tracking-wider">
                   <tr>
@@ -964,6 +1208,53 @@ export default function PaymentsAndDuesPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Payment Cards */}
+            <div className="md:hidden p-3 space-y-3">
+              {filteredPayments.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 bg-slate-50 rounded-2xl border border-slate-200">
+                  No payment receipts found.
+                </div>
+              ) : (
+                filteredPayments.map((p: any) => (
+                  <div
+                    key={p.id}
+                    className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-3 text-xs"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="font-mono font-bold text-indigo-600">{p.receiptNumber}</div>
+                        <div className="font-bold text-sm text-slate-900 mt-0.5">{p.studentName}</div>
+                        <div className="text-[10px] text-slate-400 font-mono">{p.studentId}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-black text-base text-emerald-600 font-display">
+                          ₹{(p?.amount || 0).toLocaleString('en-IN')}
+                        </div>
+                        <span className="text-[10px] text-slate-500">{formatDateDMY(p.paymentDate)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-slate-600">
+                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[11px] font-semibold">
+                        {p.paymentMethod}
+                      </span>
+                      <span className="text-[11px] text-slate-500">Recv by: {p.receivedBy}</span>
+                    </div>
+
+                    <div className="pt-1">
+                      <Link
+                        href={`/dashboard/invoices?receiptId=${p.id}`}
+                        className="w-full py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition flex items-center justify-center gap-1.5 border border-indigo-100"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>Print Official Receipt</span>
+                      </Link>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}
@@ -1046,7 +1337,8 @@ export default function PaymentsAndDuesPage() {
                   </p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
                       <tr className="border-b border-slate-200/80 bg-slate-50/50 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
@@ -1210,6 +1502,129 @@ export default function PaymentsAndDuesPage() {
                       })}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile Submissions Cards */}
+                <div className="md:hidden p-3 space-y-3">
+                  {filteredSubmissions.map((sub: any) => {
+                    const cleanStuPhone = (sub.studentPhone || '').replace(/\D/g, '').slice(-10);
+                    return (
+                      <div
+                        key={sub.id}
+                        className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-3 text-xs"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="font-bold text-sm text-slate-900">{sub.studentName}</div>
+                            <div className="text-[10px] text-indigo-600 font-mono font-bold">{sub.studentId}</div>
+                            <div className="text-[10px] text-slate-400">{sub.studentPhone}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-extrabold text-slate-900 font-display text-base">
+                              ₹{(sub?.amount || 0).toLocaleString('en-IN')}
+                            </div>
+                            <div className="mt-1">
+                              {sub.status === 'APPROVED' ? (
+                                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[10px] inline-flex items-center gap-1">
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Verified
+                                </span>
+                              ) : sub.status === 'REJECTED' ? (
+                                <span className="px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 font-bold text-[10px] inline-flex items-center gap-1">
+                                  <X className="w-3 h-3 text-rose-600" /> Rejected
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-bold text-[10px] inline-flex items-center gap-1 animate-pulse">
+                                  <Clock className="w-3 h-3 text-amber-600" /> Pending
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* UTR & Payment Proof Row */}
+                        <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+                          <div className="flex items-center justify-between text-[11px]">
+                            <span className="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-semibold border border-purple-200">
+                              {sub.upiApp || 'UPI'}
+                            </span>
+                            <div className="flex items-center gap-1.5 font-mono font-bold text-slate-800">
+                              <span>UTR: {sub.transactionRef}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleCopyUtr(sub.transactionRef)}
+                                className="text-slate-400 hover:text-slate-700 p-0.5 rounded"
+                                title="Copy UTR"
+                              >
+                                {copiedUtr === sub.transactionRef ? (
+                                  <Check className="w-3 h-3 text-emerald-600" />
+                                ) : (
+                                  <Copy className="w-3 h-3" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-200/60">
+                            <span>Paid: {formatDateDMY(sub.paymentDate)}</span>
+                            {sub.receiptImageUrl && (
+                              <button
+                                type="button"
+                                onClick={() => setPreviewImageUrl(sub.receiptImageUrl)}
+                                className="text-indigo-600 font-semibold hover:underline flex items-center gap-1"
+                              >
+                                <span>View Proof Screenshot &rarr;</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Mobile Action Buttons Bar */}
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 flex-wrap">
+                          {sub.status === 'PENDING' && (
+                            <>
+                              <button
+                                type="button"
+                                disabled={reviewingId === sub.id}
+                                onClick={() => handleApproveSubmission(sub.id)}
+                                className="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-xs disabled:opacity-50"
+                              >
+                                {reviewingId === sub.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Check className="w-3.5 h-3.5" />
+                                )}
+                                <span>Approve & Clear Dues</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                disabled={reviewingId === sub.id}
+                                onClick={() => handleRejectSubmission(sub.id)}
+                                className="py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold rounded-xl text-xs transition flex items-center gap-1 border border-rose-200"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                                <span>Reject</span>
+                              </button>
+                            </>
+                          )}
+
+                          {cleanStuPhone && (
+                            <a
+                              href={`https://wa.me/91${cleanStuPhone}?text=${encodeURIComponent(
+                                `Hello ${sub.studentName}, regarding your UPI payment submission of ₹${sub.amount} (UTR: ${sub.transactionRef})...`
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition ml-auto"
+                              title="Message Student on WhatsApp"
+                            >
+                              <MessageSquare className="w-4 h-4" />
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

@@ -210,7 +210,7 @@ export default function MessagesPage() {
                               onClick={() => handleDeleteMessage(msg.id)}
                               disabled={deletingMessageId === msg.id}
                               title="Delete sent message"
-                              className="opacity-0 group-hover:opacity-100 transition p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl shrink-0"
+                              className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl shrink-0 cursor-pointer"
                             >
                               <Trash2 className={`w-3.5 h-3.5 ${deletingMessageId === msg.id ? 'animate-spin text-red-500' : ''}`} />
                             </button>
