@@ -3,8 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { User, UserRole } from '../db/types';
-import PhoneLockOverlay from '@/components/auth/PhoneLockOverlay';
-
 // 6 Days Inactivity Timeout in milliseconds (6 * 24 * 60 * 60 * 1000)
 export const INACTIVITY_TIMEOUT_MS = 6 * 24 * 60 * 60 * 1000; // 518,400,000 ms
 
@@ -54,7 +52,7 @@ interface AuthContextType {
   logout: (reason?: string | any) => void;
   switchRoleQuick: (role: UserRole) => void;
 
-  // Phone Lock & Fingerprint / Biometric Security
+  // Phone Lock & Fingerprint (Disabled)
   isBiometricSupported: boolean;
   isBiometricEnabled: boolean;
   isAppLocked: boolean;
@@ -71,43 +69,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isBiometricSupported, setIsBiometricSupported] = useState(false);
-  const [isBiometricEnabled, setIsBiometricEnabled] = useState(false);
-  const [isAppLocked, setIsAppLocked] = useState(false);
-
-  const biometricEnabledRef = useRef(false);
-  biometricEnabledRef.current = isBiometricEnabled;
 
   const currentUserRef = useRef<User | null>(null);
   currentUserRef.current = currentUser;
-
-  // Check hardware biometric / WebAuthn platform support
-  useEffect(() => {
-    const checkSupport = async () => {
-      if (typeof window === 'undefined') return;
-      if ((window as any).AndroidApp?.hasBiometrics) {
-        try {
-          const hasBio = (window as any).AndroidApp.hasBiometrics();
-          setIsBiometricSupported(Boolean(hasBio));
-          return;
-        } catch {}
-      }
-      if (
-        window.PublicKeyCredential &&
-        typeof window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable === 'function'
-      ) {
-        try {
-          const available = await window.PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-          setIsBiometricSupported(available);
-        } catch {
-          setIsBiometricSupported(isRunningStandalone());
-        }
-      } else {
-        setIsBiometricSupported(isRunningStandalone());
-      }
-    };
-    checkSupport();
-  }, []);
 
   // Update activity timestamp in localStorage (throttled to at most once every 30s)
   const lastWriteTimeRef = useRef<number>(Date.now());
@@ -225,16 +189,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.setItem('homestay_last_active', String(Date.now()));
       } catch (e) {}
 
-      // Check biometric preference for this user or if running standalone (when added)
-      const isStandalone = isRunningStandalone();
-      const bioDisabledKey = `homestay_bio_disabled_${user.id}`;
-      const isExplicitlyDisabled = localStorage.getItem(bioDisabledKey) === 'true';
-      const isBio = localStorage.getItem(`homestay_bio_enabled_${user.id}`) === 'true';
-
-      const shouldEnable = (isBio || isStandalone) && !isExplicitlyDisabled;
-      setIsBiometricEnabled(shouldEnable);
-      biometricEnabledRef.current = shouldEnable;
-      setIsAppLocked(false);
+      // Clean up legacy biometric/phone lock keys if present
+      try {
+        localStorage.removeItem(`homestay_bio_enabled_${user.id}`);
+        localStorage.removeItem(`homestay_bio_disabled_${user.id}`);
+        localStorage.removeItem(`homestay_bio_cred_${user.id}`);
+      } catch (e) {}
     }
   };
 
@@ -284,219 +244,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Enable Biometrics (WebAuthn Platform or Android Bridge)
-  const enableBiometrics = async (): Promise<{ success: boolean; error?: string }> => {
-    if (typeof window === 'undefined') return { success: false, error: 'Window not available' };
-    const user = currentUserRef.current;
-    if (!user) return { success: false, error: 'No user session active' };
-
-    try {
-      localStorage.setItem(`homestay_bio_enabled_${user.id}`, 'true');
-      localStorage.removeItem(`homestay_bio_disabled_${user.id}`);
-    } catch (e) {}
-
-    setIsBiometricEnabled(true);
-    biometricEnabledRef.current = true;
-
-    // Native Android wrapper bridge check
-    if ((window as any).AndroidApp?.authenticateBiometric) {
-      try {
-        const res = (window as any).AndroidApp.authenticateBiometric();
-        if (res === true || res === 'true') {
-          return { success: true };
-        }
-      } catch (e: any) {
-        console.warn('AndroidApp biometric note:', e);
-      }
-    }
-
-    // WebAuthn platform authenticator
-    if (window.PublicKeyCredential && typeof navigator.credentials?.create === 'function') {
-      try {
-        const challenge = new Uint8Array(32);
-        window.crypto.getRandomValues(challenge);
-        const userIdBytes = new TextEncoder().encode(user.id || user.phone || 'user');
-
-        const credential = (await navigator.credentials.create({
-          publicKey: {
-            challenge,
-            rp: {
-              name: 'Home Stay Hostel',
-              id: window.location.hostname,
-            },
-            user: {
-              id: userIdBytes,
-              name: user.phone || user.username || 'resident',
-              displayName: user.fullName || user.username || user.phone || 'Resident User',
-            },
-            pubKeyCredParams: [
-              { alg: -7, type: 'public-key' }, // ES256
-              { alg: -257, type: 'public-key' }, // RS256
-            ],
-            authenticatorSelection: {
-              authenticatorAttachment: 'platform',
-              userVerification: 'required',
-              requireResidentKey: false,
-            },
-            timeout: 60000,
-            attestation: 'none',
-          },
-        })) as PublicKeyCredential | null;
-
-        if (credential) {
-          localStorage.setItem(`homestay_bio_cred_${user.id}`, credential.id);
-        }
-      } catch (err: any) {
-        console.warn('WebAuthn enrollment note:', err);
-      }
-    }
-
-    return { success: true };
-  };
-
-  const disableBiometrics = () => {
-    const user = currentUserRef.current;
-    if (user && typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(`homestay_bio_disabled_${user.id}`, 'true');
-        localStorage.removeItem(`homestay_bio_enabled_${user.id}`);
-        localStorage.removeItem(`homestay_bio_cred_${user.id}`);
-      } catch (e) {}
-    }
-    setIsBiometricEnabled(false);
-    biometricEnabledRef.current = false;
-    setIsAppLocked(false);
-  };
-
-  const verifyBiometrics = async (): Promise<boolean> => {
-    const user = currentUserRef.current;
-    if (!user || typeof window === 'undefined') return false;
-
-    // 1. Check Android native bridge
-    if ((window as any).AndroidApp?.authenticateBiometric) {
-      try {
-        const res = (window as any).AndroidApp.authenticateBiometric();
-        if (res === true || res === 'true') {
-          setIsAppLocked(false);
-          recordActivity(true);
-          return true;
-        }
-      } catch (err) {
-        console.warn('Android native biometric failed:', err);
-      }
-    }
-
-    // 2. Try WebAuthn platform authenticator
-    if (window.PublicKeyCredential && typeof navigator.credentials?.get === 'function') {
-      try {
-        const challenge = new Uint8Array(32);
-        window.crypto.getRandomValues(challenge);
-        const savedCredId = localStorage.getItem(`homestay_bio_cred_${user.id}`);
-
-        const options: CredentialRequestOptions = {
-          publicKey: {
-            challenge,
-            rpId: window.location.hostname,
-            userVerification: 'required',
-            timeout: 60000,
-          },
-        };
-
-        if (savedCredId) {
-          try {
-            const binaryStr = atob(savedCredId.replace(/_/g, '/').replace(/-/g, '+'));
-            const len = binaryStr.length;
-            const rawIdBytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-              rawIdBytes[i] = binaryStr.charCodeAt(i);
-            }
-            options.publicKey!.allowCredentials = [
-              {
-                id: rawIdBytes,
-                type: 'public-key',
-              },
-            ];
-          } catch {}
-        }
-
-        const assertion = await navigator.credentials.get(options);
-        if (assertion) {
-          setIsAppLocked(false);
-          recordActivity(true);
-          return true;
-        }
-      } catch (err: any) {
-        console.warn('WebAuthn assertion get note:', err);
-        // Fallback: If assertion get failed because credential was not registered, try creating one to prompt fingerprint
-        if (typeof navigator.credentials?.create === 'function') {
-          try {
-            const challenge = new Uint8Array(32);
-            window.crypto.getRandomValues(challenge);
-            const userIdBytes = new TextEncoder().encode(user.id || user.phone || 'user');
-
-            const credential = (await navigator.credentials.create({
-              publicKey: {
-                challenge,
-                rp: {
-                  name: 'Home Stay Hostel',
-                  id: window.location.hostname,
-                },
-                user: {
-                  id: userIdBytes,
-                  name: user.phone || user.username || 'resident',
-                  displayName: user.fullName || user.username || user.phone || 'Resident User',
-                },
-                pubKeyCredParams: [
-                  { alg: -7, type: 'public-key' },
-                  { alg: -257, type: 'public-key' },
-                ],
-                authenticatorSelection: {
-                  authenticatorAttachment: 'platform',
-                  userVerification: 'required',
-                  requireResidentKey: false,
-                },
-                timeout: 60000,
-                attestation: 'none',
-              },
-            })) as PublicKeyCredential | null;
-
-            if (credential) {
-              localStorage.setItem(`homestay_bio_cred_${user.id}`, credential.id);
-              setIsAppLocked(false);
-              recordActivity(true);
-              return true;
-            }
-          } catch (createErr) {
-            console.warn('WebAuthn create fallback note:', createErr);
-          }
-        }
-      }
-    }
-
-    return false;
-  };
-
-  const unlockWithPassword = async (password: string): Promise<boolean> => {
-    const user = currentUserRef.current;
-    if (!user) return false;
-    const identifier = user.phone || user.username || user.email || '';
-    const res = await loginWithCredentials(identifier, password);
-    if (res.success) {
-      setIsAppLocked(false);
-      recordActivity(true);
-      return true;
-    }
-    return false;
-  };
-
-  const unlockApp = () => {
-    setIsAppLocked(false);
-    recordActivity(true);
-  };
-
-  const lockApp = () => {
-    setIsAppLocked(true);
-  };
+  // Phone Lock & Fingerprint (Disabled)
+  const enableBiometrics = async (): Promise<{ success: boolean; error?: string }> => ({
+    success: false,
+    error: 'Phone lock is disabled',
+  });
+  const disableBiometrics = () => {};
+  const verifyBiometrics = async (): Promise<boolean> => true;
+  const unlockWithPassword = async (_password: string): Promise<boolean> => true;
+  const unlockApp = () => {};
+  const lockApp = () => {};
 
   return (
     <AuthContext.Provider
@@ -508,9 +265,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loginWithCredentials,
         logout,
         switchRoleQuick,
-        isBiometricSupported,
-        isBiometricEnabled,
-        isAppLocked,
+        isBiometricSupported: false,
+        isBiometricEnabled: false,
+        isAppLocked: false,
         enableBiometrics,
         disableBiometrics,
         verifyBiometrics,
@@ -519,14 +276,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         lockApp,
       }}
     >
-      <GlobalLockScreenWrapper />
       {children}
     </AuthContext.Provider>
   );
-}
-
-function GlobalLockScreenWrapper() {
-  return null;
 }
 
 export function useAuth() {
