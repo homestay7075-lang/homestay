@@ -1809,7 +1809,6 @@ function BedFormModal({ mode, bedData, roomId, rooms, onClose, onSuccess }: any)
   const room = rooms.find((r: any) => r.id === targetRoomId);
 
   const [bedNumber, setBedNumber] = useState(bedData?.bedNumber || 'Bed 1');
-  const [monthlyRate, setMonthlyRate] = useState(bedData?.monthlyRate || room?.baseRateMonthly || 9000);
   const [status, setStatus] = useState(bedData?.status || 'Available');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -1826,7 +1825,7 @@ function BedFormModal({ mode, bedData, roomId, rooms, onClose, onSuccess }: any)
         id: bedData?.id,
         roomId: targetRoomId,
         bedNumber,
-        monthlyRate: Number(monthlyRate),
+        monthlyRate: Number(room?.baseRateMonthly || bedData?.monthlyRate || 9000),
         status,
       };
 
@@ -1877,20 +1876,6 @@ function BedFormModal({ mode, bedData, roomId, rooms, onClose, onSuccess }: any)
               onChange={(e) => setBedNumber(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 rounded-xl outline-none font-semibold"
             />
-          </div>
-
-          <div>
-            <label className="block font-semibold text-slate-700 mb-1">Monthly Fee (₹/mo)</label>
-            <input
-              type="number"
-              required
-              value={monthlyRate}
-              onChange={(e) => setMonthlyRate(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-slate-300 rounded-xl outline-none font-bold"
-            />
-            <p className="text-[10px] text-slate-400 mt-1">
-              Inherited from Room {room?.roomNumber} fee (₹{(room?.baseRateMonthly || 0).toLocaleString('en-IN')}/mo).
-            </p>
           </div>
 
           {mode === 'EDIT' && (

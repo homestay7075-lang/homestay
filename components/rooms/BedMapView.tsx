@@ -73,7 +73,6 @@ export default function BedMapView({
   // Quick edit bed inline state
   const [inlineEditingBed, setInlineEditingBed] = useState<boolean>(false);
   const [editBedNumber, setEditBedNumber] = useState<string>('');
-  const [editBedRate, setEditBedRate] = useState<number>(0);
 
   // Calculate live counts for each status
   const counts = {
@@ -128,7 +127,7 @@ export default function BedMapView({
     }
   };
 
-  // Save inline bed changes (bedNumber, monthlyRate)
+  // Save inline bed changes (bedNumber)
   const handleSaveBedDetails = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeBedModal) return;
@@ -141,7 +140,7 @@ export default function BedMapView({
           entityType: 'BED',
           id: activeBedModal.id,
           bedNumber: editBedNumber.trim(),
-          monthlyRate: Number(editBedRate),
+          monthlyRate: Number(activeBedModal.monthlyRate || 0),
         }),
       });
       const data = await res.json();
@@ -151,7 +150,6 @@ export default function BedMapView({
         setActiveBedModal({
           ...activeBedModal,
           bedNumber: editBedNumber.trim(),
-          monthlyRate: Number(editBedRate),
         });
         setInlineEditingBed(false);
       } else {
@@ -168,7 +166,6 @@ export default function BedMapView({
   const handleOpenBedDetails = (bed: any) => {
     setActiveBedModal(bed);
     setEditBedNumber(bed.bedNumber);
-    setEditBedRate(Number(bed.monthlyRate || 0));
     setInlineEditingBed(false);
   };
 
@@ -847,7 +844,7 @@ export default function BedMapView({
                     className="text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1"
                   >
                     <Edit2 className="w-3 h-3" />
-                    <span>{inlineEditingBed ? 'Cancel Edit' : 'Edit Bed Code & Fee'}</span>
+                    <span>{inlineEditingBed ? 'Cancel Edit' : 'Edit Bed Code'}</span>
                   </button>
                 </div>
 
@@ -866,20 +863,6 @@ export default function BedMapView({
                         value={editBedNumber}
                         onChange={(e) => setEditBedNumber(e.target.value)}
                         placeholder="e.g. A-101, Bed 1"
-                        className="w-full px-3 py-1.5 border border-slate-300 rounded-xl outline-none font-bold"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                        Monthly Rent (₹/month)
-                      </label>
-                      <input
-                        type="number"
-                        required
-                        min={1000}
-                        value={editBedRate}
-                        onChange={(e) => setEditBedRate(Number(e.target.value))}
                         className="w-full px-3 py-1.5 border border-slate-300 rounded-xl outline-none font-bold"
                       />
                     </div>
