@@ -38,7 +38,7 @@ const FAQS: FaqItem[] = [
   {
     category: 'Security & Facilities',
     question: 'What security measures and power backups are provided?',
-    answer: 'We provide 3-tier security comprising biometric turnstile access, 24/7 CCTV surveillance across all corridors and common spaces, and a full-time security guard. Automated diesel generators ensure 100% uninterrupted electricity for Wi-Fi, fans, lights, and study workstations.',
+    answer: 'We provide 3-tier security comprising smart digital gate access, 24/7 CCTV surveillance across all corridors and common spaces, and a full-time security guard. Automated diesel generators ensure 100% uninterrupted electricity for Wi-Fi, fans, lights, and study workstations.',
   },
 ];
 

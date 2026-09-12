@@ -127,8 +127,7 @@ function OwnerProfileContent() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswords, setShowPasswords] = useState(false);
-  const [twoFactorEnabled, setTwoFactorEnabled] = useState(settings?.twoFactorEnabled || false);
-  const [pinLockEnabled, setPinLockEnabled] = useState(settings?.pinLockEnabled || false);
+
 
 
   // Tab 5: Audit logs state
@@ -170,8 +169,7 @@ function OwnerProfileContent() {
       setSmsAlerts(settings.smsAlerts !== false);
       setLateEntryAlerts(settings.lateEntryAlerts !== false);
       setAutomatedFeeReminders(settings.automatedFeeReminders !== false);
-      setTwoFactorEnabled(settings.twoFactorEnabled || false);
-      setPinLockEnabled(settings.pinLockEnabled || false);
+
     }
   }, [settings, hostelName]);
 
@@ -358,55 +356,43 @@ function OwnerProfileContent() {
   // Save Tab 4: Security
   const handleSaveSecurity = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newPassword) {
-      if (newPassword !== confirmPassword) {
-        alert('New passwords do not match.');
-        return;
-      }
-      if (newPassword.length < 6) {
-        alert('Password must be at least 6 characters long.');
-        return;
-      }
+    if (!newPassword) {
+      showToast('Please enter a new password to update.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      alert('New passwords do not match.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      alert('Password must be at least 6 characters long.');
+      return;
     }
 
     setLoading(true);
     try {
-      if (newPassword) {
-        const passRes = await fetch('/api/auth/profile', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId: currentUser?.id,
-            role: currentUser?.role,
-            newPassword: newPassword.trim(),
-          }),
-        });
-        const passData = await passRes.json();
-        if (!passData.success) {
-          alert(passData.error || 'Failed to update password.');
-          setLoading(false);
-          return;
-        }
+      const passRes = await fetch('/api/auth/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUser?.id,
+          role: currentUser?.role,
+          newPassword: newPassword.trim(),
+        }),
+      });
+      const passData = await passRes.json();
+      if (!passData.success) {
+        alert(passData.error || 'Failed to update password.');
+        setLoading(false);
+        return;
       }
 
-      const result = await saveToGlobalSettings({
-        twoFactorEnabled,
-        pinLockEnabled,
-      });
-      if (result.success) {
-        if (newPassword) {
-          showToast('Password updated and security preferences saved!');
-          setCurrentPassword('');
-          setNewPassword('');
-          setConfirmPassword('');
-        } else {
-          showToast('Security preferences updated!');
-        }
-      } else {
-        alert(result.error || 'Failed to save security settings.');
-      }
+      showToast('Password updated successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
     } catch (err: any) {
-      alert(err.message || 'Error updating security settings.');
+      alert(err.message || 'Error updating password.');
     } finally {
       setLoading(false);
     }
@@ -1030,7 +1016,7 @@ function OwnerProfileContent() {
             <div>
               <h2 className="text-lg font-bold text-slate-900 font-display">Security & Credentials</h2>
               <p className="text-xs text-slate-500">
-                Update administrative account password, enable two-factor protection, and manage session preferences.
+                Update administrative account password.
               </p>
             </div>
 
@@ -1102,39 +1088,6 @@ function OwnerProfileContent() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-3">
-                <span className="text-xs font-bold text-slate-800 uppercase tracking-wider block">
-                  Additional Account Protection
-                </span>
-
-                <div className="space-y-3 text-xs">
-
-                  <label className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200 cursor-pointer">
-                    <div>
-                      <span className="font-bold text-slate-900 block">Two-Factor Authentication (2FA)</span>
-                      <span className="text-slate-500 text-[11px]">Require OTP verification on new device logins</span>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={twoFactorEnabled}
-                      onChange={(e) => setTwoFactorEnabled(e.target.checked)}
-                      className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
-                    />
-                  </label>
-
-                  {/* 6-Day Inactivity Session Policy Info */}
-                  <div className="p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl flex items-start gap-2.5 text-indigo-900">
-                    <Clock className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
-                    <div className="text-[11px] leading-relaxed">
-                      <strong className="block font-bold text-indigo-950">Continuous Login & 6-Day Inactivity Policy</strong>
-                      <span>
-                        Your login session stays active across app launches until you explicitly sign out, or until the app remains unused for more than 6 days.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div className="pt-3 border-t border-slate-100 flex items-center justify-end">
                 <button
                   type="submit"
@@ -1142,7 +1095,7 @@ function OwnerProfileContent() {
                   className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-md transition flex items-center gap-2 disabled:opacity-50"
                 >
                   <Save className="w-4 h-4" />
-                  {loading ? 'Saving...' : 'Save Security Settings'}
+                  {loading ? 'Updating...' : 'Update Password'}
                 </button>
               </div>
             </form>

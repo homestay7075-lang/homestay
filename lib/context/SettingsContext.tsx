@@ -15,7 +15,7 @@ const DEFAULT_SETTINGS: HostelSettings = {
   id: 'settings-1',
   name: 'Green Palms Elite Hostel',
   tagline: 'Modern, Safe & Premium Living for Students & Professionals',
-  description: 'Experience premier student living with smart digital management, biometric security, air-conditioned rooms, hygienic dining, and ultra-high-speed fiber Wi-Fi.',
+  description: 'Experience premier student living with smart digital management, round-the-clock security, air-conditioned rooms, hygienic dining, and ultra-high-speed fiber Wi-Fi.',
   address: '142 Residency Road, Tech Park Avenue, Koramangala 4th Block',
   city: 'Bengaluru',
   state: 'Karnataka',
@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: HostelSettings = {
   currency: 'INR',
   currencySymbol: '₹',
   upiId: '9876543210@upi',
-  rulesAndPolicies: '1. Biometric entry after 10:30 PM requires warden pre-approval.\n2. Quiet study hours observed between 11:00 PM and 6:00 AM.\n3. Monthly dues payable within 5 days of cycle date.\n4. Non-transferable bed allocation.',
+  rulesAndPolicies: '1. Gate entry after 10:30 PM requires warden pre-approval.\n2. Quiet study hours observed between 11:00 PM and 6:00 AM.\n3. Monthly dues payable within 5 days of cycle date.\n4. Non-transferable bed allocation.',
   updatedAt: '2026-09-04T17:03:58.319Z',
 };
 

@@ -63,7 +63,7 @@ export default function HomePage() {
             </h1>
 
             <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed" suppressHydrationWarning>
-              {settings.tagline || 'Modern, Safe & Premium Living for Students & Professionals'}. Designed for focused students and young professionals seeking pristine hygiene, high-speed fiber internet, biometric security, and transparent joining-date billing.
+              {settings.tagline || 'Modern, Safe & Premium Living for Students & Professionals'}. Designed for focused students and young professionals seeking pristine hygiene, high-speed fiber internet, round-the-clock security, and transparent joining-date billing.
             </p>
 
             {/* Key Highlights row */}
@@ -78,7 +78,7 @@ export default function HomePage() {
               </div>
               <div className="p-4 rounded-2xl bg-slate-800/40 border border-slate-700/40">
                 <div className="text-2xl sm:text-3xl font-black text-white font-display">24/7</div>
-                <div className="text-xs text-slate-400 mt-1">Biometric Guarding</div>
+                <div className="text-xs text-slate-400 mt-1">Campus Guarding</div>
               </div>
             </div>
           </div>
@@ -116,7 +116,7 @@ export default function HomePage() {
                       Uncompromised Safety
                     </div>
                     <p className="text-xs text-slate-500">
-                      24/7 CCTV surveillance, biometric entry turnstiles, and trained residential wardens always on campus.
+                      24/7 CCTV surveillance, smart digital access, and trained residential wardens always on campus.
                     </p>
                   </div>
 

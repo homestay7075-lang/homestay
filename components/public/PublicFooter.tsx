@@ -32,7 +32,7 @@ export default function PublicFooter() {
             </p>
             <div className="pt-2 flex items-center gap-2 text-xs text-slate-400">
               <Shield className="w-4 h-4 text-emerald-400" />
-              <span>24/7 CCTV & Biometric Security</span>
+              <span>24/7 CCTV & Smart Security</span>
             </div>
           </div>
 
