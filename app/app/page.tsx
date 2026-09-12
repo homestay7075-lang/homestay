@@ -556,7 +556,7 @@ Dear Owner, I have completed the rent dues payment via UPI. Please verify this r
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex justify-center selection:bg-indigo-600 selection:text-white">
       {/* Mobile Frame Container (Max width 440px for native mobile fidelity on desktop) */}
-      <div className="w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl relative pb-20 border-x border-slate-800">
+      <div className={`w-full max-w-md min-h-screen bg-slate-900 flex flex-col shadow-2xl relative pb-20 border-x border-slate-800 ${voucherModalState.isOpen ? 'print:hidden' : ''}`}>
         {/* ================= TOP MOBILE HEADER (HOME / PASS ONLY) ================= */}
         {activeTab === 'HOME' && (
           <header className="px-4 py-3 border-b border-slate-800 bg-slate-900/95 backdrop-blur-md sticky top-0 z-30 flex items-center justify-between gap-2">

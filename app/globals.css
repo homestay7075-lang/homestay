@@ -173,6 +173,72 @@ h1, h2, h3, h4, h5, h6, .font-display {
     overflow: visible !important;
   }
 
+  /* ================= SINGLE-STUDENT PRINT ISOLATION ================= */
+  /* Prevents any other student data, background tables, or directories from leaking into print */
+  body.printing-isolated-active * {
+    visibility: hidden !important;
+  }
+  body.printing-isolated-active .print-target-active,
+  body.printing-isolated-active .print-target-active * {
+    visibility: visible !important;
+  }
+  body.printing-isolated-active .print-target-active {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 16px !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  /* Automatic protection for VoucherModal during print (Ctrl+P or browser print) */
+  body:has(.voucher-modal-overlay) > *:not(:has(.voucher-modal-overlay)),
+  body:has(.voucher-modal-overlay) main,
+  body:has(.voucher-modal-overlay) nav,
+  body:has(.voucher-modal-overlay) aside,
+  body:has(.voucher-modal-overlay) header {
+    display: none !important;
+  }
+  body:has(.voucher-modal-overlay) * {
+    visibility: hidden !important;
+  }
+  body:has(.voucher-modal-overlay) .printable-voucher,
+  body:has(.voucher-modal-overlay) .printable-voucher * {
+    visibility: visible !important;
+  }
+  body:has(.voucher-modal-overlay) .printable-voucher {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 16px !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+  }
+
+  /* Automatic protection for Admission Slip during print */
+  body:has(.printable-admission-slip:not(.hidden)) * {
+    visibility: hidden !important;
+  }
+  body:has(.printable-admission-slip:not(.hidden)) .printable-admission-slip,
+  body:has(.printable-admission-slip:not(.hidden)) .printable-admission-slip * {
+    visibility: visible !important;
+  }
+  body:has(.printable-admission-slip:not(.hidden)) .printable-admission-slip {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 16px !important;
+    margin: 0 !important;
+    background: #ffffff !important;
+  }
+
   @page {
     margin: 10mm 12mm;
     size: A4 portrait;

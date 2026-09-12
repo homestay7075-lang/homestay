@@ -13,6 +13,10 @@ export interface PrintOptions {
  * Clones all active document styles, Tailwind classes, and typography into an isolated
  * printable context, ensuring pixel-perfect receipts, invoices, and reports across
  * desktop browsers (Chrome, Edge, Safari, Firefox) and mobile webviews.
+ *
+ * GUARANTEE: When printing an invoice, due, payment receipt, or admission slip,
+ * ONLY that target document is printed. All other students' records, directory tables,
+ * dues ledgers, and background pages are strictly excluded from the print output.
  */
 export function printElement(
   target: HTMLElement | string,
@@ -24,20 +28,7 @@ export function printElement(
       return;
     }
 
-    // 1. Check for native Android WebView bridge first
-    if ((window as any).AndroidApp && typeof (window as any).AndroidApp.printPage === 'function') {
-      try {
-        options.onBeforePrint?.();
-        (window as any).AndroidApp.printPage();
-        options.onAfterPrint?.();
-        resolve(true);
-        return;
-      } catch (e) {
-        console.warn('Native AndroidApp.printPage failed, falling back to iframe print:', e);
-      }
-    }
-
-    // 2. Resolve target element
+    // 1. Resolve target element
     let element: HTMLElement | null = null;
     if (typeof target === 'string') {
       element = document.querySelector<HTMLElement>(target);
@@ -56,42 +47,39 @@ export function printElement(
 
     options.onBeforePrint?.();
 
+    // 2. Mark target and body for single-student print isolation so that in any
+    // direct print or webview print, ONLY the target element is visible and everything else is hidden
+    document.body.classList.add('printing-isolated-active');
+    element.classList.add('print-target-active');
+
+    const cleanupIsolation = () => {
+      document.body.classList.remove('printing-isolated-active');
+      element?.classList.remove('print-target-active');
+      options.onAfterPrint?.();
+    };
+
     try {
-      // 3. Create isolated offscreen iframe
-      const iframe = document.createElement('iframe');
-      iframe.setAttribute(
-        'style',
-        'position:fixed;top:-9999px;left:-9999px;width:1024px;height:768px;border:none;opacity:0;pointer-events:none;'
-      );
-      iframe.setAttribute('aria-hidden', 'true');
-      document.body.appendChild(iframe);
-
-      const frameDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!frameDoc) {
-        throw new Error('Unable to access iframe document');
-      }
-
-      // 4. Extract all active style tags and linked stylesheets from main document
+      // 3. Extract all active style tags and linked stylesheets from main document
       let collectedStyles = '';
       const styleElements = document.querySelectorAll('style, link[rel="stylesheet"]');
       styleElements.forEach((el) => {
         collectedStyles += el.outerHTML + '\n';
       });
 
-      // 5. Clone target element content
+      // 4. Clone target element content
       const clonedNode = element.cloneNode(true) as HTMLElement;
-      // If the node had 'hidden' or 'display: none', remove it for the print view
+      // Remove any 'hidden' or 'print-only' classes from cloned node
       clonedNode.classList.remove('hidden');
+      clonedNode.classList.remove('print-only');
       clonedNode.style.display = 'block';
       clonedNode.style.visibility = 'visible';
 
-      // 6. Build self-contained HTML payload
+      // 5. Build self-contained HTML payload containing ONLY this document
       const title = options.title || document.title || 'Print Document';
       const pageMargin = options.pageMargin || '10mm 12mm';
       const orientation = options.landscape ? 'A4 landscape' : 'A4 portrait';
 
-      frameDoc.open();
-      frameDoc.write(`
+      const payloadHtml = `
         <!DOCTYPE html>
         <html lang="en">
           <head>
@@ -130,8 +118,8 @@ export function printElement(
               .printable-document, .printable-voucher, .printable-admission-slip {
                 width: 100% !important;
                 max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
+                margin: 0 auto !important;
+                padding: 16px !important;
                 border: none !important;
                 box-shadow: none !important;
               }
@@ -145,20 +133,62 @@ export function printElement(
             ${clonedNode.outerHTML}
           </body>
         </html>
-      `);
+      `;
+
+      // 6. Native Android bridge: if printHtml exists, use it with the isolated HTML
+      if ((window as any).AndroidApp && typeof (window as any).AndroidApp.printHtml === 'function') {
+        try {
+          (window as any).AndroidApp.printHtml(payloadHtml, title);
+          cleanupIsolation();
+          resolve(true);
+          return;
+        } catch (e) {
+          console.warn('Native AndroidApp.printHtml failed, falling back:', e);
+        }
+      }
+
+      // If Android bridge has printPage, printing-isolated-active guarantees only target is rendered
+      if ((window as any).AndroidApp && typeof (window as any).AndroidApp.printPage === 'function') {
+        try {
+          (window as any).AndroidApp.printPage();
+          setTimeout(() => {
+            cleanupIsolation();
+            resolve(true);
+          }, 1500);
+          return;
+        } catch (e) {
+          console.warn('Native AndroidApp.printPage failed, falling back to iframe print:', e);
+        }
+      }
+
+      // 7. Create isolated offscreen iframe for standard web/desktop printing
+      const iframe = document.createElement('iframe');
+      iframe.setAttribute(
+        'style',
+        'position:fixed;top:-9999px;left:-9999px;width:1024px;height:768px;border:none;opacity:0;pointer-events:none;'
+      );
+      iframe.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(iframe);
+
+      const frameDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!frameDoc) {
+        throw new Error('Unable to access iframe document');
+      }
+
+      frameDoc.open();
+      frameDoc.write(payloadHtml);
       frameDoc.close();
 
-      // 7. Allow stylesheets and fonts to parse and render
       const triggerPrint = () => {
         try {
           iframe.contentWindow?.focus();
           iframe.contentWindow?.print();
-          options.onAfterPrint?.();
+          cleanupIsolation();
           resolve(true);
         } catch (err) {
           console.warn('Iframe print call error:', err);
           window.print();
-          options.onAfterPrint?.();
+          cleanupIsolation();
           resolve(false);
         } finally {
           setTimeout(() => {
@@ -171,7 +201,6 @@ export function printElement(
         }
       };
 
-      // Ensure styles are applied before printing
       if (iframe.contentWindow) {
         setTimeout(triggerPrint, 350);
       } else {
@@ -180,7 +209,7 @@ export function printElement(
     } catch (e) {
       console.warn('printElement encountered an issue, falling back to window.print():', e);
       window.print();
-      options.onAfterPrint?.();
+      cleanupIsolation();
       resolve(false);
     }
   });

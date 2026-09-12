@@ -478,6 +478,40 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @android.webkit.JavascriptInterface
+        public void printHtml(String html, String title) {
+            runOnUiThread(() -> {
+                try {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        WebView tempWebView = new WebView(MainActivity.this);
+                        tempWebView.setWebViewClient(new WebViewClient() {
+                            @Override
+                            public void onPageFinished(WebView view, String url) {
+                                try {
+                                    android.print.PrintManager printManager = (android.print.PrintManager) getSystemService(Context.PRINT_SERVICE);
+                                    String jobName = (title != null && !title.isEmpty() ? title : "Homestay_Document") + "_" + System.currentTimeMillis();
+                                    android.print.PrintDocumentAdapter printAdapter;
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                        printAdapter = view.createPrintDocumentAdapter(jobName);
+                                    } else {
+                                        printAdapter = view.createPrintDocumentAdapter();
+                                    }
+                                    if (printManager != null) {
+                                        printManager.print(jobName, printAdapter, new android.print.PrintAttributes.Builder().build());
+                                    }
+                                } catch (Exception ex) {
+                                    Toast.makeText(MainActivity.this, "Print error: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                        tempWebView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
+                    }
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Cannot start printing: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        @android.webkit.JavascriptInterface
         public void printPage() {
             runOnUiThread(() -> {
                 try {
